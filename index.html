@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      // Safeguard against iframe/sandbox environments where window.fetch has only a getter
+      (function() {
+        try {
+          var target = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : self);
+          if (target && target.fetch) {
+            var _origFetch = target.fetch.bind(target);
+            Object.defineProperty(target, 'fetch', {
+              get: function() {
+                return _origFetch;
+              },
+              set: function(fn) {
+                _origFetch = fn;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (e) {
+          // Gracefully continue
+        }
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI SEO Content Studio</title>
+    <meta name="description" content="Production-ready AI-powered SEO content platform with Gemini API research, human-first article generation, WordPress publishing, and multi-channel syndication to Facebook, Pinterest, and Instagram." />
+    <meta property="og:title" content="AI SEO Content Studio" />
+    <meta property="og:description" content="Production-ready AI-powered SEO content platform with Gemini API research, human-first article generation, WordPress publishing, and multi-channel syndication to Facebook, Pinterest, and Instagram." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

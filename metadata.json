@@ -1,0 +1,6 @@
+{
+  "name": "AI SEO Content Studio",
+  "description": "Production-ready AI-powered SEO content platform with Gemini API keyword & SERP research, human-first article generation, WordPress publishing, and multi-channel syndication to Facebook, Pinterest, and Instagram.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
