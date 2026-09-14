@@ -34,16 +34,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Build static site
         run: npx vite build
         env:
           NODE_ENV: production
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
 
       - name: Ensure .nojekyll exists
         run: touch dist/.nojekyll
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

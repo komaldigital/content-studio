@@ -15,14 +15,20 @@ import { SettingsAndBridgeView } from './components/SettingsAndBridgeView.js';
 import { JobProgressModal } from './components/JobProgressModal.js';
 import { api } from './api.js';
 import { Article, AppSettings, Job, ContentCalendarItem, TopicClusterNode } from './types.js';
+import {
+  FALLBACK_SETTINGS,
+  FALLBACK_ARTICLES,
+  FALLBACK_CALENDAR,
+  FALLBACK_CLUSTERS
+} from './data/fallbackData.js';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('generator');
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
-  const [settings, setSettings] = useState<AppSettings | null>(null);
-  const [calendar, setCalendar] = useState<ContentCalendarItem[]>([]);
-  const [clusters, setClusters] = useState<TopicClusterNode[]>([]);
+  const [articles, setArticles] = useState<Article[]>(FALLBACK_ARTICLES);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(FALLBACK_ARTICLES[0]?.id || null);
+  const [settings, setSettings] = useState<AppSettings | null>(FALLBACK_SETTINGS);
+  const [calendar, setCalendar] = useState<ContentCalendarItem[]>(FALLBACK_CALENDAR);
+  const [clusters, setClusters] = useState<TopicClusterNode[]>(FALLBACK_CLUSTERS);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [activeJobModalId, setActiveJobModalId] = useState<string | null>(null);
   const [targetPinterestArticle, setTargetPinterestArticle] = useState<Article | null>(null);
@@ -38,12 +44,12 @@ export default function App() {
         api.getClusters(),
         api.getJobs()
       ]);
-      setArticles(arts);
-      setSettings(sets);
-      setCalendar(cal);
-      setClusters(clus);
-      setJobs(jbs);
-      if (!selectedArticleId && arts.length > 0) {
+      if (arts && arts.length > 0) setArticles(arts);
+      if (sets) setSettings(sets);
+      if (cal && cal.length > 0) setCalendar(cal);
+      if (clus && clus.length > 0) setClusters(clus);
+      if (jbs) setJobs(jbs);
+      if (!selectedArticleId && arts && arts.length > 0) {
         setSelectedArticleId(arts[0].id);
       }
     } catch (err) {

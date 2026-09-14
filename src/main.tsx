@@ -4,29 +4,13 @@ import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import './index.css';
 
-// Safeguard against environments where window.fetch has only a getter
-try {
-  if (typeof window !== 'undefined' && window.fetch) {
-    let currentFetch = window.fetch.bind(window);
-    Object.defineProperty(window, 'fetch', {
-      get() {
-        return currentFetch;
-      },
-      set(fn) {
-        currentFetch = fn;
-      },
-      configurable: true,
-      enumerable: true,
-    });
-  }
-} catch {
-  // Graceful fallback
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </StrictMode>,
+  );
 }
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </StrictMode>,
-);
