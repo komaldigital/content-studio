@@ -1,4 +1,16 @@
-import { Article, AppSettings, ContentCalendarItem, TopicClusterNode, AIModelDescriptor, BrandVoice, SitemapConfig, AutomationConfig, DiscoveredKeyword } from '../types.js';
+import {
+  Article,
+  AppSettings,
+  ContentCalendarItem,
+  TopicClusterNode,
+  AIModelDescriptor,
+  BrandVoice,
+  BloggingAutomationConfig,
+  DiscoveredKeyword,
+  SeoScoreBreakdown,
+  ArticleImage,
+  ContentBrief
+} from '../types.js';
 
 export const FALLBACK_MODELS: AIModelDescriptor[] = [
   {
@@ -7,8 +19,6 @@ export const FALLBACK_MODELS: AIModelDescriptor[] = [
     provider: 'OpenRouter',
     contextWindow: '1M tokens',
     costPer1kWords: '$0.0003',
-    speedRating: 'fast',
-    qualityRating: 'balanced',
     description: 'Blazing fast multimodal reasoning for high-volume content synthesis.',
     bestFor: 'Bulk articles, outlines, and rapid intent analysis'
   },
@@ -18,8 +28,6 @@ export const FALLBACK_MODELS: AIModelDescriptor[] = [
     provider: 'OpenRouter',
     contextWindow: '200k tokens',
     costPer1kWords: '$0.009',
-    speedRating: 'moderate',
-    qualityRating: 'expert',
     description: 'Gold standard editorial prose, nuanced tone control, and zero fluff.',
     bestFor: 'Pillar guides, in-depth reviews, and complex tutorials'
   },
@@ -29,8 +37,6 @@ export const FALLBACK_MODELS: AIModelDescriptor[] = [
     provider: 'OpenRouter',
     contextWindow: '128k tokens',
     costPer1kWords: '$0.0075',
-    speedRating: 'fast',
-    qualityRating: 'expert',
     description: 'Omni reasoning model with strong search formatting and concise tables.',
     bestFor: 'Data-dense comparisons, product roundups, and FAQs'
   },
@@ -40,8 +46,6 @@ export const FALLBACK_MODELS: AIModelDescriptor[] = [
     provider: 'Google',
     contextWindow: '1M tokens',
     costPer1kWords: 'Free tier / Ultra low',
-    speedRating: 'fast',
-    qualityRating: 'balanced',
     description: 'Native Google GenAI SDK integration with built-in Google Grounding.',
     bestFor: 'Real-time Google Grounding search and fact-checked citations'
   }
@@ -87,6 +91,29 @@ export const FALLBACK_BRAND_VOICES: BrandVoice[] = [
     isDefault: false
   }
 ];
+
+export const FALLBACK_AUTOMATIONS: BloggingAutomationConfig = {
+  enabled: false,
+  publishingCadence: 'daily',
+  articlesPerDay: 2,
+  defaultStatus: 'draft',
+  autoGenerateImages: true,
+  enforceBrandVoiceId: 'voice_expert',
+  enforceInternalLinking: true,
+  timeWindowStart: '09:00',
+  timeWindowEnd: '18:00',
+  nextScheduledRun: new Date(Date.now() + 86400000).toISOString(),
+  recentAutomationLogs: [
+    {
+      id: 'log_auto_1',
+      timestamp: new Date().toISOString(),
+      action: 'Automated Draft Generation',
+      articleTitle: 'Top 10 High-Protein Meal Prep Recipes',
+      status: 'success',
+      details: 'Article generated with intent visuals and internal links.'
+    }
+  ]
+};
 
 export const FALLBACK_SETTINGS: AppSettings & { geminiApiKeyConfigured: boolean } = {
   activeModel: 'gemini-3.8-flash',
@@ -179,28 +206,7 @@ export const FALLBACK_SETTINGS: AppSettings & { geminiApiKeyConfigured: boolean 
       }
     ]
   },
-  automations: {
-    enabled: false,
-    publishingCadence: 'daily',
-    articlesPerDay: 2,
-    defaultStatus: 'draft',
-    autoGenerateImages: true,
-    enforceBrandVoiceId: 'voice_expert',
-    enforceInternalLinking: true,
-    timeWindowStart: '09:00',
-    timeWindowEnd: '18:00',
-    nextScheduledRun: new Date(Date.now() + 86400000).toISOString(),
-    recentAutomationLogs: [
-      {
-        id: 'log_auto_1',
-        timestamp: new Date().toISOString(),
-        action: 'Automated Draft Generation',
-        articleTitle: 'Top 10 High-Protein Meal Prep Recipes',
-        status: 'success',
-        details: 'Article generated with intent visuals and internal links.'
-      }
-    ]
-  },
+  automations: FALLBACK_AUTOMATIONS,
   wordpress: {
     endpoint: '',
     username: '',
@@ -236,6 +242,85 @@ export const FALLBACK_SETTINGS: AppSettings & { geminiApiKeyConfigured: boolean 
     accessToken: ''
   },
   testMode: false
+};
+
+const sampleSeoScore: SeoScoreBreakdown = {
+  searchIntent: 20,
+  topicalCoverage: 19,
+  contentQuality: 19,
+  structure: 10,
+  keywordOptimization: 10,
+  internalLinking: 4,
+  externalSources: 5,
+  media: 5,
+  schema: 4,
+  total: 96,
+  explanations: [
+    {
+      category: 'Search Intent Fit',
+      score: 20,
+      max: 20,
+      reason: 'Direct answer matrix in top viewport satisfying rapid informational search intent.'
+    },
+    {
+      category: 'Topical Coverage & EEAT',
+      score: 19,
+      max: 20,
+      reason: 'Covers temperature thresholds, resting principles, and foolproof techniques.'
+    }
+  ]
+};
+
+const sampleFeaturedImage: ArticleImage = {
+  id: 'img_feat_1',
+  type: 'featured',
+  url: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=1200&auto=format&fit=crop&q=80',
+  altText: 'Golden seared garlic butter chicken breast in cast iron skillet with fresh rosemary herbs',
+  caption: 'A 20-minute weeknight skillet meal made with pantry herbs and garlic.',
+  aspectRatio: '16:9'
+};
+
+const sampleBrief: ContentBrief = {
+  id: 'brief_sample_1',
+  primaryKeyword: 'easy chicken dinner recipes',
+  secondaryKeywords: ['quick chicken dinners', 'weeknight chicken recipes', 'garlic skillet chicken'],
+  searchIntent: {
+    primaryIntent: 'recipe',
+    userGoal: 'Cook a quick, satisfying family dinner with chicken in under 35 minutes',
+    expectedContentType: 'recipe guide with step-by-step cooking steps',
+    expectedDepth: 'comprehensive',
+    likelyQuestions: ['How long does it take?', 'Can I use chicken thighs?'],
+    commercialViability: 'medium'
+  },
+  targetAudience: 'Busy families and home cooks',
+  contentType: 'recipe',
+  recommendedTitle: 'Easy Chicken Dinner Recipes: 7 Fast Weeknight Meals for Busy Families',
+  alternativeTitles: ['7 Simple Weeknight Chicken Dinners In 35 Minutes Or Less'],
+  slug: 'easy-chicken-dinner-recipes',
+  metaDescription: 'Discover 7 easy chicken dinner recipes ready in under 35 minutes.',
+  alternativeMetaDescriptions: [],
+  h1: 'Easy Chicken Dinner Recipes: 7 Fast Weeknight Meals for Busy Families',
+  outline: [
+    { h2: 'Quick Reference: Cook Time & Flavor Profiles' },
+    { h2: '3 Foundational Rules for Juicier Weeknight Chicken' },
+    { h2: '1. 20-Minute Garlic Herb Butter Skillet Chicken' }
+  ],
+  entities: ['Chicken breast', 'Garlic', 'Rosemary', 'Cast iron skillet', 'Internal temperature'],
+  relatedConcepts: ['Meal prep', 'Sheet pan cooking', 'Sear and baste technique'],
+  questionsToAnswer: ['How to prevent chicken breasts from drying out?'],
+  contentGapsToAddress: ['Exact internal temperature guide (165°F)'],
+  internalLinkOpportunities: ['/guides/cast-iron-care', '/guides/quick-sides'],
+  externalSourceOpportunities: [
+    {
+      type: 'gov',
+      name: 'USDA Food Safety Inspection Service (FSIS)',
+      relevance: 'Safe minimum internal temperature recommendation for poultry (165°F / 74°C).'
+    }
+  ],
+  imageRecommendations: [],
+  schemaRecommendation: 'Recipe',
+  suggestedWordCount: 1650,
+  createdAt: new Date().toISOString()
 };
 
 export const FALLBACK_ARTICLES: Article[] = [
@@ -295,46 +380,64 @@ Golden seared chicken breasts bathed in garlic, fresh rosemary, and a splash of 
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     wordpressStatus: 'draft',
-    seoScore: 96,
+    schemaType: 'Recipe',
+    jsonLdSchema: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Recipe',
+      name: 'Easy Garlic Herb Butter Skillet Chicken',
+      prepTime: 'PT5M',
+      cookTime: 'PT15M',
+      totalTime: 'PT20M',
+      recipeYield: '4 servings'
+    }, null, 2),
+    seoScore: sampleSeoScore,
+    improvementPasses: 1,
     sections: [
       {
         id: 'sec_1',
         heading: 'Quick Reference: Cook Time & Flavor Profiles',
         level: 2,
-        content: 'Summary comparison table of seven fast weeknight recipes.',
-        estimatedWordCount: 150
+        content: 'Summary comparison table of seven fast weeknight recipes.'
       },
       {
         id: 'sec_2',
         heading: '3 Foundational Rules for Juicier Weeknight Chicken',
         level: 2,
-        content: 'Culinary principles covering thickness pounding, moisture drying, and meat resting.',
-        estimatedWordCount: 220
+        content: 'Culinary principles covering thickness pounding, moisture drying, and meat resting.'
       },
       {
         id: 'sec_3',
         heading: '1. 20-Minute Garlic Herb Butter Skillet Chicken',
         level: 2,
-        content: 'Step by step skillet recipe with ingredient quantities and internal temperature targets.',
-        estimatedWordCount: 280
+        content: 'Step by step skillet recipe with ingredient quantities and internal temperature targets.'
       }
     ],
-    featuredImage: {
-      url: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=1200&auto=format&fit=crop&q=80',
-      altText: 'Golden seared garlic butter chicken breast in cast iron skillet with fresh rosemary herbs',
-      title: 'Garlic Butter Skillet Chicken',
-      caption: 'A 20-minute weeknight skillet meal made with pantry herbs and garlic.',
-      pinterestOptimal: true
-    },
-    sectionImages: [
+    featuredImage: sampleFeaturedImage,
+    articleImages: [
+      sampleFeaturedImage,
       {
+        id: 'img_sec_1',
+        type: 'article',
         url: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=1200&auto=format&fit=crop&q=80',
         altText: 'Plated chicken dinner with roasted vegetables and fresh herbs',
         caption: 'Properly rested chicken preserves flavorful juices.',
-        sectionHeading: '3 Foundational Rules for Juicier Weeknight Chicken'
+        sectionHeading: '3 Foundational Rules for Juicier Weeknight Chicken',
+        aspectRatio: '16:9'
       }
     ],
-    faq: [
+    internalLinks: [],
+    externalSources: [
+      {
+        name: 'USDA Food Safety Inspection Service (FSIS)',
+        url: 'https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/poultry/chicken-from-farm-to-table',
+        authorityType: 'gov',
+        context: '165°F safe internal cooking temperature for poultry.',
+        status: 'included'
+      }
+    ],
+    factCheckFlags: [],
+    isHighRiskContent: false,
+    faqs: [
       {
         question: 'How do I know when chicken breasts are fully cooked without drying them out?',
         answer: 'Insert an instant-read digital meat thermometer into the thickest part of the breast. Remove the chicken when it hits 162°F (72°C); carryover cooking during the 5-minute rest will safely bring it to the USDA recommended 165°F (74°C).'
@@ -344,35 +447,8 @@ Golden seared chicken breasts bathed in garlic, fresh rosemary, and a splash of 
         answer: 'Yes! Boneless chicken thighs are more forgiving and naturally juicier due to higher myoglobin and fat content. Cook them to an internal temperature of 175°F for optimal tenderness.'
       }
     ],
-    schemaMarkup: {
-      type: 'Recipe',
-      rawJson: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Recipe',
-        name: 'Easy Garlic Herb Butter Skillet Chicken',
-        prepTime: 'PT5M',
-        cookTime: 'PT15M',
-        totalTime: 'PT20M',
-        recipeYield: '4 servings'
-      }, null, 2)
-    },
-    auditReport: {
-      overallScore: 96,
-      breakdown: {
-        keywordIntentFit: 98,
-        structureAndReadability: 96,
-        visualsAndSchema: 95,
-        originalityAndEEAT: 96
-      },
-      strengths: [
-        'Quick-answer comparison matrix provided in top 15% of viewport.',
-        'Clear culinary thresholds with internal temperature benchmarks.',
-        'High-contrast scannable steps with no AI conversational fluff.'
-      ],
-      improvementOpportunities: [
-        'Consider embedding an interactive cook-time slider for custom serving sizes.'
-      ]
-    }
+    versions: [],
+    brief: sampleBrief
   }
 ];
 
@@ -383,7 +459,7 @@ export const FALLBACK_CALENDAR: ContentCalendarItem[] = [
     keyword: 'easy chicken dinner recipes',
     articleType: 'recipe',
     publishDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-    status: 'review',
+    status: 'drafted',
     priority: 'high',
     articleId: 'art_sample_1',
     pinterestStatus: 'ready'
@@ -404,27 +480,27 @@ export const FALLBACK_CLUSTERS: TopicClusterNode[] = [
   {
     id: 'cluster_root_1',
     title: 'Easy Weeknight Dinners',
-    type: 'pillar',
+    level: 'pillar',
     keyword: 'easy weeknight dinners',
-    difficulty: 'high',
-    searchVolume: '74,000/mo',
+    intent: 'informational',
+    status: 'planned',
     children: [
       {
         id: 'cluster_sub_1',
         title: 'Easy Chicken Dinner Recipes',
-        type: 'cluster',
+        level: 'cluster',
         keyword: 'easy chicken dinner recipes',
+        intent: 'recipe',
+        status: 'generated',
         articleId: 'art_sample_1',
-        difficulty: 'medium',
-        searchVolume: '49,500/mo',
         children: [
           {
             id: 'cluster_sub_1_1',
             title: '20-Minute Garlic Herb Chicken Skillet',
-            type: 'subcluster',
+            level: 'supporting',
             keyword: 'garlic herb chicken skillet',
-            difficulty: 'low',
-            searchVolume: '6,600/mo'
+            intent: 'recipe',
+            status: 'planned'
           }
         ]
       }
@@ -436,27 +512,31 @@ export const FALLBACK_SAVED_KEYWORDS: DiscoveredKeyword[] = [
   {
     id: 'kw_1',
     keyword: 'easy chicken dinner recipes',
-    searchVolume: '49,500/mo',
-    difficulty: 'medium',
-    difficultyScore: 42,
-    cpc: '$1.15',
-    searchIntent: 'informational',
-    relevance: 'High',
-    topicCluster: 'Quick Dinners',
-    suggestedFormat: 'recipe',
-    dateSaved: new Date().toISOString()
+    intent: 'recipe',
+    volumeTier: 'High (>10k)',
+    difficulty: 42,
+    difficultyLevel: 'Medium',
+    cpcTier: 'Medium',
+    trend: 'stable',
+    serpFeatures: ['Recipe Rich Card', 'People Also Ask', 'Images'],
+    topQuestions: ['How long does it take?', 'Can I use frozen chicken?'],
+    relevanceScore: 98,
+    clusterCategory: 'Quick Dinners',
+    isSaved: true
   },
   {
     id: 'kw_2',
     keyword: 'sheet pan chicken thighs and potatoes',
-    searchVolume: '14,800/mo',
-    difficulty: 'low',
-    difficultyScore: 28,
-    cpc: '$0.85',
-    searchIntent: 'informational',
-    relevance: 'High',
-    topicCluster: 'Sheet Pan Dinners',
-    suggestedFormat: 'recipe',
-    dateSaved: new Date().toISOString()
+    intent: 'recipe',
+    volumeTier: 'High (>10k)',
+    difficulty: 28,
+    difficultyLevel: 'Easy',
+    cpcTier: 'Low',
+    trend: 'rising',
+    serpFeatures: ['Recipe Rich Card', 'Video Snippets'],
+    topQuestions: ['What temperature to roast at?'],
+    relevanceScore: 94,
+    clusterCategory: 'Sheet Pan Dinners',
+    isSaved: true
   }
 ];

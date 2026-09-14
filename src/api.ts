@@ -74,65 +74,108 @@ export const api = {
 
     // Client-side fallback for static deployments (GitHub Pages)
     const normalized = seedKeyword.trim().toLowerCase();
+    const fallbackDiscoveredKeywords: DiscoveredKeyword[] = [
+      {
+        id: 'kw_fallback_1',
+        keyword: normalized,
+        intent: 'informational',
+        volumeTier: 'High (>10k)',
+        difficulty: 42,
+        difficultyLevel: 'Medium',
+        cpcTier: 'Medium',
+        trend: 'stable',
+        serpFeatures: ['Featured Snippet', 'People Also Ask'],
+        topQuestions: [`What is the best way to do ${normalized}?`],
+        relevanceScore: 98,
+        clusterCategory: 'Core Guide'
+      },
+      {
+        id: 'kw_fallback_2',
+        keyword: `best ${normalized} for beginners`,
+        intent: 'how-to',
+        volumeTier: 'Medium (1k-10k)',
+        difficulty: 24,
+        difficultyLevel: 'Easy',
+        cpcTier: 'Low',
+        trend: 'rising',
+        serpFeatures: ['Video Carousel', 'People Also Ask'],
+        topQuestions: [`How to start with ${normalized}?`],
+        relevanceScore: 95,
+        clusterCategory: 'Beginners'
+      },
+      {
+        id: 'kw_fallback_3',
+        keyword: `quick 30 minute ${normalized}`,
+        intent: 'recipe',
+        volumeTier: 'High (>10k)',
+        difficulty: 29,
+        difficultyLevel: 'Easy',
+        cpcTier: 'Medium',
+        trend: 'rising',
+        serpFeatures: ['Recipe Cards', 'Images'],
+        topQuestions: [`Can I make ${normalized} in 30 minutes?`],
+        relevanceScore: 92,
+        clusterCategory: 'Fast Execution'
+      }
+    ];
+
     return {
       seedKeyword,
-      intentSummary: `Strong informational intent for "${seedKeyword}". Readers seek actionable recipes, structured steps, and quick answers.`,
-      keywordCount: 6,
-      keywords: [
+      targetCountry: country,
+      targetLanguage: language,
+      primaryIntent: 'informational',
+      overviewSummary: `Strong informational intent for "${seedKeyword}". Readers seek actionable steps, benchmarks, and direct answers.`,
+      totalResults: fallbackDiscoveredKeywords.length,
+      averageDifficulty: 32,
+      topOpportunities: [
+        `High CTR potential for step-by-step tutorial format`,
+        `Low competition in long-tail beginner queries`
+      ],
+      intentBreakdown: {
+        informational: 1,
+        howTo: 1,
+        commercial: 0,
+        transactional: 0,
+        comparison: 1
+      },
+      clusters: [
         {
-          keyword: normalized,
-          searchVolume: '33,100/mo',
-          difficulty: 'medium',
-          difficultyScore: 42,
-          cpc: '$1.20',
-          searchIntent: 'informational',
-          relevance: 'High',
-          topicCluster: 'Core Guide',
-          suggestedFormat: 'recipe'
+          name: 'Core Guide',
+          description: `Foundational concepts for ${seedKeyword}`,
+          keywordCount: 1,
+          primaryIntent: 'informational',
+          keywords: [fallbackDiscoveredKeywords[0]]
         },
         {
-          keyword: `best ${normalized} for beginners`,
-          searchVolume: '8,400/mo',
-          difficulty: 'low',
-          difficultyScore: 24,
-          cpc: '$0.85',
-          searchIntent: 'informational',
-          relevance: 'High',
-          topicCluster: 'Beginners',
-          suggestedFormat: 'how-to'
-        },
-        {
-          keyword: `quick 30 minute ${normalized}`,
-          searchVolume: '14,200/mo',
-          difficulty: 'low',
-          difficultyScore: 29,
-          cpc: '$0.95',
-          searchIntent: 'informational',
-          relevance: 'High',
-          topicCluster: 'Fast Meals',
-          suggestedFormat: 'recipe'
-        },
-        {
-          keyword: `${normalized} meal prep ideas`,
-          searchVolume: '11,500/mo',
-          difficulty: 'medium',
-          difficultyScore: 38,
-          cpc: '$1.05',
-          searchIntent: 'informational',
-          relevance: 'Medium',
-          topicCluster: 'Meal Prep',
-          suggestedFormat: 'listicle'
+          name: 'Beginner Tutorials',
+          description: `Actionable entry-level queries`,
+          keywordCount: 1,
+          primaryIntent: 'how-to',
+          keywords: [fallbackDiscoveredKeywords[1]]
         }
+      ],
+      keywords: fallbackDiscoveredKeywords,
+      questions: [
+        {
+          question: `How long does it take to master ${seedKeyword}?`,
+          parentKeyword: seedKeyword,
+          intent: 'informational'
+        },
+        {
+          question: `What are common mistakes to avoid with ${seedKeyword}?`,
+          parentKeyword: seedKeyword,
+          intent: 'how-to'
+        }
+      ],
+      contentGapsFound: [
+        'Lack of scannable comparison tables in top SERP results',
+        'Outdated benchmarks from 2023'
       ],
       suggestedPillars: [
         `The Definitive Masterclass: ${seedKeyword}`,
-        `Fast & Healthy ${seedKeyword} Playbook`
+        `Fast & Practical ${seedKeyword} Playbook`
       ],
-      questionsPeopleAsk: [
-        `How long does it take to prepare ${seedKeyword}?`,
-        `Can you make ${seedKeyword} ahead of time?`,
-        `What are the best side dishes to serve?`
-      ]
+      createdAt: new Date().toISOString()
     };
   },
 
