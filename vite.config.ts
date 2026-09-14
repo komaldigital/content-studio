@@ -6,9 +6,10 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   // Determine correct base path for GitHub Pages and local dev
   let base = './';
-  if (process.env.BASE_PATH) {
+  if (process.env.BASE_PATH && process.env.BASE_PATH !== '/') {
     base = process.env.BASE_PATH;
     if (!base.endsWith('/')) base += '/';
+    if (!base.startsWith('/') && !base.startsWith('.')) base = '/' + base;
   } else if (process.env.GITHUB_REPOSITORY) {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     if (repo && repo.toLowerCase() === `${owner.toLowerCase()}.github.io`) {

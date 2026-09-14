@@ -37,12 +37,13 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+        continue-on-error: true
 
       - name: Build static site
         run: npx vite build
         env:
           NODE_ENV: production
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+          BASE_PATH: ${{ steps.pages.outputs.base_path || '/content-studio/' }}
 
       - name: Ensure .nojekyll exists
         run: touch dist/.nojekyll
