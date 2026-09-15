@@ -190,14 +190,30 @@ Return strict JSON:
   }
 }`;
 
-    const resp = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }],
-        temperature: 0.2
+    const modelsToTry = ['gemini-3.8-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+    let resp: any = null;
+    let lastError: any = null;
+
+    for (const modelCandidate of modelsToTry) {
+      try {
+        resp = await ai.models.generateContent({
+          model: modelCandidate,
+          contents: prompt,
+          config: {
+            tools: [{ googleSearch: {} }],
+            temperature: 0.2
+          }
+        });
+        if (resp?.text) break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[HybridLiveResearchProvider] Search grounding on ${modelCandidate} failed: ${err.message}. Trying next candidate...`);
       }
-    });
+    }
+
+    if (!resp?.text) {
+      throw lastError || new Error('All Gemini grounding models failed or quota exhausted');
+    }
 
     const text = resp.text || '{}';
     const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
@@ -263,7 +279,7 @@ Return strict JSON:
     };
   }
 
-  private buildFallbackResearch(keyword: string): ResearchResult & { citationReport?: AiSearchCitationReport } {
+  public buildFallbackResearch(keyword: string): ResearchResult & { citationReport?: AiSearchCitationReport } {
     return {
       keyword,
       isLiveResearchAvailable: false,

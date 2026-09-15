@@ -67,8 +67,9 @@ STRICT ACCESSIBILITY RULES:
 - Do NOT say "Image of" or "Photo of".
 - Output ONLY the ALT text string and nothing else.`;
 
-      const res = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+      const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Alt text timeout')), 2500));
+      const genPromise = ai.models.generateContent({
+        model: 'gemini-3.1-flash-lite',
         contents: prompt,
         config: {
           temperature: 0.2,
@@ -76,7 +77,8 @@ STRICT ACCESSIBILITY RULES:
         }
       });
 
-      const alt = res.text?.trim() || '';
+      const res: any = await Promise.race([genPromise, timeoutPromise]);
+      const alt = res?.text?.trim() || '';
       return alt.replace(/^["']|["']$/g, '') || fallback;
     } catch {
       return fallback;

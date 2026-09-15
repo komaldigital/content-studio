@@ -370,12 +370,24 @@ export class MultiModelAIProvider implements AIProviderInterface {
       const geminiKey = tempApiKey || this.byokKeys.geminiApiKey;
       if (!geminiKey) return { success: false, message: 'Google Gemini API key is not configured.', model: modelToTest };
       const client = new GoogleGenAI({ apiKey: geminiKey });
-      const resp = await client.models.generateContent({
-        model: modelToTest,
-        contents: 'Ping',
-        config: { maxOutputTokens: 5 }
-      });
-      return { success: true, message: `Connected to Gemini (${modelToTest}) successfully!`, model: modelToTest, latencyMs: Date.now() - start };
+      try {
+        const resp = await client.models.generateContent({
+          model: modelToTest,
+          contents: 'Ping',
+          config: { maxOutputTokens: 5 }
+        });
+        return { success: true, message: `Connected to Gemini (${modelToTest}) successfully!`, model: modelToTest, latencyMs: Date.now() - start };
+      } catch (gemErr: any) {
+        if (gemErr?.message?.includes('429') || gemErr?.message?.includes('RESOURCE_EXHAUSTED')) {
+          return {
+            success: false,
+            message: `Free quota limit reached on ${modelToTest}. Configure an OpenRouter/OpenAI key in Settings & Bridge, or try another model.`,
+            model: modelToTest,
+            latencyMs: Date.now() - start
+          };
+        }
+        throw gemErr;
+      }
 
     } catch (e: any) {
       return { success: false, message: `Connection failed: ${e.message}`, model: modelToTest, latencyMs: Date.now() - start };
@@ -405,13 +417,39 @@ export class MultiModelAIProvider implements AIProviderInterface {
       config.tools = [{ googleSearch: {} }];
     }
 
-    const response = await client.models.generateContent({
-      model: model || 'gemini-3.8-flash',
-      contents: prompt,
-      config
-    });
+    const requestedModel = model || 'gemini-3.8-flash';
+    const fallbackModels = [
+      requestedModel,
+      'gemini-3.1-flash-lite',
+      'gemini-flash-latest'
+    ].filter((m, i, arr) => arr.indexOf(m) === i);
 
-    return response.text || '';
+    let lastError: any = null;
+    for (const modelCandidate of fallbackModels) {
+      try {
+        const timeoutPromise = new Promise<null>((_, reject) =>
+          setTimeout(() => reject(new Error(`Model ${modelCandidate} request timed out after 7s`)), 7000)
+        );
+        const callPromise = client.models.generateContent({
+          model: modelCandidate,
+          contents: prompt,
+          config
+        });
+        const response: any = await Promise.race([callPromise, timeoutPromise]);
+        if (response?.text) {
+          return response.text;
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[MultiModelAIProvider] Gemini candidate ${modelCandidate} failed: ${err.message}. Trying next model...`);
+        // If it was a quota error (429 / RESOURCE_EXHAUSTED), break immediately to avoid waiting for exhausted models
+        if (err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
+          break;
+        }
+      }
+    }
+
+    throw lastError || new Error(`All Gemini models failed for request.`);
   }
 
   private async callOpenAI(prompt: string, model: string, options?: AIGenerateOptions): Promise<string> {

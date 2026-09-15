@@ -981,10 +981,15 @@ CRITICAL RULES:
 ARTICLE:
 ${content}`;
 
-    return this.aiProvider.generate(prompt, {
-      systemInstruction: 'You are an expert editor refining content for clarity, depth, and helpfulness. Output complete enhanced markdown.',
-      temperature: 0.3
-    });
+    try {
+      return await this.aiProvider.generate(prompt, {
+        systemInstruction: 'You are an expert editor refining content for clarity, depth, and helpfulness. Output complete enhanced markdown.',
+        temperature: 0.3
+      });
+    } catch (err) {
+      console.warn('[ContentPipelineService] Weak section auto-improvement skipped due to model limit:', err);
+      return content;
+    }
   }
 
   /**

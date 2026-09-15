@@ -605,15 +605,36 @@ async function startServer() {
   // 2. RESEARCH & GENERATION PIPELINE ENDPOINTS
   // ----------------------------------------------------
   app.post('/api/pipeline/research', async (req: Request, res: Response) => {
-    const { keyword, country, language } = req.body;
+    const { keyword, country, language, audience, articleType, selectedModel } = req.body;
     if (!keyword) {
       return res.status(400).json({ error: 'Keyword is required for research.' });
     }
 
     try {
       const { researchProvider, pipeline } = getProviders();
-      const research = await researchProvider.conductResearch(keyword, country, language);
-      const intent = await pipeline.analyzeSearchIntent(keyword);
+      let research: any = null;
+      try {
+        research = await researchProvider.conductResearch(keyword, country, language);
+      } catch (rErr: any) {
+        console.warn('[Research] Research provider error, generating semantic fallback:', rErr?.message);
+        research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(keyword) : null;
+      }
+
+      let intent: any = null;
+      try {
+        intent = await pipeline.analyzeSearchIntent(keyword, audience, articleType);
+      } catch (iErr: any) {
+        console.warn('[Research] Intent analysis error, generating semantic fallback:', iErr?.message);
+        intent = (pipeline as any).fallbackSearchIntent ? (pipeline as any).fallbackSearchIntent(keyword, audience, articleType) : {
+          primaryIntent: 'informational',
+          secondaryIntent: 'commercial',
+          userGoal: `Understand key concepts, best practices, and action steps for ${keyword}`,
+          expectedDepth: 'comprehensive',
+          targetAudience: audience || 'practitioners and decision makers',
+          recommendedFormat: articleType || 'guide',
+          primaryKeywordPlacement: ['Title (H1)', 'First 100 words', 'At least two H2 headings', 'Conclusion FAQ']
+        };
+      }
 
       res.json({ research, intent });
     } catch (err) {
@@ -638,6 +659,7 @@ async function startServer() {
           research = await researchProvider.conductResearch(input.targetKeyword, input.country, input.language);
         } catch (err) {
           store.addLog('warn', 'research', `SERP research failed or timed out, continuing with direct semantic analysis: ${err instanceof Error ? err.message : String(err)}`);
+          research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
         }
         await jobQueue.processJob(job.id, input, research);
       })().catch((err) => {

@@ -114,7 +114,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     setError(null);
 
     try {
-      const res = await api.conductResearch(keyword, country, language);
+      const res = await api.conductResearch(keyword, country, language, audience, articleType, selectedModel);
       setResearchData(res.research);
       setIntentData(res.intent);
     } catch (err) {

@@ -314,11 +314,18 @@ export const api = {
     return { success: true, settings };
   },
 
-  async conductResearch(keyword: string, country?: string, language?: string): Promise<{ research: ResearchResult; intent: SearchIntentResult }> {
+  async conductResearch(
+    keyword: string,
+    country?: string,
+    language?: string,
+    audience?: string,
+    articleType?: string,
+    selectedModel?: string
+  ): Promise<{ research: ResearchResult; intent: SearchIntentResult }> {
     const res = await fetch('/api/pipeline/research', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keyword, country, language })
+      body: JSON.stringify({ keyword, country, language, audience, articleType, selectedModel })
     });
     if (!res.ok) {
       const err = await res.json();

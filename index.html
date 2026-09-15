@@ -23,31 +23,62 @@
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script>
-      // Safeguard against sandbox environments where window.fetch has only a getter
+      // Comprehensive safeguard against sandbox/iframe environments where window.fetch has only a getter
       (function() {
         try {
-          var target = window;
-          var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
-          if (!desc) {
-            target = Object.getPrototypeOf(window) || window;
-            desc = Object.getOwnPropertyDescriptor(target, 'fetch');
-          }
-          if (desc && typeof desc.get === 'function' && !desc.set) {
-            var nativeFetch = desc.get.call(window);
-            var activeFetch = nativeFetch;
-            Object.defineProperty(window, 'fetch', {
+          var nativeFetch = window.fetch;
+          var boundNativeFetch = typeof nativeFetch === 'function' ? nativeFetch.bind(window) : nativeFetch;
+          var activeFetch = boundNativeFetch;
+
+          function createAccessor() {
+            return {
               get: function() {
                 return activeFetch;
               },
               set: function(fn) {
-                activeFetch = fn;
+                activeFetch = typeof fn === 'function' ? fn : fn;
               },
               configurable: true,
               enumerable: true
-            });
+            };
+          }
+
+          // 1. Try defining accessor on window
+          try {
+            Object.defineProperty(window, 'fetch', createAccessor());
+          } catch (e) {}
+
+          // 2. Walk entire prototype chain of window and redefine if getter-only or configurable
+          var curr = window;
+          while (curr && curr !== Object.prototype) {
+            try {
+              var desc = Object.getOwnPropertyDescriptor(curr, 'fetch');
+              if (desc && (desc.configurable || typeof desc.set === 'undefined')) {
+                Object.defineProperty(curr, 'fetch', createAccessor());
+              }
+            } catch (e) {}
+            try {
+              curr = Object.getPrototypeOf(curr);
+            } catch (e) {
+              break;
+            }
+          }
+
+          // 3. Define on Window.prototype if accessible
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', createAccessor());
+            } catch (e) {}
+          }
+
+          // 4. Define on globalThis if distinct
+          if (typeof globalThis !== 'undefined' && globalThis !== window) {
+            try {
+              Object.defineProperty(globalThis, 'fetch', createAccessor());
+            } catch (e) {}
           }
         } catch (e) {
-          // Continue silently
+          // Fail-safe
         }
       })();
 
@@ -61,13 +92,26 @@
         }
       })();
 
-      // Display any startup error gracefully if script execution is blocked
-      window.addEventListener('error', function(event) {
-        var msg = document.getElementById('engine-status-text');
-        if (msg) {
-          msg.innerHTML = '<span style="color:#f87171;font-weight:600;">Notice: ' + (event.message || 'Initialization delayed') + '</span><br/><button onclick="window.location.reload()" style="margin-top:10px;padding:6px 14px;background:#059669;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">Refresh Studio</button>';
-        }
-      });
+      // Display startup errors gracefully, suppressing benign sandbox getter errors
+      (function() {
+        var isGetterFetchError = function(msg) {
+          return typeof msg === 'string' && msg.indexOf('fetch') !== -1 && (msg.indexOf('getter') !== -1 || msg.indexOf('only a getter') !== -1);
+        };
+
+        window.addEventListener('error', function(event) {
+          if (isGetterFetchError(event.message)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            return true;
+          }
+          var msg = document.getElementById('engine-status-text');
+          if (msg) {
+            msg.innerHTML = '<span style="color:#f87171;font-weight:600;">Notice: ' + (event.message || 'Initialization delayed') + '</span><br/><button onclick="window.location.reload()" style="margin-top:10px;padding:6px 14px;background:#059669;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">Refresh Studio</button>';
+          }
+        }, true);
+      })();
     </script>
   </head>
   <body class="bg-slate-950 text-slate-100 min-h-screen">
