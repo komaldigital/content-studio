@@ -23,26 +23,31 @@
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script>
-      // Safeguard against iframe/sandbox environments where fetch is getter-only on Window
+      // Safeguard against sandbox environments where window.fetch has only a getter
       (function() {
         try {
-          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') ||
-                     Object.getOwnPropertyDescriptor(Object.getPrototypeOf(window), 'fetch');
-          if (desc && (!desc.writable || !desc.set)) {
-            var _activeFetch = window.fetch.bind(window);
+          var target = window;
+          var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+          if (!desc) {
+            target = Object.getPrototypeOf(window) || window;
+            desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+          }
+          if (desc && typeof desc.get === 'function' && !desc.set) {
+            var nativeFetch = desc.get.call(window);
+            var activeFetch = nativeFetch;
             Object.defineProperty(window, 'fetch', {
               get: function() {
-                return _activeFetch;
+                return activeFetch;
               },
               set: function(fn) {
-                _activeFetch = fn;
+                activeFetch = fn;
               },
               configurable: true,
               enumerable: true
             });
           }
         } catch (e) {
-          // Continue silently if environment restricts property redefinition
+          // Continue silently
         }
       })();
 
@@ -55,6 +60,14 @@
           }
         }
       })();
+
+      // Display any startup error gracefully if script execution is blocked
+      window.addEventListener('error', function(event) {
+        var msg = document.getElementById('engine-status-text');
+        if (msg) {
+          msg.innerHTML = '<span style="color:#f87171;font-weight:600;">Notice: ' + (event.message || 'Initialization delayed') + '</span><br/><button onclick="window.location.reload()" style="margin-top:10px;padding:6px 14px;background:#059669;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">Refresh Studio</button>';
+        }
+      });
     </script>
   </head>
   <body class="bg-slate-950 text-slate-100 min-h-screen">
@@ -63,7 +76,7 @@
         <div style="text-align: center; max-width: 440px; padding: 32px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 16px;">
           <div style="width: 36px; height: 36px; border: 3px solid rgba(16, 185, 129, 0.2); border-top-color: #10b981; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px auto;"></div>
           <h2 style="font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: #f8fafc;">AI SEO Content Studio</h2>
-          <p style="font-size: 13px; color: #94a3b8; margin: 0 0 12px 0;">Initializing studio engine...</p>
+          <p id="engine-status-text" style="font-size: 13px; color: #94a3b8; margin: 0 0 12px 0;">Initializing studio engine...</p>
           <div id="gh-pages-notice" style="display: none; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; font-size: 12px; color: #fbbf24; text-align: left; line-height: 1.5;">
             <strong>GitHub Pages Action Required:</strong><br/>
             In your GitHub repo (<code>content-studio</code>), go to <strong>Settings &rarr; Pages</strong>.<br/>
