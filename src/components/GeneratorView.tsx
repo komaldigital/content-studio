@@ -177,6 +177,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
 
     try {
       const res = await api.startGeneration(input);
+      setIsGenerating(false);
       if (res.success && res.job) {
         onJobStarted(res.job);
       }

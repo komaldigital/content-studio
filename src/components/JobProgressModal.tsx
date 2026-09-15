@@ -41,7 +41,7 @@ export const JobProgressModal: React.FC<JobProgressModalProps> = ({
     };
 
     poll();
-    interval = setInterval(poll, 1500);
+    interval = setInterval(poll, 600);
 
     return () => clearInterval(interval);
   }, [jobId]);
