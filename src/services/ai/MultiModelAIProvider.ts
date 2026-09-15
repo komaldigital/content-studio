@@ -491,7 +491,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${key}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(18000)
     });
 
     const data = await res.json();
@@ -524,7 +525,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
         'x-api-key': key,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(18000)
     });
 
     const data = await res.json();
@@ -560,7 +562,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
         'HTTP-Referer': 'https://aiseo-studio.example.com',
         'X-Title': 'AI SEO Content Studio'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(18000)
     });
 
     const data = await res.json();
@@ -592,7 +595,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
       body: JSON.stringify({
         models: [model],
         message: prompt
-      })
+      }),
+      signal: AbortSignal.timeout(18000)
     });
 
     const data = await res.json();

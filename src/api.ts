@@ -35,6 +35,7 @@ import {
   getLocalJobs,
   getLocalJob,
   cancelLocalJob,
+  forceCompleteLocalJob,
   getLocalArticles,
   getLocalArticle,
   saveLocalArticle,

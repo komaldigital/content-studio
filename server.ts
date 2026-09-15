@@ -700,6 +700,12 @@ async function startServer() {
     res.json({ success });
   });
 
+  app.post('/api/jobs/:id/force-complete', (req: Request, res: Response) => {
+    const { jobQueue } = getProviders();
+    const result = jobQueue.forceCompleteJob(req.params.id);
+    res.json(result);
+  });
+
   // ----------------------------------------------------
   // 4. ARTICLES & EDITOR ENDPOINTS
   // ----------------------------------------------------

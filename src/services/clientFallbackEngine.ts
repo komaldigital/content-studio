@@ -56,21 +56,28 @@ export function getLocalJobs(): Job[] {
 }
 
 export function getLocalJob(id: string): Job | undefined {
-  return memoryJobs.get(id) || getLocalJobs().find(j => j.id === id);
+  const j = memoryJobs.get(id) || getLocalJobs().find(item => item.id === id);
+  if (!j) return undefined;
+  return { ...j, log: [...(j.log || [])] };
 }
 
 export function saveLocalJob(job: Job): void {
-  memoryJobs.set(job.id, job);
+  const cloned: Job = { ...job, log: [...(job.log || [])] };
+  memoryJobs.set(cloned.id, cloned);
   try {
     const jobs = getLocalJobs();
-    const idx = jobs.findIndex(j => j.id === job.id);
+    const idx = jobs.findIndex(j => j.id === cloned.id);
     if (idx >= 0) {
-      jobs[idx] = job;
+      jobs[idx] = cloned;
     } else {
-      jobs.unshift(job);
+      jobs.unshift(cloned);
     }
     localStorage.setItem(CLIENT_JOBS_KEY, JSON.stringify(jobs));
   } catch {}
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('aiseo:job_updated', { detail: cloned }));
+  }
 }
 
 export function cancelLocalJob(id: string): boolean {
@@ -83,6 +90,36 @@ export function cancelLocalJob(id: string): boolean {
     return true;
   }
   return false;
+}
+
+export function forceCompleteLocalJob(id: string): Article | null {
+  const job = getLocalJob(id);
+  if (!job) return null;
+
+  if (job.status === 'completed' && job.articleId) {
+    const existing = getLocalArticle(job.articleId);
+    if (existing) return existing;
+  }
+
+  const keyword = job.keyword || 'SEO Masterclass';
+  const article = buildSynthesizedArticle({
+    targetKeyword: keyword,
+    secondaryKeywords: [],
+    articleType: 'how-to',
+    selectedModel: 'client-synthesizer'
+  });
+  saveLocalArticle(article);
+
+  job.status = 'completed';
+  job.stage = 'completed';
+  job.progress = 100;
+  job.articleId = article.id;
+  job.log.push(
+    `[${new Date().toLocaleTimeString()}] Fast-forward finalized: Article created ("${article.title}", ${article.wordCount} words).`
+  );
+  job.updatedAt = new Date().toISOString();
+  saveLocalJob(job);
+  return article;
 }
 
 export function getLocalArticles(): Article[] {
@@ -307,21 +344,29 @@ export function startClientGeneration(input: GenerationInput): { success: boolea
       stepIndex++;
     } else {
       clearInterval(timer);
-      // Finalize article generation
-      const article = buildSynthesizedArticle(input);
-      saveLocalArticle(article);
+      try {
+        // Finalize article generation
+        const article = buildSynthesizedArticle(input);
+        saveLocalArticle(article);
 
-      job.status = 'completed';
-      job.stage = 'completed';
-      job.progress = 100;
-      job.articleId = article.id;
-      job.log.push(
-        `Article generation complete! Created "${article.title}" (${article.wordCount} words, SEO Score: ${article.seoScore.total}/100).`,
-        `Schema: ${article.schemaType} generated with JSON-LD.`,
-        `Pinterest Pin staged and ready.`
-      );
-      job.updatedAt = new Date().toISOString();
-      saveLocalJob(job);
+        job.status = 'completed';
+        job.stage = 'completed';
+        job.progress = 100;
+        job.articleId = article.id;
+        job.log.push(
+          `Article generation complete! Created "${article.title}" (${article.wordCount} words, SEO Score: ${article.seoScore.total}/100).`,
+          `Schema: ${article.schemaType} generated with JSON-LD.`,
+          `Pinterest Pin staged and ready.`
+        );
+        job.updatedAt = new Date().toISOString();
+        saveLocalJob(job);
+      } catch (e) {
+        console.error('[clientFallbackEngine] Generation synthesis error:', e);
+        job.status = 'failed';
+        job.error = e instanceof Error ? e.message : String(e);
+        job.updatedAt = new Date().toISOString();
+        saveLocalJob(job);
+      }
     }
   }, 700);
 
