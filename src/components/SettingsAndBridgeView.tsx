@@ -27,7 +27,9 @@ import {
   Bot,
   FileText,
   ImageIcon,
-  Camera
+  Camera,
+  Save,
+  Zap
 } from 'lucide-react';
 import { AppSettings, AIModelDescriptor, BrandVoice, SitemapConfig, BloggingAutomationConfig } from '../types.js';
 import { api } from '../api.js';
@@ -118,7 +120,7 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
     setTestSeedreamLoading(true);
     setTestSeedreamResult(null);
     try {
-      const res = await api.testSeedreamImage({ key: byokKeys.openrouterApiKey });
+      const res = await api.testSeedreamImage({ key: byokKeys.openrouterApiKey.trim() || undefined });
       setTestSeedreamResult(res);
     } catch (err: any) {
       setTestSeedreamResult({ success: false, error: err.message });
@@ -228,6 +230,31 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
       setByokSaveMessage(`Error clearing key: ${err.message}`);
     } finally {
       setIsSavingByok(false);
+    }
+  };
+
+  const [quickSaveStatus, setQuickSaveStatus] = useState<Record<string, { loading?: boolean; message?: string; error?: boolean }>>({});
+
+  const handleQuickSaveKey = async (keyName: keyof typeof byokKeys) => {
+    const rawVal = byokKeys[keyName];
+    if (!rawVal || !rawVal.trim()) return;
+    setQuickSaveStatus(prev => ({ ...prev, [keyName]: { loading: true } }));
+    try {
+      const res = await api.saveByokKeys({ [keyName]: rawVal.trim() }, activeModel);
+      if (res.success) {
+        if (res.byokConfigured) setByokConfigured(res.byokConfigured);
+        if (res.byokMasked) setByokMasked(res.byokMasked);
+        setByokKeys(prev => ({ ...prev, [keyName]: '' }));
+        setQuickSaveStatus(prev => ({ ...prev, [keyName]: { loading: false, message: 'Key saved and active in the system!' } }));
+        onRefreshSettings();
+        setTimeout(() => {
+          setQuickSaveStatus(prev => ({ ...prev, [keyName]: undefined }));
+        }, 5000);
+      } else {
+        setQuickSaveStatus(prev => ({ ...prev, [keyName]: { loading: false, error: true, message: res.message || 'Failed to save' } }));
+      }
+    } catch (err: any) {
+      setQuickSaveStatus(prev => ({ ...prev, [keyName]: { loading: false, error: true, message: err.message } }));
     }
   };
 
@@ -731,18 +758,21 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                   </div>
 
                   {/* OpenRouter Key */}
-                  <div className="bg-slate-950/70 border border-purple-800/60 p-3.5 rounded-xl space-y-2 ring-1 ring-purple-900/30">
+                  <div className="bg-gradient-to-br from-purple-950/40 to-slate-950/70 border border-purple-800/70 p-4 rounded-xl space-y-3 shadow-sm ring-1 ring-purple-900/40">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <label className="text-xs font-semibold text-purple-200">OpenRouter API Key</label>
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-900/80 text-purple-300 border border-purple-700/60 uppercase">
-                          Seedream 4.5 Primary
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold text-purple-200 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                          OpenRouter API Key
+                        </label>
+                        <span className="text-[10px] text-purple-300/90 bg-purple-900/60 border border-purple-700/70 px-2 py-0.5 rounded-full font-medium">
+                          Seedream 4.5 & Multi-Model
                         </span>
                       </div>
                       {byokConfigured.openrouter ? (
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-purple-300 font-semibold bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-700/60">
-                            <Check className="w-2.5 h-2.5 text-purple-400" /> Saved & Active
+                          <span className="inline-flex items-center gap-1 text-[10px] text-purple-300 font-semibold bg-purple-950/80 px-2.5 py-0.5 rounded-full border border-purple-700/60">
+                            <Check className="w-2.5 h-2.5 text-purple-400" /> Saved & Active in System
                           </span>
                           <button
                             type="button"
@@ -753,31 +783,78 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                           </button>
                         </div>
                       ) : (
-                        <span className="text-[10px] text-slate-500">Not configured</span>
+                        <span className="text-[10px] text-slate-500 font-medium">Not configured</span>
                       )}
                     </div>
+
                     {byokMasked.openrouterApiKey && (
-                      <div className="text-[10px] font-mono text-purple-300 flex items-center justify-between">
-                        <span>Current: <strong className="text-purple-300">{byokMasked.openrouterApiKey}</strong></span>
+                      <div className="text-[11px] font-mono text-purple-300 flex items-center justify-between bg-purple-950/40 px-3 py-1.5 rounded-lg border border-purple-900/60">
+                        <span>Current Saved Key: <strong className="text-purple-200">{byokMasked.openrouterApiKey}</strong></span>
+                        <span className="text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Ready
+                        </span>
                       </div>
                     )}
-                    <div className="relative">
-                      <input
-                        type={showKeys.openrouter ? 'text' : 'password'}
-                        value={byokKeys.openrouterApiKey}
-                        onChange={(e) => setByokKeys({ ...byokKeys, openrouterApiKey: e.target.value })}
-                        placeholder={byokMasked.openrouterApiKey ? `${byokMasked.openrouterApiKey} (Leave blank to keep saved key)` : "sk-or-v1-... (leave blank to keep current)"}
-                        className="w-full bg-slate-900 border border-purple-800/70 rounded-xl px-3 py-2 pr-9 text-xs text-white focus:outline-none focus:border-purple-400 font-mono"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowKeys({ ...showKeys, openrouter: !showKeys.openrouter })}
-                        className="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300"
-                      >
-                        {showKeys.openrouter ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
+
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <input
+                          type={showKeys.openrouter ? 'text' : 'password'}
+                          value={byokKeys.openrouterApiKey}
+                          onChange={(e) => setByokKeys({ ...byokKeys, openrouterApiKey: e.target.value })}
+                          placeholder={byokMasked.openrouterApiKey ? `${byokMasked.openrouterApiKey} (Leave blank to keep saved key)` : "sk-or-v1-... (Paste your OpenRouter API key here)"}
+                          className="w-full bg-slate-900 border border-purple-700/80 rounded-xl px-3 py-2.5 pr-9 text-xs text-white focus:outline-none focus:border-purple-400 font-mono shadow-inner"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowKeys({ ...showKeys, openrouter: !showKeys.openrouter })}
+                          className="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300"
+                        >
+                          {showKeys.openrouter ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+
+                      {/* Quick Save and Test Row */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {byokKeys.openrouterApiKey.trim() && (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickSaveKey('openrouterApiKey')}
+                            disabled={quickSaveStatus.openrouterApiKey?.loading}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+                          >
+                            <Save className="w-3.5 h-3.5" />
+                            {quickSaveStatus.openrouterApiKey?.loading ? 'Saving...' : 'Save OpenRouter Key'}
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleTestModel('openrouter/deepseek/deepseek-chat')}
+                          disabled={modelTestStatus['openrouter/deepseek/deepseek-chat']?.loading || (!byokConfigured.openrouter && !byokKeys.openrouterApiKey.trim())}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-200 border border-purple-800/60 text-xs font-medium transition-all disabled:opacity-40"
+                        >
+                          <Zap className="w-3 h-3 text-purple-400" />
+                          {modelTestStatus['openrouter/deepseek/deepseek-chat']?.loading ? 'Testing...' : 'Test Connection'}
+                        </button>
+
+                        {quickSaveStatus.openrouterApiKey?.message && (
+                          <span className={`text-[11px] font-medium ${quickSaveStatus.openrouterApiKey.error ? 'text-red-400' : 'text-emerald-400'}`}>
+                            {quickSaveStatus.openrouterApiKey.message}
+                          </span>
+                        )}
+
+                        {modelTestStatus['openrouter/deepseek/deepseek-chat'] && !modelTestStatus['openrouter/deepseek/deepseek-chat'].loading && (
+                          <span className={`text-[11px] font-medium ${modelTestStatus['openrouter/deepseek/deepseek-chat'].success ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {modelTestStatus['openrouter/deepseek/deepseek-chat'].message}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-[10px] text-purple-300/80">Powers ByteDance Seedream 4.5 for high-resolution featured & in-article imagery, plus OpenRouter text models.</p>
+
+                    <p className="text-[10px] text-purple-300/80">
+                      Powers ByteDance Seedream 4.5 for high-resolution featured & in-article imagery, plus OpenRouter text models (DeepSeek, Llama 3, Qwen). Key is saved to disk and browser storage.
+                    </p>
                   </div>
 
                   {/* Straico Key */}
@@ -893,7 +970,7 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {byokKeys.openrouterApiKey ? (
+                      {(byokConfigured.openrouter || Boolean(byokKeys.openrouterApiKey)) ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800/80">
                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                           OpenRouter Key Active

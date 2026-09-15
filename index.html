@@ -23,11 +23,36 @@
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script>
-      // Ensure trailing slash for GitHub Pages project repositories
+      // Safeguard against iframe/sandbox environments where fetch is getter-only on Window
       (function() {
-        var loc = window.location;
-        if (!loc.pathname.endsWith('/') && !loc.pathname.split('/').pop().includes('.')) {
-          loc.replace(loc.pathname + '/' + loc.search + loc.hash);
+        try {
+          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') ||
+                     Object.getOwnPropertyDescriptor(Object.getPrototypeOf(window), 'fetch');
+          if (desc && (!desc.writable || !desc.set)) {
+            var _activeFetch = window.fetch.bind(window);
+            Object.defineProperty(window, 'fetch', {
+              get: function() {
+                return _activeFetch;
+              },
+              set: function(fn) {
+                _activeFetch = fn;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (e) {
+          // Continue silently if environment restricts property redefinition
+        }
+      })();
+
+      // Ensure trailing slash only for GitHub Pages project repositories
+      (function() {
+        if (typeof window !== 'undefined' && window.location && window.location.hostname.endsWith('github.io')) {
+          var loc = window.location;
+          if (!loc.pathname.endsWith('/') && !loc.pathname.split('/').pop().includes('.')) {
+            loc.replace(loc.pathname + '/' + loc.search + loc.hash);
+          }
         }
       })();
     </script>
