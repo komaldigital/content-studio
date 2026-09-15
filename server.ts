@@ -124,8 +124,11 @@ async function startServer() {
 
   function maskApiKey(key?: string): string {
     if (!key) return '';
-    const trimmed = key.trim();
+    const trimmed = key.trim().replace(/^["'`]|["'`]$/g, '').replace(/^Bearer\s+/i, '');
     if (trimmed.length <= 8) return '••••••••';
+    if (trimmed.startsWith('sk-or-v1-')) {
+      return `sk-or-v1-••••••••${trimmed.slice(-4)}`;
+    }
     return `${trimmed.slice(0, 4)}••••••••${trimmed.slice(-4)}`;
   }
 
@@ -176,7 +179,7 @@ async function startServer() {
     if (str === '__CLEAR__' || str === '__REMOVE__') {
       return '';
     }
-    return str;
+    return str.replace(/^["'`]|["'`]$/g, '').replace(/^Bearer\s+/i, '').trim();
   }
 
   app.get('/api/settings', (_req: Request, res: Response) => {

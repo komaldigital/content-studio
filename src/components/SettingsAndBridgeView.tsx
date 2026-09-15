@@ -790,9 +790,23 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                     {byokMasked.openrouterApiKey && (
                       <div className="text-[11px] font-mono text-purple-300 flex items-center justify-between bg-purple-950/40 px-3 py-1.5 rounded-lg border border-purple-900/60">
                         <span>Current Saved Key: <strong className="text-purple-200">{byokMasked.openrouterApiKey}</strong></span>
-                        <span className="text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Ready
-                        </span>
+                        {modelTestStatus['openrouter/deepseek/deepseek-chat']?.loading ? (
+                          <span className="text-purple-300 text-[10px] font-semibold flex items-center gap-1">
+                            <RefreshCw className="w-3 h-3 animate-spin" /> Verifying...
+                          </span>
+                        ) : modelTestStatus['openrouter/deepseek/deepseek-chat']?.success === false ? (
+                          <span className="text-red-400 text-[10px] font-semibold flex items-center gap-1">
+                            <X className="w-3 h-3" /> Key Rejected
+                          </span>
+                        ) : modelTestStatus['openrouter/deepseek/deepseek-chat']?.success === true ? (
+                          <span className="text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
+                            <Check className="w-3 h-3" /> Verified Active
+                          </span>
+                        ) : (
+                          <span className="text-purple-300 text-[10px] font-medium flex items-center gap-1">
+                            <Check className="w-3 h-3 text-purple-400" /> Saved
+                          </span>
+                        )}
                       </div>
                     )}
 
@@ -813,6 +827,13 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                           {showKeys.openrouter ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                         </button>
                       </div>
+
+                      {byokKeys.openrouterApiKey.trim().startsWith('sk-proj-') && (
+                        <div className="text-[11px] text-amber-300 bg-amber-950/60 border border-amber-800/80 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>This appears to be an OpenAI API key (<code className="font-mono">sk-proj-...</code>). OpenRouter keys start with <code className="font-mono">sk-or-v1-...</code>.</span>
+                        </div>
+                      )}
 
                       {/* Quick Save and Test Row */}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -838,23 +859,86 @@ export const SettingsAndBridgeView: React.FC<SettingsAndBridgeViewProps> = ({
                           {modelTestStatus['openrouter/deepseek/deepseek-chat']?.loading ? 'Testing...' : 'Test Connection'}
                         </button>
 
+                        <a
+                          href="https://openrouter.ai/keys"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-purple-300/80 hover:text-purple-200 ml-auto"
+                        >
+                          <span>openrouter.ai/keys</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+
                         {quickSaveStatus.openrouterApiKey?.message && (
-                          <span className={`text-[11px] font-medium ${quickSaveStatus.openrouterApiKey.error ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <span className={`text-[11px] font-medium w-full ${quickSaveStatus.openrouterApiKey.error ? 'text-red-400' : 'text-emerald-400'}`}>
                             {quickSaveStatus.openrouterApiKey.message}
                           </span>
                         )}
-
-                        {modelTestStatus['openrouter/deepseek/deepseek-chat'] && !modelTestStatus['openrouter/deepseek/deepseek-chat'].loading && (
-                          <span className={`text-[11px] font-medium ${modelTestStatus['openrouter/deepseek/deepseek-chat'].success ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {modelTestStatus['openrouter/deepseek/deepseek-chat'].message}
-                          </span>
-                        )}
                       </div>
+
+                      {/* Connection Test Result Diagnostic Banner */}
+                      {modelTestStatus['openrouter/deepseek/deepseek-chat'] && !modelTestStatus['openrouter/deepseek/deepseek-chat'].loading && (
+                        <div className={`p-3 rounded-xl text-xs space-y-2 border ${
+                          modelTestStatus['openrouter/deepseek/deepseek-chat'].success
+                            ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
+                            : 'bg-red-950/60 border-red-800/70 text-red-200'
+                        }`}>
+                          <div className="flex items-start gap-2">
+                            {modelTestStatus['openrouter/deepseek/deepseek-chat'].success ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                            ) : (
+                              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                            )}
+                            <div className="flex-1 space-y-1">
+                              <div className="font-semibold text-[11px] leading-snug">
+                                {modelTestStatus['openrouter/deepseek/deepseek-chat'].message}
+                              </div>
+                              {!modelTestStatus['openrouter/deepseek/deepseek-chat'].success && (
+                                <div className="text-[10.5px] text-red-300/90 leading-relaxed pt-1 space-y-1">
+                                  <p>
+                                    <strong>Why did this happen?</strong> OpenRouter returns <code className="font-mono text-red-200 bg-red-900/50 px-1 py-0.5 rounded">User not found</code> when the key does not match any active user account on OpenRouter. This commonly occurs if:
+                                  </p>
+                                  <ul className="list-disc list-inside space-y-0.5 text-red-200/80">
+                                    <li>The key was deleted or revoked in your OpenRouter dashboard.</li>
+                                    <li>The key format was partially copied or an OpenAI key was pasted instead.</li>
+                                    <li>The OpenRouter account is inactive or not initialized.</li>
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {!modelTestStatus['openrouter/deepseek/deepseek-chat'].success && (
+                            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-red-900/60">
+                              <a
+                                href="https://openrouter.ai/keys"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-200 bg-purple-900/80 hover:bg-purple-800 px-2.5 py-1 rounded-lg border border-purple-700/70 transition-colors"
+                              >
+                                <span>Generate New Key on OpenRouter</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleClearKey('openrouterApiKey')}
+                                className="text-[11px] text-red-400 hover:text-red-300 underline font-medium px-2 py-1"
+                              >
+                                Clear Saved Key
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <p className="text-[10px] text-purple-300/80">
-                      Powers ByteDance Seedream 4.5 for high-resolution featured & in-article imagery, plus OpenRouter text models (DeepSeek, Llama 3, Qwen). Key is saved to disk and browser storage.
-                    </p>
+                    <div className="text-[10.5px] text-purple-300/80 bg-purple-950/30 p-2.5 rounded-lg border border-purple-900/40 space-y-1">
+                      <p>
+                        <strong>Usage:</strong> Powers ByteDance Seedream 4.5 for high-resolution featured & in-article imagery, plus OpenRouter text models.
+                      </p>
+                      <p className="text-purple-300/60 text-[10px]">
+                        💡 The studio's primary Google Gemini engine (gemini-3.8-flash) is active and writes articles without requiring an OpenRouter key.
+                      </p>
+                    </div>
                   </div>
 
                   {/* Straico Key */}

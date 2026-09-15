@@ -53,6 +53,16 @@ export function getLocalByokKeys(): Record<string, string> {
   }
 }
 
+export function cleanApiKey(raw: string): string {
+  if (!raw) return '';
+  let cleaned = raw.trim();
+  cleaned = cleaned.replace(/^["'`]|["'`]$/g, '').trim();
+  if (cleaned.toLowerCase().startsWith('bearer ')) {
+    cleaned = cleaned.slice(7).trim();
+  }
+  return cleaned;
+}
+
 export function setLocalByokKeys(keys: Record<string, string>): void {
   try {
     const existing = getLocalByokKeys();
@@ -61,7 +71,7 @@ export function setLocalByokKeys(keys: Record<string, string>): void {
       if (v === '__CLEAR__' || v === '__REMOVE__') {
         delete updated[k];
       } else if (v && v !== 'configured' && !v.includes('••••') && !v.includes('****')) {
-        updated[k] = v.trim();
+        updated[k] = cleanApiKey(v);
       }
     }
     localStorage.setItem(BYOK_STORAGE_KEY, JSON.stringify(updated));
@@ -70,8 +80,13 @@ export function setLocalByokKeys(keys: Record<string, string>): void {
 
 export function maskApiKey(key: string): string {
   if (!key || key.length < 8) return '';
-  const prefix = key.slice(0, 4);
-  const suffix = key.slice(-4);
+  const cleaned = cleanApiKey(key);
+  if (cleaned.startsWith('sk-or-v1-')) {
+    const suffix = cleaned.slice(-4);
+    return `sk-or-v1-••••••••${suffix}`;
+  }
+  const prefix = cleaned.slice(0, 4);
+  const suffix = cleaned.slice(-4);
   return `${prefix}••••••••${suffix}`;
 }
 
@@ -944,7 +959,7 @@ export const api = {
 
   async testModel(model: string, apiKey?: string) {
     const localKeys = getLocalByokKeys();
-    let effectiveKey = apiKey ? apiKey.trim() : undefined;
+    let effectiveKey = apiKey ? cleanApiKey(apiKey) : undefined;
     if (!effectiveKey) {
       if (model.startsWith('openrouter/')) effectiveKey = localKeys.openrouterApiKey;
       else if (model.startsWith('gpt')) effectiveKey = localKeys.openaiApiKey;
@@ -959,42 +974,71 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, apiKey: effectiveKey })
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        if (data.message && data.message.toLowerCase().includes('user not found')) {
+          return {
+            success: false,
+            message: "OpenRouter returned 'User not found'. This API key is invalid, revoked, or not recognized by openrouter.ai. Please generate a new key at https://openrouter.ai/keys (format: sk-or-v1-...)."
+          };
+        }
+        return data;
+      }
     } catch {}
 
     // Fallback direct verification for OpenRouter
     if (model.startsWith('openrouter/')) {
-      const key = effectiveKey || localKeys.openrouterApiKey;
-      if (!key) {
-        return { success: false, message: 'OpenRouter API key is not configured. Please enter and save your OpenRouter key.' };
+      const rawKey = effectiveKey || localKeys.openrouterApiKey;
+      if (!rawKey) {
+        return { success: false, message: 'OpenRouter API key is not configured. Please enter your OpenRouter key.' };
       }
+      const key = cleanApiKey(rawKey);
+
+      if (key.startsWith('sk-proj-') || key.startsWith('sk-admin-')) {
+        return {
+          success: false,
+          message: 'Invalid key type: This is an OpenAI API key (sk-proj-...), not an OpenRouter key. OpenRouter keys start with sk-or-v1-. Please get a key at openrouter.ai/keys.'
+        };
+      }
+
       try {
         const start = Date.now();
         const testRes = await fetch('https://openrouter.ai/api/v1/auth/key', {
-          headers: { Authorization: `Bearer ${key}` }
+          headers: {
+            Authorization: `Bearer ${key}`,
+            'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://ai.studio/build',
+            'X-Title': 'AI SEO Content Studio'
+          }
         });
         if (testRes.ok) {
           const keyData = await testRes.json();
           const latency = Date.now() - start;
-          const label = keyData.data?.label || 'OpenRouter';
+          const label = keyData.data?.label || 'Active';
           const limit = keyData.data?.limit != null ? ` (Limit: $${keyData.data.limit})` : '';
+          const usage = keyData.data?.usage != null ? ` (Used: $${Number(keyData.data.usage).toFixed(2)})` : '';
           return {
             success: true,
-            message: `Connected to OpenRouter [${label}]${limit} successfully! Latency: ${latency}ms`,
+            message: `Connected to OpenRouter successfully! [${label}]${limit}${usage} (Latency: ${latency}ms)`,
             latencyMs: latency
           };
         } else {
           const errData = await testRes.json().catch(() => ({}));
+          const rawErr = errData.error?.message || `HTTP ${testRes.status}`;
+          if (rawErr.toLowerCase().includes('user not found') || testRes.status === 401) {
+            return {
+              success: false,
+              message: "OpenRouter returned 'User not found'. This API key is invalid, revoked, or not recognized on openrouter.ai. Please generate a new key at openrouter.ai/keys (format sk-or-v1-...)."
+            };
+          }
           return {
             success: false,
-            message: errData.error?.message || `OpenRouter returned HTTP ${testRes.status}: Invalid API Key`
+            message: `OpenRouter verification returned: ${rawErr}`
           };
         }
       } catch (err: any) {
         return {
-          success: true,
-          message: `Saved OpenRouter key verified for model ${model}`,
-          latencyMs: 180
+          success: false,
+          message: `Network connection error: ${err.message}`
         };
       }
     }

@@ -339,16 +339,28 @@ export class MultiModelAIProvider implements AIProviderInterface {
       }
 
       if (modelToTest.startsWith('openrouter/')) {
-        const key = tempApiKey || this.byokKeys.openrouterApiKey;
-        if (!key) return { success: false, message: 'OpenRouter API key is not configured.', model: modelToTest };
+        const rawKey = tempApiKey || this.byokKeys.openrouterApiKey;
+        if (!rawKey) return { success: false, message: 'OpenRouter API key is not configured. Please enter your OpenRouter key.', model: modelToTest };
+        const key = rawKey.trim().replace(/^["'`]|["'`]$/g, '').replace(/^Bearer\s+/i, '');
         const actualModel = modelToTest.replace('openrouter/', '');
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}`, 'HTTP-Referer': 'https://aiseo-studio.example.com' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${key}`,
+            'HTTP-Referer': 'https://ai.studio/build',
+            'X-Title': 'AI SEO Content Studio'
+          },
           body: JSON.stringify({ model: actualModel, messages: [{ role: 'user', content: 'Ping' }], max_tokens: 5 })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+        if (!res.ok) {
+          const rawErr = data.error?.message || `HTTP ${res.status}`;
+          if (rawErr.toLowerCase().includes('user not found') || res.status === 401) {
+            throw new Error(`OpenRouter returned 'User not found'. This API key is invalid, expired, or revoked. Please generate a new key at openrouter.ai/keys (format sk-or-v1-...).`);
+          }
+          throw new Error(rawErr);
+        }
         return { success: true, message: `Connected to OpenRouter (${actualModel}) successfully!`, model: modelToTest, latencyMs: Date.now() - start };
       }
 
