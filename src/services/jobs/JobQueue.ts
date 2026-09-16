@@ -361,7 +361,7 @@ export class JobQueue {
       // Stage 3: Article Writing
       this.updateJobProgress(job, 'writing_article', 50, `Writing human-first article (${brief.suggestedWordCount} target words)...`);
       const { content, sections, faqs } = await this.safeRunStage(
-        this.pipeline.writeArticle(brief, input),
+        this.pipeline.writeArticle(brief, input, researchData),
         25000,
         () => this.pipeline.fallbackArticleContent(brief, input),
         'article_writing'

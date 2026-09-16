@@ -11,6 +11,7 @@ import {
   ContentBrief
 } from '../types.js';
 import { FALLBACK_ARTICLES } from '../data/fallbackData.js';
+import { sanitizeAndEnforceHumanWriting } from './prompts/SeniorContentWriterPrompt.js';
 
 const CLIENT_JOBS_KEY = 'aiseo_client_jobs';
 const CLIENT_ARTICLES_KEY = 'aiseo_custom_articles';
@@ -683,12 +684,15 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     createdAt: new Date().toISOString()
   };
 
+  const sanitized = sanitizeAndEnforceHumanWriting(fullContent);
+  const cleanContent = sanitized.content;
+
   return {
     id: articleId,
     title,
     slug,
     metaDescription: metaDesc,
-    content: fullContent,
+    content: cleanContent,
     sections,
     faqs,
     jsonLdSchema: JSON.stringify({

@@ -24,7 +24,10 @@ import {
   Link2,
   Globe,
   DollarSign,
-  Clock
+  Clock,
+  BookOpen,
+  Award,
+  CheckCircle2
 } from 'lucide-react';
 import { api } from '../api.js';
 import {
@@ -62,6 +65,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   const [articleType, setArticleType] = useState<ArticleType>('all-in-one-seo');
   const [brandName, setBrandName] = useState('AI SEO Studio');
   const [autoImprove, setAutoImprove] = useState(true);
+
+  // Senior Subject-Matter Expert Prompt States
+  const [voiceNotes, setVoiceNotes] = useState('Senior practitioner who has done this for years. Smart, slightly opinionated, in a hurry. Zero brochure fluff.');
+  const [competitorUrls, setCompetitorUrls] = useState('');
+  const [showPromptDetails, setShowPromptDetails] = useState(false);
 
   // WordRocket Template & Core Engine States
   const [selectedTemplate, setSelectedTemplate] = useState<WordRocketTemplateId>('all-in-one-seo');
@@ -255,6 +263,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
       brandName,
       autoImprove,
       selectedModel,
+      voiceNotes: voiceNotes.trim() || undefined,
+      competitorUrls: competitorUrls.split('\n').map(u => u.trim()).filter(Boolean),
       enableSitemapInternalLinks: enableSitemapLinks,
       includeSerpAnalysis
     };
@@ -939,6 +949,86 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 placeholder="e.g. authoritative, conversational, instructional"
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
               />
+            </div>
+
+            {/* Senior Content Writer & SME Engine Controls */}
+            <div className="p-4 rounded-xl bg-slate-900/60 border border-emerald-900/40 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800/80 flex items-center justify-center text-emerald-400">
+                    <Award className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
+                      <span>Senior Practitioner & SME Human Engine</span>
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-900/70 text-emerald-200">Active</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Step 1-5 intent satisfaction, 40+ banned AI tells scrubbed, direct 2-3 sentence answer up top.
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPromptDetails(!showPromptDetails)}
+                  className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  {showPromptDetails ? 'Hide Rules' : 'Inspect Rules'}
+                </button>
+              </div>
+
+              {showPromptDetails && (
+                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-2 leading-relaxed">
+                  <div className="font-semibold text-emerald-400">Built-in Protocol Standards:</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-400">
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Step 1 (Intent):</strong> Direct answer in first 2-3 sentences. No fluff.</span>
+                    </div>
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Step 2 (Structure):</strong> Natural keyword placement, short paragraphs (2-4 sentences).</span>
+                    </div>
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Step 3 (Anti-AI Slop):</strong> Banned: delve, tapestry, landscape, leverage, robust, paramount, etc.</span>
+                    </div>
+                    <div className="flex items-start gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Step 4 (E-E-A-T):</strong> Real trade-offs, benchmarks, and practitioner edge cases.</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2 pt-1">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                    Point of View / Brand Voice Notes (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={voiceNotes}
+                    onChange={(e) => setVoiceNotes(e.target.value)}
+                    placeholder="e.g. Senior engineer who has done this for years. Smart, slightly opinionated human in a hurry."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                    Competing Pages to Beat (Optional URLs, one per line)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={competitorUrls}
+                    onChange={(e) => setCompetitorUrls(e.target.value)}
+                    placeholder="https://competitor.com/article&#10;https://ranking-site.org/guide"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono text-[11px]"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Primary Visuals Engine (Seedream 4.5) */}

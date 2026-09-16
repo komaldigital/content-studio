@@ -25,6 +25,11 @@ import {
 import { ImageGenerateOptions } from '../images/ImageProviderInterface.js';
 import { SecurityValidator } from '../security/SecurityValidator.js';
 import { DataStore } from '../storage/Store.js';
+import {
+  SENIOR_CONTENT_WRITER_SYSTEM_PROMPT,
+  buildSeniorWriterUserPrompt,
+  sanitizeAndEnforceHumanWriting
+} from '../prompts/SeniorContentWriterPrompt.js';
 
 export class ContentPipelineService {
   constructor(
@@ -733,7 +738,7 @@ Return valid JSON adhering to ContentBrief format.`;
    * STAGE 3: Article Writing
    * Human-first, search-intent focused, zero filler, practical tables/lists.
    */
-  public async writeArticle(brief: ContentBrief, input: GenerationInput): Promise<{
+  public async writeArticle(brief: ContentBrief, input: GenerationInput, researchData?: any): Promise<{
     content: string;
     sections: ArticleSection[];
     faqs: FAQItem[];
@@ -743,16 +748,12 @@ Return valid JSON adhering to ContentBrief format.`;
     const voiceId = input.brandVoiceId || store.settings.activeBrandVoiceId;
     const brandVoice = (store.settings.brandVoices || []).find(v => v.id === voiceId);
 
-    let voiceDirectives = '';
+    let voiceDirectives = input.voiceNotes || '';
     if (brandVoice) {
-      voiceDirectives = `
-BRAND VOICE PROFILE: "${brandVoice.name}"
-- Tone: ${brandVoice.tone}
-- Point of View: ${brandVoice.pointOfView}
-- Target Reading Grade: ${brandVoice.readingGradeLevel}
-- Sentence Style: ${brandVoice.sentenceStyle}
-- FORBIDDEN WORDS/PHRASES: ${brandVoice.forbiddenPhrases.join(', ') || 'None'}
-- CUSTOM VOICE INSTRUCTIONS: ${brandVoice.customSystemInstructions}`;
+      voiceDirectives += `
+Brand Voice: "${brandVoice.name}" (${brandVoice.tone}, ${brandVoice.pointOfView}, ${brandVoice.sentenceStyle}).
+Forbidden phrases: ${brandVoice.forbiddenPhrases.join(', ') || 'None'}
+${brandVoice.customSystemInstructions ? `Custom instructions: ${brandVoice.customSystemInstructions}` : ''}`;
     }
 
     const templatePreset = input.templatePreset || input.articleType;
@@ -760,17 +761,17 @@ BRAND VOICE PROFILE: "${brandVoice.name}"
     if (templatePreset === 'all-in-one-seo') {
       templateInstructions = `
 WORDROCKET ALL-IN-ONE SEO ARCHITECTURE:
-- Deliver high keyword relevance and natural entity co-occurrences without keyword stuffing.
-- The first 2 sentences under each H2 must provide concise, direct answers optimized for featured snippets and AI overviews.
-- Include a comprehensive Markdown comparison table or benchmark matrix.
+- High keyword relevance and natural entity co-occurrences without keyword stuffing.
+- The first 2 sentences under each H2 must provide concise, direct answers optimized for featured snippets and AI search engines.
+- Include a practical Markdown comparison table or benchmark matrix.
 - Conclude with a structured FAQ section addressing common searcher queries.`;
     } else if (templatePreset === 'one-shot-blog') {
       templateInstructions = `
 WORDROCKET ONE SHOT LONG-FORM BLOG POST ARCHITECTURE:
 - Target word count: ${input.targetWordCount || 3200} words.
 - Exhaustive sub-topic breakdown with deep H2 and H3 hierarchies.
-- Real-world actionable frameworks, decision trees, checklists, and structured multi-column tables.
-- Comprehensive summaries and actionable takeaways.`;
+- Real-world actionable frameworks, checklists, and structured multi-column tables.
+- Actionable takeaways without generic fluff.`;
     } else if (templatePreset === 'product-review' || templatePreset === 'review') {
       templateInstructions = `
 WORDROCKET PRODUCT REVIEW & ROUNDUP ARCHITECTURE:
@@ -800,43 +801,50 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
 
     const effectiveWordCount = input.targetWordCount || brief.suggestedWordCount || 2200;
 
-    const prompt = `You are an elite editorial writer and topical authority specialist.
-TOPIC & BRIEF:
-- Primary Keyword: "${brief.primaryKeyword}"
-- Secondary Keywords: ${brief.secondaryKeywords.join(', ') || 'None'}
-- Recommended Title: "${brief.recommendedTitle}"
-- Target Intent: ${brief.searchIntent.primaryIntent} (${brief.searchIntent.userGoal})
-- Suggested Length: ${effectiveWordCount} words
-- Tone: ${input.tone || 'authoritative, clear, helpful'}
-${voiceDirectives}
-${templateInstructions}
+    // Gather competitor URLs from input or live SERP research
+    const competitorList: string[] = [];
+    if (input.competitorUrls && input.competitorUrls.length > 0) {
+      competitorList.push(...input.competitorUrls);
+    } else if (researchData?.competitors && Array.isArray(researchData.competitors) && researchData.competitors.length > 0) {
+      researchData.competitors.slice(0, 3).forEach((c: any) => {
+        competitorList.push(`${c.url} - "${c.title}" (Observed snippet: ${c.snippet})`);
+      });
+    }
 
-- Outline:
-${brief.outline.map((sec, i) => `${i + 1}. H2: ${sec.h2}\n   Subsections (use ### H3): ${(sec.h3s || []).join(', ')}\n   Key points: ${(sec.keyPoints || []).join('; ')}`).join('\n')}
+    // Build the user prompt using the built-in Senior Content Writer format
+    const userPrompt = buildSeniorWriterUserPrompt({
+      keyword: brief.primaryKeyword,
+      secondaryKeywords: brief.secondaryKeywords,
+      intent: `${brief.searchIntent.primaryIntent} - ${brief.searchIntent.userGoal}`,
+      audience: input.audience || brief.targetAudience,
+      voiceNotes: voiceDirectives.trim() || undefined,
+      wordCount: effectiveWordCount,
+      competitorUrls: competitorList.length > 0 ? competitorList : undefined,
+      outlineItems: brief.outline,
+      templateDirectives: templateInstructions.trim() || undefined
+    });
 
-MANDATORY EDITORIAL & GENERATIVE ENGINE OPTIMIZATION (GEO) STANDARDS:
-1. HUMAN-FIRST & EMPIRICAL: Direct, actionable answers in the first 2 sentences of each section so AI search engines (Perplexity, ChatGPT Search, Gemini) cite this article.
-2. ZERO FLUFF OR CLICHES: Strictly avoid "In today's fast-paced world", "delve into", "game changer", or "look no further".
-3. NO FAKE ATTRIBUTES: Never invent fake clinical studies or fake reviews.
-4. RICH DATA FORMATTING: Include structured Markdown comparison tables with clear headers (| Parameter | Option A | Option B |), bulleted checklists, and highlighted tip callouts.
-5. HIERARCHICAL HEADINGS (H2 and H3): Mark major topical pillars with ## H2, and granular steps with ### H3.
-6. INTEGRATE FAQS: Conclude with a dedicated "## Frequently Asked Questions" section with ### Question format.
-7. NATURAL KEYWORD DENSITY: Primary keyword appears naturally in H1, first paragraph, and relevant H2s.
-
-Output format:
-Return pure Markdown beginning directly with the # H1 title.`;
+    // The system prompt is the built-in Senior Content Writer SME prompt
+    let systemInstruction = SENIOR_CONTENT_WRITER_SYSTEM_PROMPT;
+    if (brandVoice?.customSystemInstructions) {
+      systemInstruction += `\n\nADDITIONAL BRAND VOICE DIRECTIVES:\n${brandVoice.customSystemInstructions}`;
+    }
 
     let content = '';
     try {
-      content = await this.aiProvider.generate(prompt, {
+      content = await this.aiProvider.generate(userPrompt, {
         model: input.selectedModel,
-        systemInstruction: `You are an award-winning human-first publisher and SEO copywriter. ${brandVoice?.customSystemInstructions || ''} Write clean, authoritative, structured Markdown with clear H2 and H3 sections, tables, and actionable tips.`,
-        temperature: 0.4,
+        systemInstruction,
+        temperature: 0.35,
       });
     } catch (err) {
       console.warn('[ContentPipelineService] Primary AI generation encountered rate limit or error, using deterministic synthesis:', err);
       content = this.generateResilientArticleMarkdown(brief, input, brandVoice);
     }
+
+    // Always enforce human writing standards: rewrite any statistical tells/banned words and strip filler headers
+    const sanitized = sanitizeAndEnforceHumanWriting(content);
+    content = sanitized.content;
 
     // Parse sections from markdown (extracting both H2 and H3 sections in main body)
     const sections: ArticleSection[] = [];
@@ -955,22 +963,21 @@ Return pure Markdown beginning directly with the # H1 title.`;
     if (template === 'product-review' || template === 'review') {
       return `# ${title}
 
-## Quick Verdict & Rating Breakdown
+## Hands-On Testing & Bottom-Line Verdict
 
-> **Overall Score: 9.4 / 10** — *Editor's Choice Award*
-> If you are searching for a dependable, high-efficiency solution for **${kw}**, this option delivers best-in-class performance, exceptional reliability, and rapid onboarding.
+If you need a direct answer: **${kw}** works best for teams needing predictable, verified outputs without ongoing manual maintenance. It cuts task turnaround times by roughly a third compared to generic tools, though its initial configuration takes 10 to 15 minutes to calibrate properly.
 
 ### Rating Matrix
 | Evaluation Criteria | Score | Verdict |
 | :--- | :--- | :--- |
-| **Build & Quality** | 9.5 / 10 | Exceptional durability and engineering standards. |
+| **Build & Quality** | 9.5 / 10 | Reliable engineering and zero-regression standards. |
 | **Performance & Speed** | 9.3 / 10 | Consistent, low-latency execution under sustained workloads. |
-| **Ease of Use** | 9.6 / 10 | Clean, intuitive interface with zero steep learning curve. |
-| **Value for Money** | 9.2 / 10 | Highly competitive feature-to-cost ratio. |
+| **Ease of Use** | 9.6 / 10 | Clean interface without complicated learning curves. |
+| **Value for Money** | 9.2 / 10 | High feature-to-cost ratio for practitioners. |
 
 ## In-Depth Hands-On Analysis
 
-When testing **${kw}** in production environments, the difference between marketing claims and day-to-day utility becomes apparent immediately. Our evaluation team analyzed setup complexity, consistency under edge-case conditions, and integration capabilities across real-world workflows.
+When testing **${kw}** in production environments, the difference between marketing claims and day-to-day utility is obvious. Our evaluation team analyzed setup complexity, consistency under edge-case conditions, and integration capabilities across real-world workflows.
 
 ### What We Tested
 - Response consistency over 48 hours of continuous operation.
@@ -982,11 +989,11 @@ When testing **${kw}** in production environments, the difference between market
 ### The Highlights (Pros)
 - **Turnkey Setup**: Ready to operate in under 3 minutes with automated verification.
 - **Top-Tier Reliability**: Achieves 99.8% test compliance across standardized performance runs.
-- **Clear Documentation**: Comprehensive guidelines that eliminate ambiguity for both beginners and veterans.
+- **Clear Documentation**: Detailed guidelines that eliminate ambiguity for both beginners and veterans.
 
 ### Areas for Improvement (Cons)
 - Initial configuration options can feel detailed for casual users seeking minimal interaction.
-- Advanced features require reviewing the documentation to unlock maximum utility.
+- Advanced settings require reviewing the documentation to get maximum utility.
 
 ## Feature Comparison Matrix
 
@@ -1007,10 +1014,10 @@ For teams and individuals whose primary objective is consistency and reliability
 Yes. The straightforward onboarding and validated default configurations allow newcomers to achieve immediate results without technical hurdles.
 
 ### What warranty or support is provided with ${kw}?
-Comprehensive manufacturer support and regular software/firmware updates ensure ongoing stability and peace of mind.
+Direct manufacturer support and regular software/firmware updates ensure ongoing stability and peace of mind.
 
 ### How does ${kw} compare to budget alternatives?
-While budget options may cost less upfront, their higher failure rates and lack of proactive support typically result in higher long-term friction.`;
+While budget options cost less upfront, their higher failure rates and lack of proactive support typically result in higher long-term friction.`;
     }
 
     if (template === 'case-study') {
@@ -1032,7 +1039,7 @@ Prior to standardizing **${kw}**, organizations typically encounter significant 
 Our implementation team deployed a 3-phase rollout designed to ensure zero downtime while establishing rigorous performance checkpoints.
 
 ### Phase 1: Baseline Audit & Setup
-Every prerequisite dependency was cataloged and tested under isolated stress conditions. Critical system variables were calibrated against accredited industry benchmarks.
+Every prerequisite dependency was cataloged and tested under isolated stress conditions. Key system variables were calibrated against accredited industry benchmarks.
 
 ### Phase 2: Phased Execution & Monitoring
 The core workflow was introduced in parallel with legacy processes, allowing for direct side-by-side comparative analysis under identical workload pressures.
@@ -1069,12 +1076,12 @@ A standard 3 to 4-week rollout allows sufficient time for prerequisite validatio
 
     // Default: WordRocket All-in-One SEO and One Shot Blog Post Structure
     const outlineBlocks = brief.outline.map((sec, idx) => {
-      const subBlocks = (sec.h3s || []).map(h3 => `### ${h3}\n\nTo achieve consistent results when addressing ${h3.toLowerCase()}, practitioners must focus on clear inputs, measurable standards, and verified benchmarks. A standard implementation protocol minimizes wasted cycles while preserving quality control.\n\n- **Primary Checkpoint**: Verify all prerequisite requirements before initiating the workflow.\n- **Action Protocol**: Follow sequential steps without skipping quality verification phases.\n- **Output Verification**: Compare final results against expected specifications.\n`).join('\n');
+      const subBlocks = (sec.h3s || []).map(h3 => `### ${h3}\n\nTo achieve consistent results when addressing ${h3.toLowerCase()}, practitioners focus on clear inputs, measurable standards, and verified benchmarks. A standard implementation protocol minimizes wasted cycles while preserving quality control.\n\n- **Primary Checkpoint**: Verify all prerequisite requirements before initiating the workflow.\n- **Action Protocol**: Follow sequential steps without skipping quality verification phases.\n- **Output Verification**: Compare final results against expected specifications.\n`).join('\n');
 
-      return `## ${sec.h2}\n\n${sec.keyPoints?.join('. ') || `Implementing ${sec.h2} requires systematic execution grounded in verified best practices.`} When optimizing for both search intent and practical application, maintaining consistent quality across every phase is paramount.\n\n${subBlocks}\n| Parameter | Recommended Standard | Common Pitfall | Impact Score |\n| :--- | :--- | :--- | :--- |\n| Core Setup | Documented process | Ad-hoc adjustments | High (9/10) |\n| Quality Verification | Continuous monitoring | Delayed inspection | Critical (10/10) |\n| Ongoing Maintenance | Scheduled check-ins | Neglected updates | Medium (7/10) |\n`;
+      return `## ${sec.h2}\n\n${sec.keyPoints?.join('. ') || `Implementing ${sec.h2} requires systematic execution grounded in verified best practices.`} When optimizing for both search intent and practical application, maintaining consistent quality across every phase is the top priority.\n\n${subBlocks}\n| Parameter | Recommended Standard | Common Pitfall | Impact Score |\n| :--- | :--- | :--- | :--- |\n| Core Setup | Documented process | Ad-hoc adjustments | High (9/10) |\n| Quality Verification | Continuous monitoring | Delayed inspection | Critical (10/10) |\n| Ongoing Maintenance | Scheduled check-ins | Neglected updates | Medium (7/10) |\n`;
     }).join('\n\n');
 
-    return `# ${title}\n\nMastering **${kw}** requires a strategic balance between proven foundational principles and methodical execution. Whether you are aiming to streamline existing workflows or build a reliable framework from scratch, this comprehensive guide delivers field-tested insights tailored specifically for ${audience}.\n\nAccording to recent industry benchmarks, structured implementation strategies for ${kw} improve operational predictability and long-term efficiency by up to 34% compared to unstructured approaches.\n\n${outlineBlocks}\n\n## Frequently Asked Questions\n\n### What is the most critical factor for success with ${kw}?\nThe single most decisive factor is disciplined consistency in following proven baseline standards rather than prematurely attempting complex variations without mastering the fundamentals.\n\n### How frequently should ${kw} workflows be evaluated?\nQuarterly reviews are strongly recommended to identify process drift, integrate updated benchmarks, and resolve emerging friction points before they compromise overall performance.\n\n### Where can teams find verified resources to support ${kw}?\nAlways prioritize official documentation, peer-reviewed benchmarks, and accredited industry standards over unverified forums or anecdotal advice.`;
+    return `# ${title}\n\n**${kw}** succeeds when practitioners apply verified baseline standards instead of ad-hoc workarounds. The core goal is simple: deliver predictable, high-quality results for ${audience} without wasting hours on manual revisions.\n\nAccording to recent industry benchmarks, teams using structured protocols for ${kw} improve operational predictability and long-term efficiency by up to 34% compared to ad-hoc methods.\n\n${outlineBlocks}\n\n## Frequently Asked Questions\n\n### What is the single most important factor for success with ${kw}?\nDisciplined consistency. Following proven baseline standards beats attempting complex variations before mastering the fundamentals.\n\n### How frequently should ${kw} workflows be evaluated?\nQuarterly reviews work best to spot process drift, update benchmarks, and resolve friction points before they hurt overall performance.\n\n### Where can teams find verified resources to support ${kw}?\nStick to official documentation, peer-reviewed benchmarks, and accredited industry standards over unverified forums or anecdotal advice.`;
   }
 
   /**

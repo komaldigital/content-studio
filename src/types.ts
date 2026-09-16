@@ -225,6 +225,8 @@ export interface GenerationInput {
   imageQuantity?: 'auto' | 'standard' | 'rich' | 'minimal';
   selectedModel?: string;
   brandVoiceId?: string;
+  voiceNotes?: string;
+  competitorUrls?: string[];
   researchEngine?: 'gemini-grounding' | 'perplexity' | 'hybrid';
   enableAiSearchCitationHooks?: boolean;
   enableSitemapInternalLinks?: boolean;
