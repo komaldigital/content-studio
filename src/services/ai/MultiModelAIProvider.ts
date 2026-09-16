@@ -15,6 +15,7 @@ export interface ModelMetadata {
   contextWindow: string;
   costPer1kWords: string;
   bestFor: string;
+  description?: string;
 }
 
 export const AVAILABLE_MODELS: ModelMetadata[] = [
@@ -73,6 +74,42 @@ export const AVAILABLE_MODELS: ModelMetadata[] = [
     contextWindow: '200K tokens',
     costPer1kWords: '$0.0016',
     bestFor: 'Rapid section refinement, FAQs, and instant social copy'
+  },
+  {
+    id: 'openrouter/anthropic/claude-sonnet-5',
+    name: 'Claude Sonnet 5 via OpenRouter',
+    provider: 'openrouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Anthropic 5th-generation flagship with adaptive thinking, 1M context, and zero-cliché human prose.',
+    bestFor: 'Anthropic 5th-gen flagship: deep adaptive thinking, 1M context, and zero-cliché human prose'
+  },
+  {
+    id: 'openrouter/anthropic/claude-opus-5',
+    name: 'Claude Opus 5 via OpenRouter',
+    provider: 'openrouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0150',
+    description: 'Anthropic supreme intelligence tier for complex multi-step reasoning, novel synthesis, and academic rigor.',
+    bestFor: 'Anthropic supreme intelligence: deep reasoning, complex synthesis, and academic-grade prose'
+  },
+  {
+    id: 'openrouter/anthropic/claude-sonnet-4.6',
+    name: 'Claude Sonnet 4.6 via OpenRouter',
+    provider: 'openrouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Advanced Sonnet-class model with 1M context, 128K output capacity, and exceptional structural planning.',
+    bestFor: 'Anthropic Sonnet 4.6: iterative development, technical guides, and 128K output capacity'
+  },
+  {
+    id: 'openrouter/anthropic/claude-sonnet-4.5',
+    name: 'Claude Sonnet 4.5 via OpenRouter',
+    provider: 'openrouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Anthropic model optimized for real-world agents, technical accuracy, and adherence to strict specifications.',
+    bestFor: 'Agentic workflows, rigorous specifications, and clean structured articles'
   },
   {
     id: 'openrouter/anthropic/claude-3.7-sonnet',
@@ -227,7 +264,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
       } else if (model.startsWith('gpt-')) {
         return await this.callOpenAI(prompt, model, options);
       } else if (model.startsWith('openrouter/')) {
-        return await this.callOpenRouter(prompt, model.replace('openrouter/', ''), options);
+        const resolved = this.resolveOpenRouterModel(model);
+        return await this.callOpenRouter(prompt, resolved, options);
       } else if (model.startsWith('straico/')) {
         return await this.callStraico(prompt, model.replace('straico/', ''), options);
       } else {
@@ -342,7 +380,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         const rawKey = tempApiKey || this.byokKeys.openrouterApiKey;
         if (!rawKey) return { success: false, message: 'OpenRouter API key is not configured. Please enter your OpenRouter key.', model: modelToTest };
         const key = rawKey.trim().replace(/^["'`]|["'`]$/g, '').replace(/^Bearer\s+/i, '');
-        const actualModel = modelToTest.replace('openrouter/', '');
+        const actualModel = this.resolveOpenRouterModel(modelToTest);
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -535,6 +573,25 @@ export class MultiModelAIProvider implements AIProviderInterface {
     }
 
     return data.content?.[0]?.text || '';
+  }
+
+  public resolveOpenRouterModel(rawModel: string): string {
+    const clean = rawModel.replace(/^openrouter\//, '').trim();
+    const aliasMap: Record<string, string> = {
+      'anthropic/claude-5-sonnet': 'anthropic/claude-sonnet-5',
+      'claude-5-sonnet': 'anthropic/claude-sonnet-5',
+      'claude-sonnet-5': 'anthropic/claude-sonnet-5',
+      'anthropic/claude-5-opus': 'anthropic/claude-opus-5',
+      'claude-5-opus': 'anthropic/claude-opus-5',
+      'claude-opus-5': 'anthropic/claude-opus-5',
+      'anthropic/claude-4.6-sonnet': 'anthropic/claude-sonnet-4.6',
+      'claude-4.6-sonnet': 'anthropic/claude-sonnet-4.6',
+      'claude-sonnet-4.6': 'anthropic/claude-sonnet-4.6',
+      'anthropic/claude-4.5-sonnet': 'anthropic/claude-sonnet-4.5',
+      'claude-4.5-sonnet': 'anthropic/claude-sonnet-4.5',
+      'claude-sonnet-4.5': 'anthropic/claude-sonnet-4.5',
+    };
+    return aliasMap[clean] || clean;
   }
 
   private async callOpenRouter(prompt: string, model: string, options?: AIGenerateOptions): Promise<string> {

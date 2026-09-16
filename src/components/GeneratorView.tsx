@@ -673,12 +673,15 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
               <div className="flex flex-wrap gap-1.5 pb-1">
                 <span className="text-[10px] text-slate-500 self-center mr-1">Trending:</span>
                 {[
-                  { id: 'openrouter/deepseek/deepseek-r1', label: 'DeepSeek R1', tag: 'Reasoning' },
+                  { id: 'openrouter/anthropic/claude-sonnet-5', label: 'Claude Sonnet 5', tag: 'Flagship' },
+                  { id: 'openrouter/anthropic/claude-opus-5', label: 'Claude Opus 5', tag: 'Max IQ' },
+                  { id: 'openrouter/anthropic/claude-sonnet-4.6', label: 'Claude 4.6', tag: '1M Ctx' },
+                  { id: 'openrouter/anthropic/claude-sonnet-4.5', label: 'Claude 4.5', tag: 'Coding' },
                   { id: 'openrouter/anthropic/claude-3.7-sonnet', label: 'Claude 3.7', tag: 'Hybrid' },
+                  { id: 'openrouter/deepseek/deepseek-r1', label: 'DeepSeek R1', tag: 'Reasoning' },
                   { id: 'openrouter/deepseek/deepseek-chat', label: 'DeepSeek V3', tag: 'Fast' },
                   { id: 'openrouter/openai/o3-mini', label: 'o3-mini', tag: 'STEM' },
-                  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash', tag: 'Search' },
-                  { id: 'openrouter/meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B', tag: 'Open' }
+                  { id: 'gemini-3.8-flash', label: 'Gemini 3.8', tag: 'Search' }
                 ].map(pill => (
                   <button
                     key={pill.id}

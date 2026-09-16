@@ -14,6 +14,42 @@ import {
 
 export const FALLBACK_MODELS: AIModelDescriptor[] = [
   {
+    id: 'openrouter/anthropic/claude-sonnet-5',
+    name: 'Claude Sonnet 5 via OpenRouter',
+    provider: 'OpenRouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Anthropic 5th-generation flagship with adaptive thinking, 1M context, and zero-cliché human prose.',
+    bestFor: 'Ultimate pillar guides, expert editorial analysis, and autonomous content workflows'
+  },
+  {
+    id: 'openrouter/anthropic/claude-opus-5',
+    name: 'Claude Opus 5 via OpenRouter',
+    provider: 'OpenRouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0150',
+    description: 'Anthropic supreme intelligence tier for complex multi-step reasoning, novel synthesis, and academic rigor.',
+    bestFor: 'High-stakes thought leadership, investigative reviews, and exhaustive research'
+  },
+  {
+    id: 'openrouter/anthropic/claude-sonnet-4.6',
+    name: 'Claude Sonnet 4.6 via OpenRouter',
+    provider: 'OpenRouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Advanced Sonnet-class model with 1M context, 128K output capacity, and exceptional structural planning.',
+    bestFor: 'Iterative long-horizon drafting, complex structural guides, and comparison matrices'
+  },
+  {
+    id: 'openrouter/anthropic/claude-sonnet-4.5',
+    name: 'Claude Sonnet 4.5 via OpenRouter',
+    provider: 'OpenRouter',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0030',
+    description: 'Anthropic model optimized for real-world agents, technical accuracy, and adherence to strict specifications.',
+    bestFor: 'Technical documentation, structured semantic schema articles, and coding tutorials'
+  },
+  {
     id: 'openrouter/google/gemini-2.5-flash',
     name: 'Gemini 2.5 Flash (via OpenRouter)',
     provider: 'OpenRouter',
