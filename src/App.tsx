@@ -79,10 +79,22 @@ export default function App() {
     setJobs(prev => [job, ...prev]);
   };
 
-  const handleViewArticle = (articleId: string) => {
+  const handleViewArticle = async (articleId: string) => {
+    try {
+      const art = await api.getArticle(articleId);
+      if (art) {
+        setArticles(prev => {
+          const exists = prev.some(a => a.id === art.id);
+          return exists ? prev.map(a => a.id === art.id ? art : a) : [art, ...prev];
+        });
+      }
+    } catch (err) {
+      console.warn('Failed to pre-fetch article:', err);
+    }
     setSelectedArticleId(articleId);
     setCurrentTab('articles');
-    refreshAllData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    await refreshAllData();
   };
 
   const handleOpenInPinterest = (article: Article) => {
