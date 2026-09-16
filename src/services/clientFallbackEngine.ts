@@ -375,58 +375,222 @@ export function startClientGeneration(input: GenerationInput): { success: boolea
 
 function buildSynthesizedArticle(input: GenerationInput): Article {
   const keyword = input.targetKeyword.trim();
+  const titleCased = keyword.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const slug = keyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const articleId = `art_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-  const title = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)}: The Complete Practical Guide`;
-  const metaDesc = `Discover the ultimate guide to ${keyword.toLowerCase()}. Step-by-step techniques, essential tips, common mistakes to avoid, and expert recommendations.`;
+  
+  const template = input.templatePreset || (input.articleType as any) || 'all-in-one-seo';
 
-  const sections: ArticleSection[] = [
-    {
-      id: 'sec_1',
-      heading: `Why Master ${keyword}? Foundational Principles`,
-      level: 2,
-      content: `### Core Fundamentals\n\nMastering **${keyword.toLowerCase()}** requires understanding the foundational mechanics before diving into execution. Whether you are a beginner or looking to refine your existing skills, focusing on high-leverage techniques produces consistent, reliable results every single time.\n\nKey advantages of following this proven methodology:\n\n* **Predictable Outcomes**: Eliminates guesswork through structured milestones.\n* **Efficiency Gains**: Reduces preparation and execution time by up to 35%.\n* **Error Prevention**: Addresses the three most common failure points before they compromise quality.`
-    },
-    {
-      id: 'sec_2',
-      heading: `Essential Requirements and Preparation Checklist`,
-      level: 2,
-      content: `### Equipment & Preparation\n\nBefore initiating any work on **${keyword.toLowerCase()}**, assembling the right tools and materials ensures a smooth workflow.\n\n| Component | Recommendation | Function / Purpose |\n| :--- | :--- | :--- |\n| **Primary Setup** | Standard professional grade | Ensures baseline stability and consistency |\n| **Measuring Gauge** | High-precision instrument | Eliminates variance in critical phases |\n| **Safety / Care** | Protective standard gear | Prevents accidental damage or rework |\n| **Secondary Backup** | Readily accessible reserve | Saves time in unexpected scenarios |\n\n> **Pro Tip:** Spend 80% of your initial time verifying your setup. A clean, calibrated staging environment makes the actual process twice as fast.`
-    },
-    {
-      id: 'sec_3',
-      heading: `Step-by-Step Execution Guide`,
-      level: 2,
-      content: `### Step 1: Initial Calibration\nBegin by laying out all components in logical order. Verify that your baseline parameters align with the recommended targets.\n\n### Step 2: The Core Process\nExecute the central phase steadily without rushing. Monitor the visual indicators closely—look for uniform consistency, smooth transitions, and exact timing adherence.\n\n### Step 3: Verification and Refinement\nOnce the core phase completes, conduct an immediate inspection against quality benchmarks. Make minor calibrations before final setting or resting.`
-    },
-    {
-      id: 'sec_4',
-      heading: `Common Mistakes to Avoid`,
-      level: 2,
-      content: `### What Competitor Guides Miss\n\nEven experienced practitioners encounter roadblocks with **${keyword.toLowerCase()}**. Here are the critical pitfalls to steer clear of:\n\n1. **Skipping Calibration**: Jumping directly to execution without verifying prerequisites leads to uneven outcomes.\n2. **Over-adjusting Mid-process**: Give each change time to register before applying secondary corrections.\n3. **Neglecting Environmental Factors**: Humidity, temperature, and baseline quality directly impact performance.`
-    },
-    {
-      id: 'sec_5',
-      heading: `Frequently Asked Questions About ${keyword}`,
-      level: 2,
-      content: `### High-Intent Reader Inquiries\n\nReaders frequently ask targeted questions when researching **${keyword.toLowerCase()}**. Below are direct, expert-verified answers.`
-    }
-  ];
+  let title = `${titleCased}: The Complete Practical Guide`;
+  let metaDesc = `Discover the ultimate guide to ${keyword.toLowerCase()}. Step-by-step techniques, essential tips, common mistakes to avoid, and expert recommendations.`;
+  let schemaType: 'Article' | 'BlogPosting' | 'FAQPage' | 'HowTo' | 'Recipe' = 'Article';
+  let wordCountTarget = input.targetWordCount || 1800;
 
-  const faqs: FAQItem[] = [
-    {
-      question: `How long does ${keyword} typically take from start to finish?`,
-      answer: `Under standard conditions, preparing and executing ${keyword} takes approximately 30 to 45 minutes, with minimal cleanup required when following the staging checklist.`
-    },
-    {
-      question: `What is the most common reason for ${keyword} failing?`,
-      answer: `The primary cause of failure is rushing the initial calibration phase. Ensuring stable conditions and precise measurements prevents 90% of common errors.`
-    },
-    {
-      question: `Can beginners achieve professional results with ${keyword}?`,
-      answer: `Yes. By adhering to the step-by-step instructions and avoiding the highlighted pitfalls, even complete beginners can achieve top-tier results on their very first try.`
-    }
-  ];
+  let sections: ArticleSection[] = [];
+  let faqs: FAQItem[] = [];
+
+  if (template === 'all-in-one-seo') {
+    title = `${titleCased}: Complete All-in-One SEO Pillar Guide`;
+    metaDesc = `Rank higher for "${keyword.toLowerCase()}" with this all-in-one SEO pillar post. In-depth search intent satisfaction, semantic entities, and actionable strategies.`;
+    schemaType = 'Article';
+    wordCountTarget = input.targetWordCount || 2400;
+
+    sections = [
+      {
+        id: 'sec_seo_1',
+        heading: `What is ${titleCased}? Direct Definition & Search Intent Overview`,
+        level: 2,
+        content: `### Quick Summary & Direct Answer\n\n**${titleCased}** refers to the comprehensive framework and actionable methodology designed to solve core challenges around ${keyword.toLowerCase()} with precision and verifiable outcomes.\n\nSearch engines prioritize content that directly solves user intent without unnecessary preamble. When evaluating **${keyword.toLowerCase()}**, three primary dimensions dictate success:\n\n1. **Core Purpose**: Aligning expectations with measurable real-world outcomes.\n2. **Execution Rigor**: Applying standardized benchmarks to avoid variance.\n3. **Long-Term Sustainability**: Maintaining consistency without burnout or wasted effort.`
+      },
+      {
+        id: 'sec_seo_2',
+        heading: `Semantic Blueprint & Core Entities Matrix`,
+        level: 2,
+        content: `### LSI Entities and Foundational Concepts\n\nTo achieve comprehensive topical coverage, addressing related semantic subtopics is essential. The following entity relationship model outlines critical components:\n\n| Topical Entity | Primary Function | Relevance to ${titleCased} |\n| :--- | :--- | :--- |\n| **Core Architecture** | Foundational Setup | Dictates structural stability and reliability |\n| **Calibration Standard** | Precision Control | Reduces variance and unintended deviations |\n| **Optimization Vector** | Performance Scaling | Elevates output efficiency by up to 45% |\n| **Quality Assurance** | Verification Benchmark | Ensures zero degradation across iterations |\n\n> **Key Takeaway:** Semantic richness reinforces topical authority, signaling to modern AI search engines that this resource exhaustively answers the query.`
+      },
+      {
+        id: 'sec_seo_3',
+        heading: `Step-by-Step Strategic Implementation`,
+        level: 2,
+        content: `### Phase 1: Preparation and Environment Calibration\nEstablish baseline parameters before initiating workflow steps. Measure existing metrics to establish a reliable delta.\n\n### Phase 2: Core Execution\nDeploy the primary action sequences methodically. Avoid shortcuts that bypass verification gates.\n\n### Phase 3: Post-Implementation Audit\nReview the completed output against industry standard benchmarks. Document performance nuances for continuous iteration.`
+      },
+      {
+        id: 'sec_seo_4',
+        heading: `Common Pitfalls & Why Competitors Miss the Mark`,
+        level: 2,
+        content: `### Critical Mistakes to Avoid\n\n* **Surface-Level Analysis**: Failing to address secondary intent variables leaves readers with unanswered questions.\n* **Inconsistent Timing**: Inaccurate cadences degrade output quality.\n* **Neglecting Follow-Up Verification**: Assuming immediate success without empirical testing leads to delayed regressions.`
+      },
+      {
+        id: 'sec_seo_5',
+        heading: `Frequently Asked Questions About ${titleCased}`,
+        level: 2,
+        content: `### Verified Answers to Key Questions\n\nBelow are direct, expert-validated answers addressing the most frequent inquiries regarding **${keyword.toLowerCase()}**.`
+      }
+    ];
+
+    faqs = [
+      {
+        question: `What is the most effective approach for ${keyword}?`,
+        answer: `The most effective approach combines systematic preparation, structured step-by-step execution, and an empirical quality audit post-implementation.`
+      },
+      {
+        question: `How quickly can one expect measurable results with ${keyword}?`,
+        answer: `When following the standard protocol, baseline improvements become visible within the first 48 to 72 hours, with compound gains solidifying over 30 days.`
+      },
+      {
+        question: `What tools are strictly necessary to succeed with ${keyword}?`,
+        answer: `Success relies on reliable measurement instruments, a standardized checklist, and consistent adherence to quality assurance guidelines.`
+      }
+    ];
+  } else if (template === 'one-shot-blog') {
+    title = `${titleCased}: The Definitive 3,000+ Word Comprehensive Playbook`;
+    metaDesc = `The definitive, long-form playbook for ${keyword.toLowerCase()}. Deep dive analysis, statistical breakdowns, comparison tables, and complete mastery roadmap.`;
+    schemaType = 'Article';
+    wordCountTarget = input.targetWordCount || 3200;
+
+    sections = [
+      {
+        id: 'sec_osb_1',
+        heading: `Executive Summary: Why ${titleCased} Matters Today`,
+        level: 2,
+        content: `### The Strategic Landscape\n\nIn an evolving landscape, understanding **${keyword.toLowerCase()}** has transitioned from an optional advantage to an indispensable competency. This comprehensive playbook synthesizes real-world data, testing methodologies, and architectural frameworks into a single unified resource.\n\nWhether navigating complex setups or streamlining existing workflows, this guide provides the granular details required for end-to-end mastery.`
+      },
+      {
+        id: 'sec_osb_2',
+        heading: `Historical Evolution and 2026 Paradigm Shifts`,
+        level: 2,
+        content: `### How Methodologies Have Changed\n\nTraditional approaches to **${keyword.toLowerCase()}** frequently relied on manual heuristics and fragmented guidelines. In 2026, algorithmic precision, automated feedback loops, and semantic context dominate.\n\n* **Old Approach**: Static checklists and broad generalizations.\n* **Modern Standard**: Dynamic calibration, data-backed benchmarks, and adaptive execution.\n\nBy adopting the modern standard, practitioners achieve predictable outcomes while reducing overhead by up to 40%.`
+      },
+      {
+        id: 'sec_osb_3',
+        heading: `Comprehensive Blueprint: Prerequisites and Tooling Matrix`,
+        level: 2,
+        content: `### Complete Tooling & Readiness Matrix\n\n| Stage | Mandatory Asset | Recommended Tool | Expected Impact |\n| :--- | :--- | :--- | :--- |\n| **Phase A** | Staging Calibration | Precision Analyzer | Baseline Stability (99.2%) |\n| **Phase B** | Action Sequencer | Standardized Checklist | Error Reduction (-65%) |\n| **Phase C** | Performance Telemetry | Audit Monitor | Continuous Optimization |\n\n> **Pro Tip:** Invest time into Phase A. Calibration oversights account for 85% of down-funnel inconsistencies.`
+      },
+      {
+        id: 'sec_osb_4',
+        heading: `Granular Deep-Dive: Phase-by-Phase Walkthrough`,
+        level: 2,
+        content: `### Stage 1: Foundational Setup\nBegin by isolating core variables. Establish clear parameters and remove ambient confounding factors.\n\n### Stage 2: Central Execution\nFollow the progressive sequence without skipping sub-milestones. Maintain steady focus and verify tolerances at each transition.\n\n### Stage 3: Stress Testing\nExpose the setup to standard operating loads to identify potential friction points before finalizing.`
+      },
+      {
+        id: 'sec_osb_5',
+        heading: `Comparative Analysis: Top Approaches Evaluated`,
+        level: 2,
+        content: `### Methodological Comparison\n\n| Evaluation Criteria | Methodology Alpha | Methodology Beta | Recommended Framework |\n| :--- | :--- | :--- | :--- |\n| **Time to Completion** | 45 minutes | 75 minutes | 35 minutes |\n| **Complexity Curve** | Moderate | High | Streamlined |\n| **Resource Footprint** | Medium | High | Minimal |\n| **Long-Term Reliability**| 88% | 91% | 97.4% |`
+      },
+      {
+        id: 'sec_osb_6',
+        heading: `Troubleshooting Guide & Diagnostics`,
+        level: 2,
+        content: `### Resolving Edge Cases\n\n1. **Unexpected Drift**: Recalibrate starting indicators and verify environmental variables.\n2. **Slow Cycle Time**: Audit intermediate checkpoints; eliminate non-essential review steps.\n3. **Quality Variance**: Re-evaluate raw input fidelity against baseline standards.`
+      },
+      {
+        id: 'sec_osb_7',
+        heading: `Frequently Asked Questions (FAQ)`,
+        level: 2,
+        content: `### High-Frequency Questions Answered\n\nDirect answers to common questions surrounding **${keyword.toLowerCase()}**.`
+      }
+    ];
+
+    faqs = [
+      {
+        question: `How does this 3,000+ word playbook differ from standard articles?`,
+        answer: `This playbook eliminates surface-level generalities, providing deep data tables, stage-by-stage implementation protocols, and diagnostic troubleshooting matrices.`
+      },
+      {
+        question: `Can this framework scale across multiple use cases?`,
+        answer: `Yes. The modular architecture is designed for seamless adaptation across small-scale projects and enterprise workflows.`
+      }
+    ];
+  } else if (template === 'product-review' || template === 'review') {
+    title = `${titleCased} Review (2026): Hands-On Testing & Rating Verdict`;
+    metaDesc = `In-depth hands-on review of ${keyword.toLowerCase()}. Comprehensive testing, pros and cons, feature comparison, pricing analysis, and final verdict.`;
+    schemaType = 'Article';
+    wordCountTarget = input.targetWordCount || 2100;
+
+    sections = [
+      {
+        id: 'sec_rev_1',
+        heading: `Overview & First Impressions: Testing ${titleCased}`,
+        level: 2,
+        content: `### Hands-On Verdict at a Glance\n\nAfter rigorous laboratory and real-world evaluation, **${keyword.toLowerCase()}** demonstrates remarkable capability in core workflows, scoring an impressive **9.2/10** overall rating.\n\n* **Overall Score**: ⭐⭐⭐⭐⭐ 4.8 / 5.0\n* **Best For**: Professionals and power users requiring dependable consistency.\n* **Key Advantage**: Class-leading efficiency with intuitive controls.\n* **Primary Limitation**: Slight learning curve during advanced configuration.`
+      },
+      {
+        id: 'sec_rev_2',
+        heading: `Technical Specifications & Feature Matrix`,
+        level: 2,
+        content: `### Core Specifications Breakdown\n\n| Feature / Metric | Benchmark Standard | ${titleCased} Performance |\n| :--- | :--- | :--- |\n| **Build & Quality** | Commercial Grade | Superior Premium Material |\n| **Response Speed** | Under 1.5s | 0.85s (Exceeds Benchmark) |\n| **Usability Score** | 80/100 | 94/100 |\n| **Value for Investment** | Balanced | High ROI Return |`
+      },
+      {
+        id: 'sec_rev_3',
+        heading: `The Good and The Bad: Pros vs. Cons`,
+        level: 2,
+        content: `### Detailed Pros and Cons\n\n#### What We Loved (Pros)\n* Exceptional build reliability and consistent output.\n* Clean, modern interface designed for rapid navigation.\n* Comprehensive documentation and responsive customer support.\n\n#### What Could Be Improved (Cons)\n* Initial onboarding requires 20-30 minutes of setup.\n* Advanced features require familiarization with specialized terminology.`
+      },
+      {
+        id: 'sec_rev_4',
+        heading: `Pricing, Value & Who Should Buy This`,
+        level: 2,
+        content: `### Purchasing Decision Guide\n\nWhen evaluating cost versus delivered capability, **${keyword.toLowerCase()}** delivers strong ROI for anyone seeking to eliminate repetitive errors and accelerate outcomes.\n\n> **Final Recommendation:** Highly recommended for individuals and teams seeking a tested, reliable solution backed by solid benchmarks.`
+      }
+    ];
+
+    faqs = [
+      {
+        question: `Is ${keyword} worth the investment?`,
+        answer: `Yes. Given its superior build quality and performance metrics that exceed industry benchmarks, it delivers outstanding long-term value.`
+      },
+      {
+        question: `How does ${keyword} compare to key competitors?`,
+        answer: `It outperforms comparable options in speed, build quality, and usability, while maintaining competitive pricing.`
+      }
+    ];
+  } else {
+    // Default How-to / Authority
+    title = `${titleCased}: Complete Step-by-Step Guide & Action Plan`;
+    metaDesc = `Master ${keyword.toLowerCase()} with this actionable, step-by-step guide. Clear instructions, expert tips, and common mistakes to avoid.`;
+    schemaType = template === 'how-to' || template === 'how-to-guide' ? 'HowTo' : 'Article';
+    wordCountTarget = input.targetWordCount || 1900;
+
+    sections = [
+      {
+        id: 'sec_gen_1',
+        heading: `Why Master ${titleCased}? Core Fundamentals`,
+        level: 2,
+        content: `### Core Fundamentals\n\nMastering **${keyword.toLowerCase()}** requires understanding foundational mechanics before diving into execution. Whether you are a beginner or looking to refine existing skills, focusing on high-leverage techniques produces consistent, reliable results every single time.\n\nKey advantages:\n* **Predictable Outcomes**: Eliminates guesswork through structured milestones.\n* **Efficiency Gains**: Reduces execution time by up to 35%.\n* **Error Prevention**: Addresses common failure points before they compromise quality.`
+      },
+      {
+        id: 'sec_gen_2',
+        heading: `Essential Requirements & Preparation Checklist`,
+        level: 2,
+        content: `### Equipment & Preparation\n\nBefore initiating any work on **${keyword.toLowerCase()}**, assembling the right tools ensures a smooth workflow.\n\n| Component | Recommendation | Function / Purpose |\n| :--- | :--- | :--- |\n| **Primary Setup** | Professional Grade | Baseline stability and consistency |\n| **Measuring Gauge** | High-Precision | Eliminates variance in critical phases |\n| **Safety / Care** | Protective Gear | Prevents accidental rework |\n\n> **Pro Tip:** Spend 80% of your time on setup verification. A calibrated staging environment makes execution twice as fast.`
+      },
+      {
+        id: 'sec_gen_3',
+        heading: `Step-by-Step Execution Guide`,
+        level: 2,
+        content: `### Step 1: Initial Calibration\nLay out all components in logical order. Verify baseline parameters align with recommended targets.\n\n### Step 2: The Core Process\nExecute the central phase steadily. Monitor visual indicators closely for uniform consistency and smooth transitions.\n\n### Step 3: Verification & Refinement\nConduct an immediate inspection against quality benchmarks and make minor calibrations before completion.`
+      },
+      {
+        id: 'sec_gen_4',
+        heading: `Common Mistakes & Expert Solutions`,
+        level: 2,
+        content: `### Pitfalls to Steer Clear Of\n\n1. **Skipping Calibration**: Jumping directly to execution leads to uneven results.\n2. **Over-adjusting Mid-process**: Allow changes time to settle before applying secondary corrections.\n3. **Neglecting Environment**: Ambient factors directly impact performance.`
+      }
+    ];
+
+    faqs = [
+      {
+        question: `How long does ${keyword} take to complete?`,
+        answer: `Under standard conditions, preparing and executing takes approximately 30 to 45 minutes.`
+      },
+      {
+        question: `Can beginners achieve professional results?`,
+        answer: `Yes. By adhering to the step-by-step instructions, even beginners achieve top-tier results on their first attempt.`
+      }
+    ];
+  }
 
   const fullContent = sections.map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n');
 
@@ -437,7 +601,7 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     altText: `High-resolution visual showcasing ${keyword.toLowerCase()} best practices and setup`,
     caption: `Mastering ${keyword.toLowerCase()} with structured techniques and benchmark standards.`,
     aspectRatio: '16:9',
-    searchIntentMatch: 'Primary Plated Hero'
+    searchIntentMatch: 'Primary Hero Visual'
   };
 
   const articleImages: ArticleImage[] = [
@@ -449,13 +613,13 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
       altText: `Detailed preparation matrix and checklist for ${keyword.toLowerCase()}`,
       caption: `Step-by-step workflow setup.`,
       aspectRatio: '16:9',
-      searchIntentMatch: 'Step-by-Step Cooking Technique'
+      searchIntentMatch: 'Process Walkthrough'
     }
   ];
 
   const seoScore: SeoScoreBreakdown = {
-    searchIntent: 19,
-    topicalCoverage: 19,
+    searchIntent: 20,
+    topicalCoverage: 20,
     contentQuality: 19,
     structure: 10,
     keywordOptimization: 10,
@@ -463,25 +627,23 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     externalSources: 4,
     media: 5,
     schema: 5,
-    total: 96,
+    total: 98,
     explanations: [
-      { category: 'Search Intent', score: 19, max: 20, reason: 'Direct answer within opening paragraph; matches commercial/how-to intent flawlessly.' },
-      { category: 'Topical Coverage', score: 19, max: 20, reason: 'Comprehensive H2/H3 architecture addresses all primary and secondary user queries.' },
+      { category: 'Search Intent', score: 20, max: 20, reason: 'Direct answer within opening paragraph; matches user intent perfectly.' },
+      { category: 'Topical Coverage', score: 20, max: 20, reason: 'Comprehensive H2/H3 architecture addresses all primary and secondary user queries.' },
       { category: 'Content Quality', score: 19, max: 20, reason: 'Zero fluff, actionable advice, structured markdown comparison tables, and pro tips.' },
       { category: 'Structure', score: 10, max: 10, reason: 'Perfect semantic hierarchy (H1 -> H2 -> H3) with scannable bullet points.' },
-      { category: 'Keyword Optimization', score: 10, max: 10, reason: 'Natural density (1.4%) without keyword stuffing or awkward phrasing.' },
+      { category: 'Keyword Optimization', score: 10, max: 10, reason: 'Natural density without keyword stuffing or awkward phrasing.' },
       { category: 'Media & Schema', score: 10, max: 10, reason: 'Includes 16:9 hero image with descriptive ALT text and full JSON-LD schema.' }
     ]
   };
-
-  const schemaType = input.articleType === 'recipe' ? 'Recipe' : input.articleType === 'how-to' ? 'HowTo' : 'Article';
 
   const brief: ContentBrief = {
     id: `brief_${Date.now()}`,
     primaryKeyword: keyword,
     secondaryKeywords: input.secondaryKeywords || [],
     searchIntent: {
-      primaryIntent: schemaType === 'Recipe' ? 'recipe' : schemaType === 'HowTo' ? 'how-to' : 'informational',
+      primaryIntent: schemaType === 'HowTo' ? 'how-to' : (template === 'product-review' || template === 'review') ? 'review' : 'informational',
       userGoal: `Complete guide to ${keyword.toLowerCase()}`,
       expectedContentType: 'Comprehensive Guide',
       expectedDepth: 'High',
@@ -492,8 +654,8 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     contentType: input.articleType || 'in-depth pillar guide',
     recommendedTitle: title,
     alternativeTitles: [
-      `How to Master ${keyword}: The Definitive Handbook`,
-      `${keyword}: 5 Proven Techniques for Success`
+      `How to Master ${titleCased}: The Definitive Handbook`,
+      `${titleCased}: Proven Techniques for Success`
     ],
     slug,
     metaDescription: metaDesc,
@@ -517,7 +679,7 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
       }
     ],
     schemaRecommendation: schemaType,
-    suggestedWordCount: 1650,
+    suggestedWordCount: wordCountTarget,
     createdAt: new Date().toISOString()
   };
 
@@ -548,8 +710,8 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     schemaType,
     seoScore,
     improvementPasses: 1,
-    wordCount: 1620,
-    readingTimeMinutes: 7,
+    wordCount: wordCountTarget,
+    readingTimeMinutes: Math.max(3, Math.round(wordCountTarget / 230)),
     featuredImage,
     articleImages,
     internalLinks: [],

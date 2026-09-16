@@ -755,15 +755,61 @@ BRAND VOICE PROFILE: "${brandVoice.name}"
 - CUSTOM VOICE INSTRUCTIONS: ${brandVoice.customSystemInstructions}`;
     }
 
+    const templatePreset = input.templatePreset || input.articleType;
+    let templateInstructions = '';
+    if (templatePreset === 'all-in-one-seo') {
+      templateInstructions = `
+WORDROCKET ALL-IN-ONE SEO ARCHITECTURE:
+- Deliver high keyword relevance and natural entity co-occurrences without keyword stuffing.
+- The first 2 sentences under each H2 must provide concise, direct answers optimized for featured snippets and AI overviews.
+- Include a comprehensive Markdown comparison table or benchmark matrix.
+- Conclude with a structured FAQ section addressing common searcher queries.`;
+    } else if (templatePreset === 'one-shot-blog') {
+      templateInstructions = `
+WORDROCKET ONE SHOT LONG-FORM BLOG POST ARCHITECTURE:
+- Target word count: ${input.targetWordCount || 3200} words.
+- Exhaustive sub-topic breakdown with deep H2 and H3 hierarchies.
+- Real-world actionable frameworks, decision trees, checklists, and structured multi-column tables.
+- Comprehensive summaries and actionable takeaways.`;
+    } else if (templatePreset === 'product-review' || templatePreset === 'review') {
+      templateInstructions = `
+WORDROCKET PRODUCT REVIEW & ROUNDUP ARCHITECTURE:
+- Bottom-line Verdict Box and quick-glance score summary.
+- Hands-on testing methodology, pros and cons matrix, and feature comparison table.
+- Clear criteria: Build quality, value for money, daily usability, and alternatives.
+- Transparent recommendation on who should buy vs who should skip.`;
+    } else if (templatePreset === 'how-to-guide' || templatePreset === 'how-to') {
+      templateInstructions = `
+WORDROCKET STEP-BY-STEP HOW-TO GUIDE ARCHITECTURE:
+- Prerequisite requirements checklist and equipment/tool list.
+- Chronological phases with numbered step-by-step instructions (Phase 1, Phase 2, Phase 3).
+- Pro tips, safety warnings, and troubleshooting guide for common stumbling blocks.`;
+    } else if (templatePreset === 'case-study') {
+      templateInstructions = `
+WORDROCKET CASE STUDY & AUTHORITY PAPER ARCHITECTURE:
+- Executive summary, baseline problem context, and implementation methodology.
+- Quantitative data points, key findings, and before-and-after benchmark comparison table.
+- Practical lessons learned and replicable framework for practitioners.`;
+    } else if (templatePreset === 'content-refresh') {
+      templateInstructions = `
+WORDROCKET CONTENT REFRESH ARCHITECTURE:
+- Modernized benchmarks and ${new Date().getFullYear()} updates.
+- Identifies and closes missing topical gaps compared to top SERP competitors.
+- Revised best practices, obsolete tactic warnings, and updated FAQs.`;
+    }
+
+    const effectiveWordCount = input.targetWordCount || brief.suggestedWordCount || 2200;
+
     const prompt = `You are an elite editorial writer and topical authority specialist.
 TOPIC & BRIEF:
 - Primary Keyword: "${brief.primaryKeyword}"
 - Secondary Keywords: ${brief.secondaryKeywords.join(', ') || 'None'}
 - Recommended Title: "${brief.recommendedTitle}"
 - Target Intent: ${brief.searchIntent.primaryIntent} (${brief.searchIntent.userGoal})
-- Suggested Length: ${brief.suggestedWordCount} words
+- Suggested Length: ${effectiveWordCount} words
 - Tone: ${input.tone || 'authoritative, clear, helpful'}
 ${voiceDirectives}
+${templateInstructions}
 
 - Outline:
 ${brief.outline.map((sec, i) => `${i + 1}. H2: ${sec.h2}\n   Subsections (use ### H3): ${(sec.h3s || []).join(', ')}\n   Key points: ${(sec.keyPoints || []).join('; ')}`).join('\n')}
@@ -842,13 +888,186 @@ Return pure Markdown beginning directly with the # H1 title.`;
   }
 
   /**
+   * Deterministic fallback article content for JobQueue and resilience handlers
+   */
+  public fallbackArticleContent(brief: ContentBrief, input: GenerationInput): {
+    content: string;
+    sections: ArticleSection[];
+    faqs: FAQItem[];
+  } {
+    const content = this.generateResilientArticleMarkdown(brief, input);
+    const sections: ArticleSection[] = [];
+    const faqPos = content.search(/##\s+(?:Frequently Asked Questions|FAQ)/i);
+    const mainBody = faqPos !== -1 ? content.slice(0, faqPos) : content;
+
+    const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+    let match: RegExpExecArray | null;
+    const matches: { index: number; level: 2 | 3; heading: string }[] = [];
+
+    while ((match = headingRegex.exec(mainBody)) !== null) {
+      matches.push({
+        index: match.index,
+        level: match[1].length as 2 | 3,
+        heading: match[2].trim()
+      });
+    }
+
+    for (let i = 0; i < matches.length; i++) {
+      const start = matches[i].index;
+      const end = (i + 1 < matches.length) ? matches[i + 1].index : mainBody.length;
+      const sectionContent = mainBody.slice(start, end).trim();
+      sections.push({
+        id: `sec_${i + 1}`,
+        heading: matches[i].heading,
+        level: matches[i].level,
+        content: sectionContent
+      });
+    }
+
+    const faqs: FAQItem[] = [
+      {
+        question: `What is the most critical factor for success with ${brief.primaryKeyword}?`,
+        answer: `The single most decisive factor is disciplined consistency in following proven baseline standards rather than prematurely attempting complex variations without mastering the fundamentals.`
+      },
+      {
+        question: `How frequently should ${brief.primaryKeyword} workflows be evaluated?`,
+        answer: `Quarterly reviews are strongly recommended to identify process drift, integrate updated benchmarks, and resolve emerging friction points before they compromise overall performance.`
+      },
+      {
+        question: `Where can teams find verified resources to support ${brief.primaryKeyword}?`,
+        answer: `Always prioritize official documentation, peer-reviewed benchmarks, and accredited industry standards over unverified forums or anecdotal advice.`
+      }
+    ];
+
+    return { content, sections, faqs };
+  }
+
+  /**
    * Resilient fallback article generator ensuring zero crashes when LLM rate limits hit
    */
   private generateResilientArticleMarkdown(brief: ContentBrief, input: GenerationInput, brandVoice?: any): string {
     const kw = brief.primaryKeyword;
     const title = brief.recommendedTitle;
     const audience = input.audience || 'practitioners and decision makers';
+    const template = input.templatePreset || input.articleType;
 
+    // Specialized WordRocket Template Architectures
+    if (template === 'product-review' || template === 'review') {
+      return `# ${title}
+
+## Quick Verdict & Rating Breakdown
+
+> **Overall Score: 9.4 / 10** — *Editor's Choice Award*
+> If you are searching for a dependable, high-efficiency solution for **${kw}**, this option delivers best-in-class performance, exceptional reliability, and rapid onboarding.
+
+### Rating Matrix
+| Evaluation Criteria | Score | Verdict |
+| :--- | :--- | :--- |
+| **Build & Quality** | 9.5 / 10 | Exceptional durability and engineering standards. |
+| **Performance & Speed** | 9.3 / 10 | Consistent, low-latency execution under sustained workloads. |
+| **Ease of Use** | 9.6 / 10 | Clean, intuitive interface with zero steep learning curve. |
+| **Value for Money** | 9.2 / 10 | Highly competitive feature-to-cost ratio. |
+
+## In-Depth Hands-On Analysis
+
+When testing **${kw}** in production environments, the difference between marketing claims and day-to-day utility becomes apparent immediately. Our evaluation team analyzed setup complexity, consistency under edge-case conditions, and integration capabilities across real-world workflows.
+
+### What We Tested
+- Response consistency over 48 hours of continuous operation.
+- Error recovery protocols when encountering malformed inputs.
+- Resource footprint and latency benchmarks across common platforms.
+
+## Key Pros & Cons
+
+### The Highlights (Pros)
+- **Turnkey Setup**: Ready to operate in under 3 minutes with automated verification.
+- **Top-Tier Reliability**: Achieves 99.8% test compliance across standardized performance runs.
+- **Clear Documentation**: Comprehensive guidelines that eliminate ambiguity for both beginners and veterans.
+
+### Areas for Improvement (Cons)
+- Initial configuration options can feel detailed for casual users seeking minimal interaction.
+- Advanced features require reviewing the documentation to unlock maximum utility.
+
+## Feature Comparison Matrix
+
+| Feature / Capability | ${kw} | Typical Alternative A | Budget Alternative B |
+| :--- | :--- | :--- | :--- |
+| **Automated Verification** | ✅ Native Built-in | ⚠️ Partial / Add-on | ❌ Not available |
+| **Performance Index** | **94 / 100** | 81 / 100 | 69 / 100 |
+| **Support & Updates** | Priority 24/7 | Standard Business | Community only |
+| **Long-Term ROI** | **High (+42%)** | Moderate (+18%) | Low / Neutral |
+
+## The Final Verdict: Should You Invest in ${kw}?
+
+For teams and individuals whose primary objective is consistency and reliability, **${kw}** stands out as an exemplary choice. It avoids superficial gimmicks in favor of resilient performance, making it well worth the investment for ${audience}.
+
+## Frequently Asked Questions
+
+### Is ${kw} suitable for beginners?
+Yes. The straightforward onboarding and validated default configurations allow newcomers to achieve immediate results without technical hurdles.
+
+### What warranty or support is provided with ${kw}?
+Comprehensive manufacturer support and regular software/firmware updates ensure ongoing stability and peace of mind.
+
+### How does ${kw} compare to budget alternatives?
+While budget options may cost less upfront, their higher failure rates and lack of proactive support typically result in higher long-term friction.`;
+    }
+
+    if (template === 'case-study') {
+      return `# ${title}
+
+## Executive Summary
+
+This empirical case study evaluates the real-world deployment of **${kw}** within modern operational frameworks. By establishing a rigorous baseline, tracking key performance indicators (KPIs), and analyzing longitudinal data over a 6-month evaluation cycle, this report provides reproducible insights for ${audience}.
+
+## Baseline Challenge & Problem Statement
+
+Prior to standardizing **${kw}**, organizations typically encounter significant operational fragmentation:
+- Inconsistent quality outputs across distributed teams.
+- High manual intervention overhead averaging 14 hours per week.
+- Lack of standardized auditing protocols to measure deviations from target benchmarks.
+
+## Implementation Methodology & Protocol
+
+Our implementation team deployed a 3-phase rollout designed to ensure zero downtime while establishing rigorous performance checkpoints.
+
+### Phase 1: Baseline Audit & Setup
+Every prerequisite dependency was cataloged and tested under isolated stress conditions. Critical system variables were calibrated against accredited industry benchmarks.
+
+### Phase 2: Phased Execution & Monitoring
+The core workflow was introduced in parallel with legacy processes, allowing for direct side-by-side comparative analysis under identical workload pressures.
+
+### Phase 3: Validation & Optimization
+Final outputs were verified using automated regression scripts and third-party validation tools to guarantee objective compliance.
+
+## Empirical Findings & Before vs After Benchmarks
+
+| Performance Metric | Baseline (Pre-Implementation) | Post-Implementation | Net Improvement |
+| :--- | :--- | :--- | :--- |
+| **Task Completion Velocity** | 4.2 hours | **1.3 hours** | **+69% faster** |
+| **Error Rate Frequency** | 11.4% | **1.2%** | **-89% reduction** |
+| **Resource Utilization** | 82% peak load | **44% balanced** | **+46% efficiency** |
+| **Topical Authority Score** | 62 / 100 | **94 / 100** | **+32 pts** |
+
+## Key Takeaways & Actionable Framework
+
+1. **Master Core Fundamentals First**: Organizations that spent extra time validating initial inputs achieved 3x higher throughput stability.
+2. **Automate Routine Checkpoints**: Removing subjective judgment from repetitive verifications reduced human error by over 80%.
+3. **Institutionalize Ongoing Audits**: Conducting monthly benchmark checks ensured system performance remained within ±2% of optimal targets.
+
+## Frequently Asked Questions
+
+### What was the biggest hurdle during this ${kw} implementation?
+The most demanding phase was standardizing legacy data into clean, machine-verifiable formats prior to workflow initiation.
+
+### Can these results be replicated across different industries?
+Yes. Because the core framework relies on objective benchmarks and verified inputs, the underlying principles apply broadly across sectors.
+
+### What is the recommended timeline for rolling out ${kw}?
+A standard 3 to 4-week rollout allows sufficient time for prerequisite validation, parallel testing, and team training without business disruption.`;
+    }
+
+    // Default: WordRocket All-in-One SEO and One Shot Blog Post Structure
     const outlineBlocks = brief.outline.map((sec, idx) => {
       const subBlocks = (sec.h3s || []).map(h3 => `### ${h3}\n\nTo achieve consistent results when addressing ${h3.toLowerCase()}, practitioners must focus on clear inputs, measurable standards, and verified benchmarks. A standard implementation protocol minimizes wasted cycles while preserving quality control.\n\n- **Primary Checkpoint**: Verify all prerequisite requirements before initiating the workflow.\n- **Action Protocol**: Follow sequential steps without skipping quality verification phases.\n- **Output Verification**: Compare final results against expected specifications.\n`).join('\n');
 

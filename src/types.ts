@@ -157,11 +157,15 @@ export interface GeneratedImageItem {
 }
 
 export type ArticleType = 
+  | 'all-in-one-seo'
+  | 'one-shot-blog'
   | 'how-to'
-  | 'listicle'
-  | 'ultimate-guide'
-  | 'comparison'
   | 'review'
+  | 'comparison'
+  | 'case-study'
+  | 'content-refresh'
+  | 'ultimate-guide'
+  | 'listicle'
   | 'recipe'
   | 'standard-post';
 
@@ -174,6 +178,14 @@ export type ToneType =
   | 'friendly';
 
 export type LengthType = 'short' | 'medium' | 'long' | 'comprehensive';
+
+export type WordRocketTemplateId =
+  | 'all-in-one-seo'
+  | 'one-shot-blog'
+  | 'product-review'
+  | 'how-to-guide'
+  | 'case-study'
+  | 'content-refresh';
 
 export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
@@ -203,6 +215,8 @@ export interface GenerationInput {
   audience?: string;
   articleType?: ArticleType;
   desiredLength?: LengthType;
+  targetWordCount?: number;
+  templatePreset?: WordRocketTemplateId;
   tone?: ToneType;
   websiteTopic?: string;
   brandName?: string;
@@ -214,6 +228,7 @@ export interface GenerationInput {
   researchEngine?: 'gemini-grounding' | 'perplexity' | 'hybrid';
   enableAiSearchCitationHooks?: boolean;
   enableSitemapInternalLinks?: boolean;
+  includeSerpAnalysis?: boolean;
 }
 
 export interface AuthorProfile {

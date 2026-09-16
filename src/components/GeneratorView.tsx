@@ -17,7 +17,14 @@ import {
   Key,
   ChevronDown,
   ShieldCheck,
-  Camera
+  Camera,
+  Zap,
+  Rocket,
+  Target,
+  Link2,
+  Globe,
+  DollarSign,
+  Clock
 } from 'lucide-react';
 import { api } from '../api.js';
 import {
@@ -27,7 +34,8 @@ import {
   Job,
   ToneType,
   ArticleType,
-  AIModelDescriptor
+  AIModelDescriptor,
+  WordRocketTemplateId
 } from '../types.js';
 
 interface GeneratorViewProps {
@@ -51,9 +59,17 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   const [language, setLanguage] = useState('English');
   const [audience, setAudience] = useState('Busy home cooks and parents seeking low-stress meals');
   const [tone, setTone] = useState<ToneType>('authoritative');
-  const [articleType, setArticleType] = useState<ArticleType>('recipe');
+  const [articleType, setArticleType] = useState<ArticleType>('all-in-one-seo');
   const [brandName, setBrandName] = useState('AI SEO Studio');
   const [autoImprove, setAutoImprove] = useState(true);
+
+  // WordRocket Template & Core Engine States
+  const [selectedTemplate, setSelectedTemplate] = useState<WordRocketTemplateId>('all-in-one-seo');
+  const [targetWordCount, setTargetWordCount] = useState<number>(2500);
+  const [includeSerpAnalysis, setIncludeSerpAnalysis] = useState<boolean>(true);
+  const [enableSitemapLinks, setEnableSitemapLinks] = useState<boolean>(true);
+  const [sitemapUrlCount, setSitemapUrlCount] = useState<number>(12);
+  const [sitemapDomain, setSitemapDomain] = useState<string>('site.com');
 
   // Model Selection State
   const [availableModels, setAvailableModels] = useState<AIModelDescriptor[]>([]);
@@ -65,7 +81,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   const [testingModel, setTestingModel] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Fetch available models on mount
+  // Fetch available models and sitemap data on mount
   useEffect(() => {
     const fetchModels = async () => {
       try {
@@ -83,7 +99,27 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
         console.warn('Failed to load AI models:', e);
       }
     };
+
+    const fetchSitemapInfo = async () => {
+      try {
+        const sitemap = await api.getSitemap();
+        if (sitemap) {
+          if (sitemap.entries && sitemap.entries.length > 0) {
+            setSitemapUrlCount(sitemap.entries.length);
+          }
+          if (sitemap.sitemapUrl) {
+            try {
+              setSitemapDomain(new URL(sitemap.sitemapUrl).hostname);
+            } catch {
+              setSitemapDomain(sitemap.sitemapUrl.replace(/^https?:\/\//, '').split('/')[0]);
+            }
+          }
+        }
+      } catch {}
+    };
+
     fetchModels();
+    fetchSitemapInfo();
   }, []);
 
   // Update if initialKeyword changes
@@ -156,6 +192,50 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     }
   };
 
+  const handleSelectTemplate = (templateId: WordRocketTemplateId) => {
+    setSelectedTemplate(templateId);
+    if (templateId === 'all-in-one-seo') {
+      setArticleType('all-in-one-seo');
+      setTargetWordCount(2500);
+      setTone('authoritative');
+    } else if (templateId === 'one-shot-blog') {
+      setArticleType('one-shot-blog');
+      setTargetWordCount(3200);
+      setTone('authoritative');
+    } else if (templateId === 'product-review') {
+      setArticleType('review');
+      setTargetWordCount(2100);
+      setTone('conversational');
+    } else if (templateId === 'how-to-guide') {
+      setArticleType('how-to');
+      setTargetWordCount(1900);
+      setTone('instructional');
+    } else if (templateId === 'case-study') {
+      setArticleType('case-study');
+      setTargetWordCount(2200);
+      setTone('professional');
+    } else if (templateId === 'content-refresh') {
+      setArticleType('content-refresh');
+      setTargetWordCount(2400);
+      setTone('authoritative');
+    }
+  };
+
+  // Live Token & Cost Calculations (WordRocket Core Engine)
+  const estOutputTokens = Math.round(targetWordCount * 1.35);
+  const estTotalTokens = estOutputTokens + 1600;
+  const getEstimatedCost = () => {
+    if (selectedModel.startsWith('gemini')) return '< $0.01';
+    if (selectedModel.includes('deepseek-r1')) return '$0.02';
+    if (selectedModel.includes('deepseek-chat')) return '$0.01';
+    if (selectedModel.includes('claude-3.7')) return '$0.07';
+    if (selectedModel.includes('claude-3.5')) return '$0.05';
+    if (selectedModel.includes('o3-mini')) return '$0.03';
+    if (selectedModel.includes('gpt-4o')) return '$0.06';
+    if (selectedModel.includes('llama-3.3')) return '$0.01';
+    return '$0.02';
+  };
+
   const handleStartGeneration = async () => {
     if (!keyword.trim()) return;
 
@@ -170,9 +250,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
       audience,
       tone,
       articleType,
+      targetWordCount,
+      templatePreset: selectedTemplate,
       brandName,
       autoImprove,
-      selectedModel
+      selectedModel,
+      enableSitemapInternalLinks: enableSitemapLinks,
+      includeSerpAnalysis
     };
 
     try {
@@ -265,6 +349,253 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* WordRocket AI Templates & Target Configuration */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Rocket className="w-4 h-4" />
+              </span>
+              <h2 className="text-base font-bold text-white tracking-tight">WordRocket AI Writing Presets</h2>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/80">
+                app.wordrocket.ai parity
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              Select an algorithmic blueprint optimized for SERP rankings, long-form depth, or affiliate conversions.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="text-xs text-slate-400 font-medium">Est. Cost:</span>
+            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2.5 py-1 rounded-lg">
+              {getEstimatedCost()}
+            </span>
+          </div>
+        </div>
+
+        {/* Template Selector Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {[
+            {
+              id: 'all-in-one-seo' as WordRocketTemplateId,
+              title: 'All-in-One SEO Post',
+              badge: 'Flagship',
+              badgeColor: 'bg-emerald-950 text-emerald-300 border-emerald-800',
+              icon: Rocket,
+              description: 'Target keyword density, semantic entities, FAQ schema, snippet hooks & meta descriptions.',
+              words: '2,500 words',
+              targetCount: 2500
+            },
+            {
+              id: 'one-shot-blog' as WordRocketTemplateId,
+              title: 'One Shot Blog Post',
+              badge: '3,000+ Words',
+              badgeColor: 'bg-purple-950 text-purple-300 border-purple-800',
+              icon: Zap,
+              description: 'WordRocket signature single-prompt pillar synthesized with deep takeaways, tables & FAQs.',
+              words: '3,200 words',
+              targetCount: 3200
+            },
+            {
+              id: 'product-review' as WordRocketTemplateId,
+              title: 'Product Review & Roundup',
+              badge: 'Affiliate Ready',
+              badgeColor: 'bg-amber-950 text-amber-300 border-amber-800',
+              icon: Target,
+              description: 'Affiliate-ready comparison matrix, pros & cons, rating breakdown, verdict badge & CTAs.',
+              words: '2,100 words',
+              targetCount: 2100
+            },
+            {
+              id: 'how-to-guide' as WordRocketTemplateId,
+              title: 'Step-by-Step How-To',
+              badge: 'Actionable',
+              badgeColor: 'bg-blue-950 text-blue-300 border-blue-800',
+              icon: Layers,
+              description: 'Actionable chronological steps, prerequisite checklists, expert tips & troubleshooting.',
+              words: '1,900 words',
+              targetCount: 1900
+            },
+            {
+              id: 'case-study' as WordRocketTemplateId,
+              title: 'Case Study & Authority',
+              badge: 'Research Citations',
+              badgeColor: 'bg-cyan-950 text-cyan-300 border-cyan-800',
+              icon: FileCheck,
+              description: 'Empirical citations, methodology, key findings, data points & takeaway summary.',
+              words: '2,200 words',
+              targetCount: 2200
+            },
+            {
+              id: 'content-refresh' as WordRocketTemplateId,
+              title: 'Content Refresh / Rewriter',
+              badge: 'SERP Reclaim',
+              badgeColor: 'bg-rose-950 text-rose-300 border-rose-800',
+              icon: RefreshCw,
+              description: 'Re-optimizes existing articles with fresh data, missing competitor topics & modern SERP alignment.',
+              words: '2,400 words',
+              targetCount: 2400
+            }
+          ].map(t => {
+            const isSelected = selectedTemplate === t.id;
+            const Icon = t.icon;
+            return (
+              <div
+                key={t.id}
+                onClick={() => handleSelectTemplate(t.id)}
+                className={`group cursor-pointer text-left p-4 rounded-xl border transition-all relative flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-slate-950 border-emerald-500 shadow-sm ring-1 ring-emerald-500/50'
+                    : 'bg-slate-950/60 hover:bg-slate-950 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg border ${isSelected ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
+                        {t.title}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${t.badgeColor}`}>
+                      {t.badge}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                    {t.description}
+                  </p>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 font-mono">Target: <strong className="text-slate-300">{t.words}</strong></span>
+                  {isSelected && (
+                    <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                      <Check className="w-3.5 h-3.5" />
+                      Active
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* WordRocket Target Length & Live Token/Cost Estimator */}
+        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/90 space-y-3.5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+                Target Word Count Target
+              </div>
+              <div className="text-[11px] text-slate-400">
+                WordRocket expands section depth and subtopic synthesis to fulfill your exact length requirements.
+              </div>
+            </div>
+
+            {/* Word Count Pills */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { words: 1500, label: '1,500w (Standard)' },
+                { words: 2500, label: '2,500w (SEO Pillar)' },
+                { words: 3200, label: '3,200w (WordRocket Mega)' },
+                { words: 4500, label: '4,500w (Masterclass)' }
+              ].map(w => (
+                <button
+                  key={w.words}
+                  type="button"
+                  onClick={() => setTargetWordCount(w.words)}
+                  className={`text-xs px-2.5 py-1.5 rounded-lg font-medium transition-all ${
+                    targetWordCount === w.words
+                      ? 'bg-emerald-600 text-white font-semibold shadow-sm'
+                      : 'bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800'
+                  }`}
+                >
+                  {w.label}
+                </button>
+              ))}
+
+              <div className="flex items-center gap-1 pl-1">
+                <input
+                  type="number"
+                  min="800"
+                  max="10000"
+                  step="100"
+                  value={targetWordCount}
+                  onChange={(e) => setTargetWordCount(Math.max(500, Number(e.target.value)))}
+                  className="w-20 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white font-mono text-center focus:outline-none focus:border-emerald-500"
+                />
+                <span className="text-xs text-slate-500">words</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Real-time Token & Live Cost Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800/80 text-xs">
+            <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Estimated Tokens</span>
+              <span className="text-sm font-semibold font-mono text-slate-200">
+                ~{estTotalTokens.toLocaleString()}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Estimated Cost</span>
+              <span className="text-sm font-semibold font-mono text-emerald-400">
+                {getEstimatedCost()}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Est. Completion</span>
+              <span className="text-sm font-semibold font-mono text-slate-200">
+                {targetWordCount > 3000 ? '~35-45s' : '~20-30s'}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Model Target</span>
+              <span className="text-xs font-semibold text-purple-300 truncate block" title={activeModelDetails?.name || selectedModel}>
+                {activeModelDetails?.name || selectedModel.split('/').pop()}
+              </span>
+            </div>
+          </div>
+
+          {/* WordRocket Core Integrations (SERP Search & Sitemap Linking) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+              <input
+                type="checkbox"
+                checked={includeSerpAnalysis}
+                onChange={(e) => setIncludeSerpAnalysis(e.target.checked)}
+                className="w-4 h-4 rounded text-emerald-500 bg-slate-900 border-slate-700 focus:ring-emerald-500"
+              />
+              <span className="flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-blue-400" />
+                <span>AI Research Engine (Live Google SERP & Topical Gap Scanner)</span>
+              </span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+              <input
+                type="checkbox"
+                checked={enableSitemapLinks}
+                onChange={(e) => setEnableSitemapLinks(e.target.checked)}
+                className="w-4 h-4 rounded text-emerald-500 bg-slate-900 border-slate-700 focus:ring-emerald-500"
+              />
+              <span className="flex items-center gap-1.5">
+                <Link2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Auto-Link from Sitemap ({sitemapUrlCount} indexed pages)</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
 
       {/* Main Form Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -544,15 +875,29 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 </label>
                 <select
                   value={articleType}
-                  onChange={(e) => setArticleType(e.target.value as ArticleType)}
+                  onChange={(e) => {
+                    const val = e.target.value as ArticleType;
+                    setArticleType(val);
+                    if (val === 'all-in-one-seo' || val === 'one-shot-blog' || val === 'case-study' || val === 'content-refresh') {
+                      setSelectedTemplate(val as WordRocketTemplateId);
+                    } else if (val === 'review') {
+                      setSelectedTemplate('product-review');
+                    } else if (val === 'how-to') {
+                      setSelectedTemplate('how-to-guide');
+                    }
+                  }}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
                 >
-                  <option value="recipe">Recipe & Culinary Guide</option>
-                  <option value="how-to">Step-by-Step How-To Guide</option>
+                  <option value="all-in-one-seo">⚡ All-in-One SEO Post (WordRocket)</option>
+                  <option value="one-shot-blog">🚀 One Shot Blog Post (3,000+ words)</option>
+                  <option value="review">🛍️ Hands-On Product Review</option>
+                  <option value="how-to">📋 Step-by-Step How-To Guide</option>
+                  <option value="case-study">📊 Case Study & Authority Paper</option>
+                  <option value="content-refresh">🔄 Content Refresh & Rewriter</option>
                   <option value="ultimate-guide">Comprehensive Ultimate Guide</option>
+                  <option value="recipe">Recipe & Culinary Guide</option>
                   <option value="listicle">Curated Listicle / Roundup</option>
                   <option value="comparison">Side-by-Side Comparison</option>
-                  <option value="review">Hands-On Product Review</option>
                 </select>
               </div>
 

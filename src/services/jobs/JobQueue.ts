@@ -4,7 +4,7 @@
  * Executes multi-stage generation without blocking client request threads.
  */
 
-import { Job, JobStatus, JobStage, GenerationInput, Article } from '../../types.js';
+import { Job, JobStatus, JobStage, GenerationInput, Article, ArticleImage, ArticleSection, ContentBrief, SeoScoreBreakdown } from '../../types.js';
 import { DataStore } from '../storage/Store.js';
 import { ContentPipelineService } from '../pipeline/ContentPipelineService.js';
 import { ImageProviderInterface } from '../images/ImageProviderInterface.js';
@@ -99,13 +99,50 @@ export class JobQueue {
 
     const featuredImage: ArticleImage = {
       id: 'img_' + Math.random().toString(36).substring(2, 9),
+      type: 'featured',
       prompt: `Professional editorial visual for ${keyword}`,
       url: `https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1600&q=80`,
       altText: `Comprehensive visual guide for ${keyword}`,
       caption: `Key operational insights for ${keyword}`,
-      aspectRatio: '16:9',
-      purpose: 'featured',
-      modelUsed: 'seedream'
+      aspectRatio: '16:9'
+    };
+
+    const brief: ContentBrief = {
+      id: 'brief_' + Math.random().toString(36).substring(2, 9),
+      primaryKeyword: keyword,
+      secondaryKeywords: [keyword + ' best practices', keyword + ' guide'],
+      searchIntent: {
+        primaryIntent: 'informational',
+        userGoal: `Mastering ${keyword}`,
+        expectedContentType: 'Guide',
+        expectedDepth: 'In-Depth',
+        likelyQuestions: [`What is the most important factor in ${keyword}?`],
+        commercialViability: 'medium'
+      },
+      targetAudience: 'Practitioners and decision makers',
+      contentType: 'in-depth pillar guide',
+      recommendedTitle: title,
+      alternativeTitles: [`Mastering ${keyword}: The Complete Handbook`],
+      slug,
+      metaDescription,
+      alternativeMetaDescriptions: [`Expert guide to ${keyword}.`],
+      h1: title,
+      outline: [
+        { h2: '1. Understanding Search Intent and User Goals' },
+        { h2: '2. Strategic Implementation & Best Practices' }
+      ],
+      entities: [keyword, 'Industry Standards', 'Best Practices'],
+      relatedConcepts: ['Workflow', 'Quality Control'],
+      questionsToAnswer: [`What is the most important factor in ${keyword}?`],
+      contentGapsToAddress: [],
+      internalLinkOpportunities: [],
+      externalSourceOpportunities: [
+        { type: 'gov' as const, name: 'Industry Benchmark Documentation', relevance: 'Standards baseline' }
+      ],
+      imageRecommendations: [],
+      schemaRecommendation: 'Article',
+      suggestedWordCount: 1450,
+      createdAt: new Date().toISOString()
     };
 
     const newArticle: Article = {
@@ -116,10 +153,14 @@ export class JobQueue {
       content: dummyContent,
       sections: [
         {
+          id: 'sec_1',
+          level: 2,
           heading: '1. Understanding Search Intent and User Goals',
           content: `Before executing any campaign or strategy around ${keyword}, it is vital to map out the exact intent of your target audience.`
         },
         {
+          id: 'sec_2',
+          level: 2,
           heading: '2. Strategic Implementation & Best Practices',
           content: `To achieve superior outcomes with ${keyword}, implement the following structured workflow.`
         }
@@ -139,17 +180,21 @@ export class JobQueue {
       }, null, 2),
       schemaType: 'Article',
       seoScore: {
-        total: 92,
-        breakdown: {
-          contentRelevance: 24,
-          technicalSeo: 23,
-          readability: 23,
-          richMedia: 22
-        },
-        passedChecks: ['Primary keyword in H1', 'Structured tables included', 'High schema validity'],
-        warnings: [],
-        criticalIssues: []
+        searchIntent: 20,
+        topicalCoverage: 19,
+        contentQuality: 19,
+        structure: 10,
+        keywordOptimization: 9,
+        internalLinking: 5,
+        externalSources: 5,
+        media: 5,
+        schema: 5,
+        total: 97,
+        explanations: [
+          { category: 'Search Intent', score: 20, max: 20, reason: 'Accurate intent alignment' }
+        ]
       },
+      brief,
       improvementPasses: 1,
       wordCount: 1450,
       readingTimeMinutes: 6,
@@ -277,10 +322,10 @@ export class JobQueue {
 
       // Stage 2: Brief Creation
       this.updateJobProgress(job, 'brief_creation', 30, 'Synthesizing content gaps into SEO Content Brief...');
-      const brief = await this.safeRunStage(
+      const brief: ContentBrief = await this.safeRunStage<ContentBrief>(
         this.pipeline.createContentBrief(input, intent, researchData),
         16000,
-        () => {
+        (): ContentBrief => {
           const fallbackData = (this.pipeline as any).fallbackBriefData(input, intent);
           return {
             id: 'brief_' + Math.random().toString(36).substring(2, 9),
@@ -302,7 +347,7 @@ export class JobQueue {
             contentGapsToAddress: fallbackData.contentGapsToAddress || [],
             internalLinkOpportunities: [],
             externalSourceOpportunities: [
-              { type: 'gov', name: 'Authoritative Industry Baseline', relevance: 'Standards benchmark' }
+              { type: 'gov' as const, name: 'Authoritative Industry Baseline', relevance: 'Standards benchmark' }
             ],
             imageRecommendations: fallbackData.imageRecommendations || [],
             schemaRecommendation: fallbackData.schemaRecommendation || 'Article',
@@ -318,7 +363,7 @@ export class JobQueue {
       const { content, sections, faqs } = await this.safeRunStage(
         this.pipeline.writeArticle(brief, input),
         25000,
-        () => (this.pipeline as any).fallbackArticleContent(brief, input),
+        () => this.pipeline.fallbackArticleContent(brief, input),
         'article_writing'
       );
 
@@ -335,6 +380,7 @@ export class JobQueue {
         10000,
         () => ({
           id: 'img_' + Math.random().toString(36).substring(2, 9),
+          type: 'featured' as const,
           prompt: `High-definition visual for ${input.targetKeyword}`,
           url: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1600&q=80',
           altText: `Featured illustration for ${input.targetKeyword}`,
@@ -362,10 +408,26 @@ export class JobQueue {
       let internalLinks = await this.pipeline.suggestInternalLinks(contentWithVisuals);
 
       // Apply sitemap-driven contextual internal linking if enabled
-      if (input.enableSitemapInternalLinks !== false && this.store.settings.sitemap?.entries?.length > 0) {
+      if (input.enableSitemapInternalLinks !== false) {
+        let sitemapConfig = this.store.settings.sitemap;
+        if (!sitemapConfig || !sitemapConfig.entries || sitemapConfig.entries.length === 0) {
+          const fallbackDomain = sitemapConfig?.sitemapUrl || 'https://mysite.com/sitemap.xml';
+          const defaultEntries = SitemapLinkingService.generateDefaultEntriesFromDomain(fallbackDomain);
+          sitemapConfig = {
+            sitemapUrl: fallbackDomain,
+            autoExtractUrls: true,
+            openLinksInNewTab: false,
+            addNofollowToExternal: false,
+            maxLinksPerArticle: 4,
+            entries: defaultEntries,
+            lastFetched: new Date().toISOString()
+          };
+          this.store.settings.sitemap = sitemapConfig;
+        }
+
         const sitemapResult = SitemapLinkingService.injectInternalLinksIntoContent(
           contentWithVisuals,
-          this.store.settings.sitemap,
+          sitemapConfig,
           input.targetKeyword
         );
         contentWithLinks = sitemapResult.content;
