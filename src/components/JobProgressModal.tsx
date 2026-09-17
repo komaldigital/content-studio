@@ -247,7 +247,7 @@ export const JobProgressModal: React.FC<JobProgressModalProps> = ({
                 }}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-950/50 cursor-pointer"
               >
-                <span>Open Full Article in Editor</span>
+                <span>View Finished Article (Document Reader)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

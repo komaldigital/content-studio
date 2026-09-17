@@ -911,6 +911,8 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                   onPublishWordPress={handlePublishWordPress}
                   onOpenMultiChannelModal={() => setIsMultiPublishOpen(true)}
                   isPublishing={isSyncingWp}
+                  onSelectArticle={(art) => onSelectArticle(art.id)}
+                  availableArticles={articles}
                 />
               )}
 
@@ -1015,6 +1017,8 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                       onPublishWordPress={handlePublishWordPress}
                       onOpenMultiChannelModal={() => setIsMultiPublishOpen(true)}
                       isPublishing={isSyncingWp}
+                      onSelectArticle={(art) => onSelectArticle(art.id)}
+                      availableArticles={articles}
                     />
                   </div>
                 </div>

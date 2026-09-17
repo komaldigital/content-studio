@@ -710,6 +710,165 @@ Quick weeknight chicken dinners do not require complicated techniques or special
 
     this.articles.set(sampleArticleId, sampleArticle);
 
+    const shrimpArticleId = 'art_honey_garlic_shrimp';
+    const shrimpArticle: Article = {
+      id: shrimpArticleId,
+      title: 'Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish',
+      slug: 'honey-garlic-shrimp-guide',
+      metaDescription: 'Learn how to make honey garlic shrimp in 15 minutes with a glossy pan sauce. Includes cooking science, exact technique, and foolproof ingredient ratios.',
+      wordCount: 1850,
+      readingTimeMinutes: 7,
+      content: `# Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish
+
+Few weeknight dinners deliver as much flavor for as little effort as honey garlic shrimp. This dish pairs plump, seared shrimp with a glossy sauce built from just a handful of pantry staples — honey, garlic, soy sauce, and a splash of acid to balance the sweetness. It's ready in about 15 minutes, requires no marinating time, and works over rice, noodles, or a bed of greens. In this guide, you'll learn the science behind the sauce, the exact technique for perfectly cooked shrimp, ingredient swaps, and answers to the most common questions cooks have about making it.
+
+## What Is Honey Garlic Shrimp?
+
+Honey garlic shrimp is a stir-fry-style dish where shrimp are cooked quickly in a hot pan, then coated in a sauce made primarily of honey and garlic, often rounded out with soy sauce, butter, or a squeeze of lemon or lime. The result is a sticky, caramelized glaze that clings to each shrimp.
+
+The dish draws on techniques common to Asian-American stir-fries and American pan-sauce cooking, which is why you'll see versions ranging from soy-and-ginger-forward to butter-and-lemon-forward. Despite the variations, the core idea stays the same: reduce a sweet, savory liquid until it thickens enough to coat the shrimp in a glossy layer.
+
+### Why the Sauce Thickens
+
+Honey is roughly 80% sugar. When it hits a hot pan alongside garlic and soy sauce, the water content evaporates and the sugars begin to concentrate and lightly caramelize. This is a straightforward reduction, not an emulsification, which is why the sauce needs only 2–3 minutes of simmering to go from thin and watery to thick enough to coat a spoon.
+
+## Ingredients You'll Need
+
+A standard batch for four servings uses:
+
+- 1 to 1.5 lbs large shrimp, peeled and deveined (tail-on or off)
+- 4–5 cloves garlic, minced
+- 1/3 cup raw or clover honey
+- 3 tablespoons low-sodium soy sauce (or tamari for gluten-free)
+- 1 tablespoon fresh lemon juice or rice vinegar
+- 1 tablespoon olive oil or avocado oil for searing
+- 1 tablespoon unsalted butter (swirled in at the end for gloss)
+- Optional garnishes: sliced green onions, toasted sesame seeds, crushed red pepper flakes
+
+## Step-by-Step Cooking Technique
+
+### 1. Prep and Dry the Shrimp
+Pat the peeled shrimp completely dry with paper towels. Any excess surface moisture turns to steam in the pan, preventing the shrimp from developing a caramelized golden crust. Season lightly with salt and freshly cracked black pepper.
+
+### 2. Whisk the Pan Sauce
+In a small bowl, combine honey, soy sauce, lemon juice, and minced garlic. Whisking ahead of time prevents the honey from burning on the pan bottom before it incorporates.
+
+### 3. High-Heat Sear (1 Minute Per Side)
+Heat your skillet over medium-high heat until a drop of water sizzles instantly. Add oil, then add shrimp in a single layer without overcrowding. Cook undisturbed for 60 to 90 seconds until pink on the bottom edge, flip once, and cook for 1 more minute. Transfer immediately to a clean plate.
+
+### 4. Reduce and Glaze
+Pour the whisked honey garlic sauce into the hot skillet. Bring to a rapid simmer for 2 minutes until bubbly and thickened. Remove from heat, stir in the butter, and toss the cooked shrimp back in to coat thoroughly.
+
+## Key Reference: Cook Times & Substitutions
+
+| Ingredient / Step | Standard Choice | Best Alternative | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Shrimp Size** | 21/25 Large count | 16/20 Jumbo count | Plump bite, stays juicy during sear |
+| **Sweetener** | Clover honey | Hot honey or maple syrup | Sugar reduction and glossy cling |
+| **Umami Base** | Low-sodium soy sauce | Tamari or coconut aminos | Savory balance to cut sweetness |
+| **Acid Element** | Fresh lemon juice | Rice vinegar or apple cider | Brightness that cuts rich honey |
+
+## Frequently Asked Questions
+
+### Can I use frozen shrimp?
+Yes. Thaw frozen shrimp completely in a bowl of cold water for 15 minutes, peel, and thoroughly pat dry with paper towels before searing. Never cook shrimp directly from frozen, as excess ice dilutes the sauce and makes the shrimp rubbery.
+
+### How do I keep the garlic from burning?
+Minced garlic burns quickly over high heat. In this technique, the garlic is whisked directly into the liquid honey-soy mixture rather than sautéed dry in the pan first. The liquid buffers the garlic, cooking it gently while the sauce reduces.
+
+### What should I serve with honey garlic shrimp?
+Steamed jasmine rice or brown rice is the classic base to soak up extra sauce. For lower carb options, serve over cauliflower rice, garlic roasted broccoli, or cold soba noodles.`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      wordpressStatus: 'draft',
+      schemaType: 'Recipe',
+      jsonLdSchema: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Recipe',
+        name: 'Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish',
+        prepTime: 'PT5M',
+        cookTime: 'PT10M',
+        totalTime: 'PT15M',
+        recipeYield: '4 servings'
+      }, null, 2),
+      seoScore: {
+        searchIntent: 20,
+        topicalCoverage: 20,
+        contentQuality: 20,
+        structure: 10,
+        keywordOptimization: 10,
+        internalLinking: 5,
+        externalSources: 5,
+        media: 4,
+        schema: 5,
+        total: 99,
+        explanations: [
+          { category: 'Search Intent', score: 20, max: 20, reason: 'Direct answer in opening paragraph with full culinary science context.' },
+          { category: 'Topical Coverage', score: 20, max: 20, reason: 'Covers technique, ingredients, science of reduction, and substitutions.' },
+          { category: 'Content Quality', score: 20, max: 20, reason: 'Zero AI clichés, authentic culinary instructions, crisp formatting.' }
+        ]
+      },
+      improvementPasses: 1,
+      sections: [
+        { id: 'sec_1', heading: 'What Is Honey Garlic Shrimp?', level: 2, content: 'Definition and culinary origins of honey garlic glaze reduction.' },
+        { id: 'sec_2', heading: 'Why the Sauce Thickens', level: 3, content: 'Science of honey sugar evaporation and pan reduction.' },
+        { id: 'sec_3', heading: "Ingredients You'll Need", level: 2, content: 'Mise en place list with metric and imperial quantities.' },
+        { id: 'sec_4', heading: 'Step-by-Step Cooking Technique', level: 2, content: 'Four distinct cooking stages with timing constraints.' },
+        { id: 'sec_5', heading: 'Key Reference: Cook Times & Substitutions', level: 2, content: 'Ingredient and substitution comparison matrix.' },
+        { id: 'sec_6', heading: 'Frequently Asked Questions', level: 2, content: 'Common culinary questions and troubleshooting tips.' }
+      ],
+      faqs: [
+        { question: 'Can I use frozen shrimp?', answer: 'Yes. Thaw frozen shrimp completely in a bowl of cold water for 15 minutes, peel, and thoroughly pat dry with paper towels before searing.' },
+        { question: 'How do I keep the garlic from burning?', answer: 'Whisk minced garlic directly into the honey-soy sauce mixture rather than sautéing it dry in the pan first.' },
+        { question: 'What should I serve with honey garlic shrimp?', answer: 'Steamed jasmine rice, brown rice, cauliflower rice, garlic roasted broccoli, or cold soba noodles.' }
+      ],
+      articleImages: [],
+      internalLinks: [],
+      externalSources: [],
+      factCheckFlags: [],
+      isHighRiskContent: false,
+      versions: [],
+      brief: {
+        id: 'brief_shrimp',
+        primaryKeyword: 'honey garlic shrimp',
+        secondaryKeywords: ['15 minute shrimp recipe', 'honey garlic sauce for shrimp', 'easy weeknight shrimp'],
+        searchIntent: {
+          primaryIntent: 'recipe',
+          userGoal: 'Cook a fast weeknight honey garlic shrimp dinner in 15 minutes',
+          expectedContentType: 'recipe guide with step-by-step technique',
+          expectedDepth: 'comprehensive',
+          likelyQuestions: ['How long does it take?', 'How to keep garlic from burning?'],
+          commercialViability: 'medium'
+        },
+        targetAudience: 'Home cooks looking for fast weeknight dinners',
+        contentType: 'recipe',
+        recommendedTitle: 'Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish',
+        alternativeTitles: ['Easy 15-Minute Honey Garlic Shrimp Recipe'],
+        slug: 'honey-garlic-shrimp-guide',
+        metaDescription: 'Learn how to make honey garlic shrimp in 15 minutes with a glossy pan sauce. Includes cooking science, exact technique, and foolproof ingredient ratios.',
+        alternativeMetaDescriptions: [],
+        h1: 'Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish',
+        outline: [
+          { h2: 'What Is Honey Garlic Shrimp?' },
+          { h2: "Ingredients You'll Need" },
+          { h2: 'Step-by-Step Cooking Technique' },
+          { h2: 'Key Reference: Cook Times & Substitutions' },
+          { h2: 'Frequently Asked Questions' }
+        ],
+        entities: ['Shrimp', 'Honey', 'Garlic', 'Soy sauce', 'Skillet glaze'],
+        relatedConcepts: ['Pan reduction', 'Maillard reaction', 'Weeknight dinner'],
+        questionsToAnswer: ['Can I use frozen shrimp?', 'How do I keep garlic from burning?'],
+        contentGapsToAddress: ['Why the honey sauce thickens without cornstarch'],
+        internalLinkOpportunities: [],
+        externalSourceOpportunities: [],
+        imageRecommendations: [],
+        schemaRecommendation: 'Recipe',
+        suggestedWordCount: 1850,
+        createdAt: new Date().toISOString()
+      }
+    };
+    this.articles.set(shrimpArticleId, shrimpArticle);
+
     // Seed Calendar
     this.calendar.set('cal_1', {
       id: 'cal_1',
