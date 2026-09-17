@@ -241,6 +241,7 @@ export interface GenerationInput {
   imageQuantity?: 'auto' | 'standard' | 'rich' | 'minimal';
   selectedModel?: string;
   brandVoiceId?: string;
+  readingGradeLevel?: 'elementary' | 'middle_school' | 'high_school' | 'college' | 'expert';
   voiceNotes?: string;
   competitorUrls?: string[];
   researchEngine?: 'gemini-grounding' | 'perplexity' | 'hybrid';
