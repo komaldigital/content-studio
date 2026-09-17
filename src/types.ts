@@ -215,6 +215,14 @@ export type JobStage =
   | 'completed'
   | 'failed';
 
+export interface ContentBriefOutlineItem {
+  h2: string;
+  h3s?: string[];
+  keyPoints?: string[];
+  suggestedVisual?: string;
+  hasTable?: boolean;
+}
+
 export interface GenerationInput {
   targetKeyword: string;
   secondaryKeywords?: string[];
@@ -239,6 +247,8 @@ export interface GenerationInput {
   enableAiSearchCitationHooks?: boolean;
   enableSitemapInternalLinks?: boolean;
   includeSerpAnalysis?: boolean;
+  outline?: ContentBriefOutlineItem[];
+  useBuiltInPrompt?: boolean;
 }
 
 export interface AuthorProfile {
@@ -357,12 +367,7 @@ export interface ContentBrief {
   metaDescription: string;
   alternativeMetaDescriptions: string[];
   h1: string;
-  outline: {
-    h2: string;
-    h3s?: string[];
-    keyPoints?: string[];
-    suggestedVisual?: string;
-  }[];
+  outline: ContentBriefOutlineItem[];
   entities: string[];
   relatedConcepts: string[];
   questionsToAnswer: string[];
@@ -573,6 +578,7 @@ export interface Job {
   stage: JobStage;
   progress: number; // 0 to 100
   articleId?: string;
+  outline?: ContentBriefOutlineItem[];
   error?: string;
   log: string[];
   createdAt: string;

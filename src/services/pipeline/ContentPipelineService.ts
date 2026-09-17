@@ -20,7 +20,8 @@ import {
   FactCheckFinding,
   InternalLinkItem,
   ExternalSourceItem,
-  PinterestPinData
+  PinterestPinData,
+  ContentBriefOutlineItem
 } from '../../types.js';
 import { ImageGenerateOptions } from '../images/ImageProviderInterface.js';
 import { SecurityValidator } from '../security/SecurityValidator.js';
@@ -28,6 +29,7 @@ import { DataStore } from '../storage/Store.js';
 import {
   SENIOR_CONTENT_WRITER_SYSTEM_PROMPT,
   buildSeniorWriterUserPrompt,
+  buildSeniorWriterOutlinePrompt,
   sanitizeAndEnforceHumanWriting
 } from '../prompts/SeniorContentWriterPrompt.js';
 
@@ -104,6 +106,90 @@ Return strict JSON:
         `How do you get the best and most consistent results with ${keyword}?`
       ],
       commercialViability: /buy|price|cost|best|tool|software|app/i.test(lower) ? 'high' : 'medium'
+    };
+  }
+
+  /**
+   * STAGE 1.5: Outline Creation using Built-in Senior Content Writer & SME Prompt
+   */
+  public async generateOutline(
+    input: GenerationInput,
+    intent: SearchIntentResult,
+    researchResult?: any
+  ): Promise<{
+    outline: ContentBriefOutlineItem[];
+    recommendedTitle: string;
+    metaDescription: string;
+    entities: string[];
+    faqs: string[];
+    suggestedWordCount: number;
+    builtInPromptUsed: boolean;
+    systemPromptExcerpt: string;
+    keyDirectives: string[];
+  }> {
+    const prompt = buildSeniorWriterOutlinePrompt({
+      keyword: input.targetKeyword,
+      secondaryKeywords: input.secondaryKeywords,
+      intent: `${intent.primaryIntent} - ${intent.userGoal}`,
+      audience: input.audience,
+      tone: input.tone,
+      articleType: input.articleType || intent.expectedContentType,
+      targetWordCount: input.targetWordCount,
+      competitorGaps: researchResult?.contentGaps
+    });
+
+    const schemaDesc = `{
+  "recommendedTitle": string,
+  "metaDescription": string,
+  "outline": [
+    {
+      "h2": string,
+      "h3s": string[],
+      "keyPoints": string[],
+      "suggestedVisual": string,
+      "hasTable": boolean
+    }
+  ],
+  "entities": string[],
+  "faqs": string[],
+  "suggestedWordCount": number
+}`;
+
+    let result: any;
+    try {
+      result = await this.aiProvider.generateJson(prompt, schemaDesc);
+    } catch (err) {
+      console.warn('[ContentPipelineService] AI outline generation failed, generating fallback outline:', err);
+      result = this.fallbackBriefData(input, intent);
+    }
+
+    const rawOutline: any[] = result?.outline || [];
+    const outline: ContentBriefOutlineItem[] = rawOutline.map((item: any) => ({
+      h2: item.h2 || 'Core Practical Section',
+      h3s: Array.isArray(item.h3s) ? item.h3s : [],
+      keyPoints: Array.isArray(item.keyPoints) ? item.keyPoints : [],
+      suggestedVisual: item.suggestedVisual || `Informative diagram illustrating ${item.h2}`,
+      hasTable: typeof item.hasTable === 'boolean' ? item.hasTable : false
+    }));
+
+    const finalOutline = outline.length > 0 ? outline : this.fallbackBriefData(input, intent).outline;
+
+    return {
+      outline: finalOutline,
+      recommendedTitle: result?.recommendedTitle || `The Complete Guide to ${input.targetKeyword}`,
+      metaDescription: result?.metaDescription || `In-depth analysis, tested advice, and practical walkthrough for ${input.targetKeyword}.`,
+      entities: result?.entities || [input.targetKeyword],
+      faqs: result?.faqs || intent.likelyQuestions || [],
+      suggestedWordCount: result?.suggestedWordCount || input.targetWordCount || 2000,
+      builtInPromptUsed: true,
+      systemPromptExcerpt: 'Built-in Senior Content Writer & SME Prompt: Step 1 (Search Intent) → Step 2 (Direct Answer Up Front, Descriptive H2/H3s) → Step 3 (Banned AI Clichés Scrubbing) → Step 4 (Empirical E-E-A-T) → Step 5 (Pure Markdown).',
+      keyDirectives: [
+        'Direct answer provided immediately in the opening 2-3 sentences without filler',
+        'Descriptive, search-intent H2 and H3 headings without buzzwords',
+        'Practitioner specifications, benchmark data tables, and edge-case checkpoints',
+        'Strictly zero AI cliché words (delve, tapestry, landscape, robust, elevate)',
+        'Actionable FAQs resolving high-intent follow-up queries'
+      ]
     };
   }
 
@@ -208,7 +294,7 @@ Return valid JSON adhering to ContentBrief format.`;
       metaDescription: briefData.metaDescription || `Discover comprehensive tips and insights about ${input.targetKeyword}.`,
       alternativeMetaDescriptions: briefData.alternativeMetaDescriptions || [],
       h1: briefData.h1 || briefData.recommendedTitle,
-      outline: briefData.outline || [],
+      outline: (input.outline && input.outline.length > 0) ? input.outline : (briefData.outline || []),
       entities: briefData.entities || [input.targetKeyword],
       relatedConcepts: briefData.relatedConcepts || [],
       questionsToAnswer: briefData.questionsToAnswer || intent.likelyQuestions,
@@ -252,7 +338,7 @@ Return valid JSON adhering to ContentBrief format.`;
         `Discover proven tips and step-by-step guidance for ${kw}. Save time and achieve consistent results.`
       ],
       h1: `${titleCased}: Complete Practical Guide`,
-      outline: [
+      outline: (input.outline && input.outline.length > 0) ? input.outline : [
         {
           h2: `Key Fundamentals & Why ${titleCased} Matters`,
           h3s: [`Core Principles`, `What to Prepare First`],

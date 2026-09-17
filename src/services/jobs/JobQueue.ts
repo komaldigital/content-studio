@@ -320,8 +320,8 @@ export class JobQueue {
         'intent_analysis'
       );
 
-      // Stage 2: Brief Creation
-      this.updateJobProgress(job, 'brief_creation', 30, 'Synthesizing content gaps into SEO Content Brief...');
+      // Stage 2: Brief & Outline Creation
+      this.updateJobProgress(job, 'brief_creation', 28, 'Synthesizing content gaps and search intent into SEO Content Brief...');
       const brief: ContentBrief = await this.safeRunStage<ContentBrief>(
         this.pipeline.createContentBrief(input, intent, researchData),
         16000,
@@ -358,8 +358,19 @@ export class JobQueue {
         'brief_creation'
       );
 
-      // Stage 3: Article Writing
-      this.updateJobProgress(job, 'writing_article', 50, `Writing human-first article (${brief.suggestedWordCount} target words)...`);
+      // Stage 2.5: Outline Staging & Validation
+      job.outline = brief.outline;
+      const outlineSummary = (brief.outline || []).map((sec, i) => `${i + 1}. ${sec.h2}`).join(' | ');
+      if (input.outline && input.outline.length > 0) {
+        this.updateJobProgress(job, 'outline_creation', 38, `Adopting structured editorial outline (${brief.outline.length} sections)...`);
+        job.log.push(`[Outline] Verified custom outline adopted: ${outlineSummary}`);
+      } else {
+        this.updateJobProgress(job, 'outline_creation', 38, `Generated editorial outline with built-in Senior Writer prompt (${brief.outline.length} sections)...`);
+        job.log.push(`[Outline] Built-in prompt outline generated: ${outlineSummary}`);
+      }
+
+      // Stage 3: Article Writing from Outline
+      this.updateJobProgress(job, 'writing_article', 50, `Writing human-first article from outline using built-in Senior Writer prompt (${brief.suggestedWordCount} target words)...`);
       const { content, sections, faqs } = await this.safeRunStage(
         this.pipeline.writeArticle(brief, input, researchData),
         25000,

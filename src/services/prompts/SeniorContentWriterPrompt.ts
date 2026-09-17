@@ -66,6 +66,63 @@ export interface SeniorWriterPromptInput {
   templateDirectives?: string;
 }
 
+export interface SeniorWriterOutlinePromptInput {
+  keyword: string;
+  secondaryKeywords?: string[];
+  intent?: string;
+  audience?: string;
+  tone?: string;
+  articleType?: string;
+  targetWordCount?: number;
+  competitorGaps?: any;
+}
+
+/**
+ * Builds the Outline Generation Prompt governed by the built-in Senior Content Writer & SME standards.
+ * Enforces intent-driven H2/H3s, direct answer upfront, concrete practitioner details, tables, and no fluff.
+ */
+export function buildSeniorWriterOutlinePrompt(input: SeniorWriterOutlinePromptInput): string {
+  const secondaryKws = (input.secondaryKeywords && input.secondaryKeywords.length > 0)
+    ? input.secondaryKeywords.join(', ')
+    : 'None specified (prioritize natural topical depth)';
+
+  return `You are a Senior SEO Content Strategist and Subject-Matter Expert applying the Built-in Senior Writer SME Standard.
+Create a comprehensive, human-first, clickbait-free Outline & Heading Blueprint for:
+Primary Keyword: "${input.keyword}"
+Secondary Keywords: ${secondaryKws}
+Search Intent: ${input.intent || 'Informational & practical application'}
+Target Audience: ${input.audience || 'Practitioners and operators seeking actionable clarity'}
+Article Type: ${input.articleType || 'Comprehensive In-Depth Guide'}
+Target Word Count: ${input.targetWordCount || 2200} words
+
+BUILT-IN EDITORIAL MANDATES (STRICT COMPLIANCE):
+1. The First Section (H2) MUST plan to deliver the direct answer / bottom-line takeaway in the first 2-3 sentences. No fluff or throat-clearing.
+2. Structure 5 to 7 descriptive, intent-focused H2 sections with real conversational questions people actually search for (NO generic headers like "Introduction", "Overview", "Benefits", "Why It Matters", or "Conclusion").
+3. Under each H2, specify 2-3 granular H3 subheadings and 2-4 concrete practitioner key points (real numbers, edge cases, trade-offs, step execution).
+4. Identify at least one section that requires a structured Comparison Table, Benchmark Matrix, or Step-by-Step Schedule (set hasTable: true).
+5. Suggest an intent-matched visual concept for each section (e.g., process flow, comparison chart, high-res demonstration).
+6. Plan 3 to 5 real, high-intent FAQ questions that answer follow-up queries that people actually search.
+7. Strictly avoid AI cliché terminology in all headings and key points (NO "delve", "tapestry", "landscape", "robust", "leverage", "elevate").
+
+Return valid JSON adhering to this schema:
+{
+  "recommendedTitle": string,
+  "metaDescription": string,
+  "outline": [
+    {
+      "h2": string,
+      "h3s": string[],
+      "keyPoints": string[],
+      "suggestedVisual": string,
+      "hasTable": boolean
+    }
+  ],
+  "entities": string[],
+  "faqs": string[],
+  "suggestedWordCount": number
+}`;
+}
+
 /**
  * Builds the user message prompt adhering strictly to the user's template:
  * Primary keyword: {{keyword}}

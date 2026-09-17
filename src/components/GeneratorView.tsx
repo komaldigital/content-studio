@@ -27,7 +27,11 @@ import {
   Clock,
   BookOpen,
   Award,
-  CheckCircle2
+  CheckCircle2,
+  ListOrdered,
+  FileText,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { api } from '../api.js';
 import {
@@ -38,7 +42,8 @@ import {
   ToneType,
   ArticleType,
   AIModelDescriptor,
-  WordRocketTemplateId
+  WordRocketTemplateId,
+  ContentBriefOutlineItem
 } from '../types.js';
 
 interface GeneratorViewProps {
@@ -146,6 +151,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   // States
   const [isResearching, setIsResearching] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingOutline, setIsGeneratingOutline] = useState(false);
+  const [rightPanelTab, setRightPanelTab] = useState<'research' | 'outline'>('research');
+  const [outlineData, setOutlineData] = useState<ContentBriefOutlineItem[] | null>(null);
+  const [outlineMeta, setOutlineMeta] = useState<{
+    recommendedTitle?: string;
+    metaDescription?: string;
+    entities?: string[];
+    faqs?: string[];
+    systemPromptExcerpt?: string;
+    keyDirectives?: string[];
+    suggestedWordCount?: number;
+  } | null>(null);
   const [researchData, setResearchData] = useState<ResearchResult | null>(null);
   const [intentData, setIntentData] = useState<SearchIntentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -156,6 +173,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
 
     setIsResearching(true);
     setError(null);
+    setRightPanelTab('research');
 
     try {
       const res = await api.conductResearch(keyword, country, language, audience, articleType, selectedModel);
@@ -165,6 +183,53 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsResearching(false);
+    }
+  };
+
+  const handleGenerateOutline = async () => {
+    if (!keyword.trim()) return;
+    setIsGeneratingOutline(true);
+    setError(null);
+    setRightPanelTab('outline');
+
+    const input: GenerationInput = {
+      targetKeyword: keyword.trim(),
+      secondaryKeywords: secondaryKeywords.split(',').map(s => s.trim()).filter(Boolean),
+      country,
+      language,
+      audience,
+      tone,
+      articleType,
+      targetWordCount,
+      templatePreset: selectedTemplate,
+      brandName,
+      autoImprove,
+      selectedModel,
+      voiceNotes: voiceNotes.trim() || undefined,
+      competitorUrls: competitorUrls.split('\n').map(u => u.trim()).filter(Boolean),
+      enableSitemapInternalLinks: enableSitemapLinks,
+      includeSerpAnalysis,
+      useBuiltInPrompt: true
+    };
+
+    try {
+      const res = await api.generateOutline(input);
+      if (res.success && res.outline) {
+        setOutlineData(res.outline);
+        setOutlineMeta({
+          recommendedTitle: res.recommendedTitle,
+          metaDescription: res.metaDescription,
+          entities: res.entities,
+          faqs: res.faqs,
+          systemPromptExcerpt: res.systemPromptExcerpt,
+          keyDirectives: res.keyDirectives,
+          suggestedWordCount: res.suggestedWordCount
+        });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsGeneratingOutline(false);
     }
   };
 
@@ -266,7 +331,9 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
       voiceNotes: voiceNotes.trim() || undefined,
       competitorUrls: competitorUrls.split('\n').map(u => u.trim()).filter(Boolean),
       enableSitemapInternalLinks: enableSitemapLinks,
-      includeSerpAnalysis
+      includeSerpAnalysis,
+      outline: outlineData && outlineData.length > 0 ? outlineData : undefined,
+      useBuiltInPrompt: true
     };
 
     try {
@@ -1069,17 +1136,36 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
               />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            {/* Action Buttons: 3-Step Guided Workflow */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
               <button
                 id="research-button"
                 type="button"
                 onClick={handleRunResearch}
                 disabled={isResearching}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-750 text-white font-medium text-sm transition-all disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-750 text-white font-medium text-xs transition-all disabled:opacity-50"
               >
-                <Search className="w-4 h-4 text-emerald-400" />
-                <span>{isResearching ? 'Analyzing Intent & SERP...' : 'Step 1: Research & Intent'}</span>
+                <Search className="w-3.5 h-3.5 text-blue-400" />
+                <span>{isResearching ? 'Analyzing...' : 'Step 1: Research'}</span>
+              </button>
+
+              <button
+                id="outline-button"
+                type="button"
+                onClick={handleGenerateOutline}
+                disabled={isGeneratingOutline}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border font-semibold text-xs transition-all disabled:opacity-50 ${
+                  outlineData && outlineData.length > 0
+                    ? 'border-emerald-500/80 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50'
+                    : 'border-purple-600/80 bg-purple-950/40 text-purple-300 hover:bg-purple-900/50'
+                }`}
+              >
+                {isGeneratingOutline ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-purple-400" />
+                ) : (
+                  <ListOrdered className="w-3.5 h-3.5 text-purple-400" />
+                )}
+                <span>{isGeneratingOutline ? 'Generating Outline...' : outlineData ? `Step 2: Outline (${outlineData.length})` : 'Step 2: Create Outline'}</span>
               </button>
 
               <button
@@ -1087,114 +1173,321 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 type="button"
                 onClick={handleStartGeneration}
                 disabled={isGenerating}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-950/40 transition-all disabled:opacity-50"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all disabled:opacity-50"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>{isGenerating ? 'Scheduling Job...' : 'Step 2: Generate Full Article'}</span>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isGenerating ? 'Scheduling...' : 'Step 3: Generate Article'}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right Form: Research & Intent Intelligence Panel */}
+        {/* Right Form: Research & Outline Intelligence Panel */}
         <div className="lg:col-span-6 space-y-6">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 min-h-[460px] flex flex-col justify-between">
             <div>
+              {/* Tab Selector Bar */}
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                  <Cpu className="w-4 h-4 text-emerald-400" />
-                  Live Research & Search Intent Diagnosis
-                </h2>
-                {researchData && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('research')}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                      rightPanelTab === 'research'
+                        ? 'bg-slate-800 text-white border border-slate-700'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Cpu className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Live Research & Intent</span>
+                    {researchData && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRightPanelTab('outline')}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                      rightPanelTab === 'outline'
+                        ? 'bg-purple-950/60 text-purple-200 border border-purple-800/80'
+                        : 'text-slate-400 hover:text-purple-300'
+                    }`}
+                  >
+                    <ListOrdered className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Editorial Outline (Built-in Prompt)</span>
+                    {outlineData && (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-900 text-purple-200">
+                        {outlineData.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {rightPanelTab === 'research' && researchData && (
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                     researchData.isLiveResearchAvailable
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                   }`}>
-                    {researchData.isLiveResearchAvailable ? 'Live Grounding Active' : 'Transparent Standby'}
+                    {researchData.isLiveResearchAvailable ? 'Live Grounding' : 'Transparent Standby'}
+                  </span>
+                )}
+
+                {rightPanelTab === 'outline' && outlineData && (
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                    Senior SME Prompt
                   </span>
                 )}
               </div>
 
-              {!researchData && !isResearching && (
-                <div className="py-16 text-center text-slate-500 space-y-3">
-                  <Search className="w-10 h-10 mx-auto text-slate-600 stroke-[1.5]" />
-                  <p className="text-sm">Click "Step 1: Research & Intent" to inspect search intent, competitor content gaps, and common user questions before generating.</p>
-                </div>
-              )}
-
-              {isResearching && (
-                <div className="py-16 text-center space-y-4">
-                  <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p className="text-sm text-slate-400">Grounding query with Gemini and analyzing SERP content gaps...</p>
-                </div>
-              )}
-
-              {researchData && (
-                <div className="space-y-4 text-xs">
-                  {/* Notice Box */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-400">
-                    <span className="font-semibold text-slate-300">Provider Status:</span> {researchData.providerNotice}
-                  </div>
-
-                  {/* Intent Diagnosis */}
-                  {intentData && (
-                    <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-emerald-300">
-                      <div className="flex items-center justify-between font-semibold text-sm text-emerald-200 mb-1">
-                        <span>Search Intent: {intentData.primaryIntent.toUpperCase()}</span>
-                        <span className="text-xs uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
-                          {intentData.expectedDepth} Depth
-                        </span>
-                      </div>
-                      <p className="text-emerald-300/80">{intentData.userGoal}</p>
+              {/* TAB 1: Live Research & Intent Diagnosis */}
+              {rightPanelTab === 'research' && (
+                <div>
+                  {!researchData && !isResearching && (
+                    <div className="py-16 text-center text-slate-500 space-y-3">
+                      <Search className="w-10 h-10 mx-auto text-slate-600 stroke-[1.5]" />
+                      <p className="text-sm">Click "Step 1: Research" to inspect search intent, competitor content gaps, and common user questions before generating.</p>
+                      <button
+                        type="button"
+                        onClick={handleRunResearch}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700"
+                      >
+                        Run Step 1 Now
+                      </button>
                     </div>
                   )}
 
-                  {/* Content Gaps to Capitalize On */}
-                  {researchData.contentGaps && (
-                    <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                      <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                        <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        Identified Competitor Content Gaps
+                  {isResearching && (
+                    <div className="py-16 text-center space-y-4">
+                      <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
+                      <p className="text-sm text-slate-400">Grounding query with Gemini and analyzing SERP content gaps...</p>
+                    </div>
+                  )}
+
+                  {researchData && (
+                    <div className="space-y-4 text-xs">
+                      {/* Notice Box */}
+                      <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-400">
+                        <span className="font-semibold text-slate-300">Provider Status:</span> {researchData.providerNotice}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-400">
-                        <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60">
-                          <span className="text-amber-400 font-medium block mb-1">Missed Topics:</span>
-                          <ul className="list-disc pl-4 space-y-0.5">
-                            {(researchData.contentGaps.topicsMissed || []).slice(0, 3).map((t, i) => (
-                              <li key={i}>{t}</li>
+
+                      {/* Intent Diagnosis */}
+                      {intentData && (
+                        <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-emerald-300">
+                          <div className="flex items-center justify-between font-semibold text-sm text-emerald-200 mb-1">
+                            <span>Search Intent: {intentData.primaryIntent.toUpperCase()}</span>
+                            <span className="text-xs uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                              {intentData.expectedDepth} Depth
+                            </span>
+                          </div>
+                          <p className="text-emerald-300/80">{intentData.userGoal}</p>
+                        </div>
+                      )}
+
+                      {/* Content Gaps to Capitalize On */}
+                      {researchData.contentGaps && (
+                        <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                          <div className="font-semibold text-slate-200 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            Identified Competitor Content Gaps
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-400">
+                            <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60">
+                              <span className="text-amber-400 font-medium block mb-1">Missed Topics:</span>
+                              <ul className="list-disc pl-4 space-y-0.5">
+                                {(researchData.contentGaps.topicsMissed || []).slice(0, 3).map((t, i) => (
+                                  <li key={i}>{t}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60">
+                              <span className="text-emerald-400 font-medium block mb-1">Required Visuals & Tables:</span>
+                              <ul className="list-disc pl-4 space-y-0.5">
+                                {(researchData.contentGaps.tablesNeeded || []).slice(0, 2).map((t, i) => (
+                                  <li key={i}>{t}</li>
+                                ))}
+                                {(researchData.contentGaps.visualOpportunities || []).slice(0, 2).map((v, i) => (
+                                  <li key={i}>{v}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Questions to Answer */}
+                      {researchData.commonQuestions && researchData.commonQuestions.length > 0 && (
+                        <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                          <span className="font-semibold text-slate-200 text-xs uppercase tracking-wider block mb-2">
+                            Common User Questions (P.A.A. & Forums)
+                          </span>
+                          <ul className="space-y-1 text-slate-400">
+                            {researchData.commonQuestions.slice(0, 4).map((q, i) => (
+                              <li key={i} className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                <span>{q}</span>
+                              </li>
                             ))}
                           </ul>
                         </div>
-                        <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60">
-                          <span className="text-emerald-400 font-medium block mb-1">Required Visuals & Tables:</span>
-                          <ul className="list-disc pl-4 space-y-0.5">
-                            {(researchData.contentGaps.tablesNeeded || []).slice(0, 2).map((t, i) => (
-                              <li key={i}>{t}</li>
-                            ))}
-                            {(researchData.contentGaps.visualOpportunities || []).slice(0, 2).map((v, i) => (
-                              <li key={i}>{v}</li>
-                            ))}
-                          </ul>
-                        </div>
+                      )}
+
+                      {/* Transition button to Step 2 */}
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={handleGenerateOutline}
+                          disabled={isGeneratingOutline}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-purple-950/60 border border-purple-800/80 text-purple-200 hover:bg-purple-900/70 font-semibold text-xs transition-colors"
+                        >
+                          <ListOrdered className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Generate Editorial Outline from this Intent (Step 2) →</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 2: Editorial Outline (Senior Writer Built-in Prompt) */}
+              {rightPanelTab === 'outline' && (
+                <div>
+                  {!outlineData && !isGeneratingOutline && (
+                    <div className="py-12 text-center text-slate-400 space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-950/50 border border-purple-800/60 flex items-center justify-center mx-auto text-purple-400">
+                        <ListOrdered className="w-6 h-6" />
+                      </div>
+                      <div className="max-w-sm mx-auto space-y-1">
+                        <h3 className="text-sm font-semibold text-white">Built-in Senior SME Prompt Outline</h3>
+                        <p className="text-xs text-slate-400">
+                          Generate a structured human-first outline with direct-answer H2s, verified practitioner subheadings, benchmark tables, and visual requirements before drafting the full article.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleGenerateOutline}
+                        className="text-xs px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold shadow-md shadow-purple-950/50 transition-all"
+                      >
+                        Generate Outline with Built-in Prompt
+                      </button>
+                    </div>
+                  )}
+
+                  {isGeneratingOutline && (
+                    <div className="py-16 text-center space-y-4">
+                      <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-purple-200">Executing Built-in Senior Writer Prompt...</p>
+                        <p className="text-xs text-slate-400">Constructing intent-driven H2s, practitioner subheadings, and benchmark table specifications.</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Questions to Answer */}
-                  {researchData.commonQuestions && researchData.commonQuestions.length > 0 && (
-                    <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                      <span className="font-semibold text-slate-200 text-xs uppercase tracking-wider block mb-2">
-                        Common User Questions (P.A.A. & Forums)
-                      </span>
-                      <ul className="space-y-1 text-slate-400">
-                        {researchData.commonQuestions.slice(0, 4).map((q, i) => (
-                          <li key={i} className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            <span>{q}</span>
-                          </li>
+                  {outlineData && (
+                    <div className="space-y-4 text-xs">
+                      {/* Outline Header & Prompt Directives */}
+                      <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-900/40 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-purple-200 text-xs flex items-center gap-1.5">
+                            <Award className="w-3.5 h-3.5 text-purple-400" />
+                            <span>Editorial Plan Formulated from Built-in Prompt</span>
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 font-mono">
+                            {outlineData.length} Sections
+                          </span>
+                        </div>
+
+                        {outlineMeta?.recommendedTitle && (
+                          <div className="text-slate-200 font-semibold text-sm">
+                            "{outlineMeta.recommendedTitle}"
+                          </div>
+                        )}
+
+                        {outlineMeta?.metaDescription && (
+                          <div className="text-slate-400 text-[11px] leading-relaxed">
+                            {outlineMeta.metaDescription}
+                          </div>
+                        )}
+
+                        {outlineMeta?.keyDirectives && (
+                          <div className="pt-2 border-t border-purple-900/30 flex flex-wrap gap-1.5">
+                            {outlineMeta.keyDirectives.slice(0, 3).map((d, i) => (
+                              <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-slate-900/80 border border-purple-900/50 text-purple-300">
+                                ✓ {d}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Outline Sections Accordion / List */}
+                      <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                        {outlineData.map((item, idx) => (
+                          <div key={idx} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-md bg-purple-950 border border-purple-800/80 text-purple-300 flex items-center justify-center text-[10px] font-bold">
+                                  {idx + 1}
+                                </span>
+                                <span className="font-semibold text-slate-200 text-xs">{item.h2}</span>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                {item.hasTable && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-800/60 font-mono">
+                                    Table
+                                  </span>
+                                )}
+                                {item.suggestedVisual && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 font-mono">
+                                    Visual
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* H3s */}
+                            {item.h3s && item.h3s.length > 0 && (
+                              <div className="pl-7 space-y-1 text-slate-400 text-[11px]">
+                                {item.h3s.map((h3, hIdx) => (
+                                  <div key={hIdx} className="flex items-center gap-1.5">
+                                    <span className="w-1 h-1 rounded-full bg-purple-400/80" />
+                                    <span>{h3}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Key Practitioner Priorities */}
+                            {item.keyPoints && item.keyPoints.length > 0 && (
+                              <div className="pl-7 pt-1 border-t border-slate-900 text-[10px] text-slate-500">
+                                <strong>Practitioner focus:</strong> {item.keyPoints.join(' • ')}
+                              </div>
+                            )}
+                          </div>
                         ))}
-                      </ul>
+                      </div>
+
+                      {/* Bottom Action: Proceed to generate full article from outline */}
+                      <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                        <button
+                          type="button"
+                          onClick={handleGenerateOutline}
+                          disabled={isGeneratingOutline}
+                          className="px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-850 text-slate-300 text-xs font-medium transition-colors"
+                        >
+                          Regenerate Outline
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleStartGeneration}
+                          disabled={isGenerating}
+                          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all disabled:opacity-50"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>{isGenerating ? 'Scheduling...' : 'Step 3: Generate Full Article from this Outline'}</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -645,6 +645,38 @@ async function startServer() {
     }
   });
 
+  app.post('/api/pipeline/outline', async (req: Request, res: Response) => {
+    const input = req.body;
+    if (!input?.targetKeyword) {
+      return res.status(400).json({ error: 'Target Keyword is required.' });
+    }
+
+    try {
+      const { pipeline, researchProvider } = getProviders();
+      let intent;
+      try {
+        intent = await pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType);
+      } catch {
+        intent = (pipeline as any).fallbackSearchIntent(input.targetKeyword, input.audience, input.articleType);
+      }
+
+      let research = null;
+      try {
+        research = await researchProvider.conductResearch(input.targetKeyword, input.country, input.language);
+      } catch {
+        research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
+      }
+
+      const outlineResult = await pipeline.generateOutline(input, intent, research);
+      res.json({
+        success: true,
+        ...outlineResult
+      });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
+
   app.post('/api/pipeline/generate', async (req: Request, res: Response) => {
     const input = req.body;
     if (!input?.targetKeyword) {

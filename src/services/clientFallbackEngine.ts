@@ -8,7 +8,8 @@ import {
   FAQItem,
   ArticleImage,
   SeoScoreBreakdown,
-  ContentBrief
+  ContentBrief,
+  ContentBriefOutlineItem
 } from '../types.js';
 import { FALLBACK_ARTICLES } from '../data/fallbackData.js';
 import { sanitizeAndEnforceHumanWriting } from './prompts/SeniorContentWriterPrompt.js';
@@ -296,9 +297,150 @@ export function synthesizeClientResearch(
 // ----------------------------------------------------
 // FULL ARTICLE & JOB GENERATION CLIENT RUNNER
 // ----------------------------------------------------
+export function synthesizeClientOutline(input: GenerationInput): {
+  outline: ContentBriefOutlineItem[];
+  recommendedTitle: string;
+  metaDescription: string;
+  entities: string[];
+  faqs: string[];
+  suggestedWordCount: number;
+  builtInPromptUsed: boolean;
+  systemPromptExcerpt: string;
+  keyDirectives: string[];
+} {
+  const kw = input.targetKeyword.trim();
+  const titleCased = kw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  const isFoodRecipe = /(wing|chicken|recipe|cook|bake|sauce|cookie|salad|soup|pasta|steak|roast|air fryer|grill|bbq|dinner|lunch|breakfast|dessert|ingredient|dish|crispy|crust|fry)/i.test(kw) || input.articleType === 'recipe';
+
+  let title = `${titleCased}: The Complete Practical Guide`;
+  let metaDesc = `Discover the ultimate guide to ${kw.toLowerCase()}. Step-by-step techniques, essential tips, common mistakes to avoid, and expert recommendations.`;
+  let outline: ContentBriefOutlineItem[] = [];
+
+  if (isFoodRecipe) {
+    title = `Ultra-Crispy ${titleCased}: Kitchen-Tested Recipe & Secret Method`;
+    metaDesc = `Learn how to make the crispiest ${kw.toLowerCase()} without a deep fryer. Tested temperature schedule, secret seasoning blend, and pro troubleshooting.`;
+    outline = [
+      {
+        h2: `The Core Secret to Extra-Crispy ${titleCased} (Direct Answer)`,
+        h3s: ['Aggressive Surface Drying', 'The Alkaline Baking Powder Trick', 'Elevated Wire-Rack Airflow'],
+        keyPoints: ['Direct answer upfront in first 2-3 sentences', 'Baking powder (alkaline pH) vs baking soda', 'Wire rack elevates wings for 360-degree heat convection'],
+        suggestedVisual: 'High-res close-up demonstrating golden blistered crackling skin',
+        hasTable: false
+      },
+      {
+        h2: 'Kitchen Equipment & Essential Ingredients Matrix',
+        h3s: ['Exact Measurements & Ratios', 'Tools Required for Flawless Crunch'],
+        keyPoints: ['1 tbsp aluminum-free baking powder per 3-4 lbs wings', 'Diamond Crystal kosher salt measurement', 'Rimmed baking sheet with nested wire rack'],
+        suggestedVisual: 'Ingredient and equipment flat-lay showing pre-measured components',
+        hasTable: true
+      },
+      {
+        h2: 'Step-by-Step Cooking Schedule: Master Oven & Air Fryer Methods',
+        h3s: ['Phase 1: Prep & Refrigerator Air-Drying', 'Phase 2: 425°F (220°C) Oven Roast', 'Phase 3: Air Fryer Conversion Times'],
+        keyPoints: ['30-60 min fridge chill for dry skin', '45-50 min bake at 425°F with mid-point rotation', 'Internal pull temp: 175°F-185°F for collagen breakdown'],
+        suggestedVisual: 'Step-by-step cooking progression photos from seasoned raw to golden crisp',
+        hasTable: true
+      },
+      {
+        h2: '3 Signature Glazes & The Proper Saucing Technique',
+        h3s: ['Classic Buffalo Glaze', 'Garlic Parmesan Emulsion', 'Sweet Honey Garlic & Soy'],
+        keyPoints: ['Toss wings immediately prior to serving to prevent sogginess', 'Whisk butter with hot sauce to create a stable emulsion', 'Keep oven-warmed sauce ready on the side'],
+        suggestedVisual: 'Tossed wings in bowls showing three distinct vibrant glazes',
+        hasTable: false
+      },
+      {
+        h2: 'Common Pitfalls & Troubleshooting Guide',
+        h3s: ['Why Wings Turn Out Soggy', 'Preventing Bitter Metallic Aftertaste'],
+        keyPoints: ['Crowding the sheet traps steam', 'Never use baking soda instead of baking powder', 'Frozen wings release excess water—always thaw completely'],
+        suggestedVisual: 'Infographic highlighting the top 4 mistakes to avoid',
+        hasTable: false
+      },
+      {
+        h2: 'Frequently Asked Questions',
+        h3s: ['Why use baking powder instead of cornstarch?', 'How do I keep wings warm for game day?'],
+        keyPoints: ['Fast answers without filler', 'Reheating guidelines in a 400°F oven'],
+        suggestedVisual: 'Clean FAQ accordion box',
+        hasTable: false
+      }
+    ];
+  } else {
+    outline = [
+      {
+        h2: `Direct Answer: The Bottom Line on ${titleCased}`,
+        h3s: ['Core Definitive Answer', 'Immediate Practical Takeaways'],
+        keyPoints: ['Direct answer delivered in opening 2-3 sentences', 'Key trade-offs and decision factors', 'Who this is best for'],
+        suggestedVisual: 'Executive summary highlight box',
+        hasTable: false
+      },
+      {
+        h2: `Prerequisites, Setup & Readiness Framework`,
+        h3s: ['Mandatory Requirements', 'Environment Configuration'],
+        keyPoints: ['Essential toolchain specifications', 'Calibration thresholds', 'Common preparation errors'],
+        suggestedVisual: 'System architecture diagram or setup checklist',
+        hasTable: true
+      },
+      {
+        h2: `Step-by-Step Implementation Protocol`,
+        h3s: ['Phase 1: Baseline Calibration', 'Phase 2: Execution Sequence', 'Phase 3: Verification Checkpoints'],
+        keyPoints: ['Sequential instructions with zero fluff', 'Measurable benchmarks at each step', 'Quality assurance gates'],
+        suggestedVisual: 'Process flowchart showing phases and checkpoints',
+        hasTable: false
+      },
+      {
+        h2: `Benchmark Matrix & Comparative Analysis`,
+        h3s: ['Standard vs Alternative Approaches', 'Performance & Efficiency Trade-Offs'],
+        keyPoints: ['Empirical score matrix', 'Time-to-value metrics', 'Resource footprint comparisons'],
+        suggestedVisual: 'Comparative data table and score chart',
+        hasTable: true
+      },
+      {
+        h2: `Edge Cases, Diagnostics & Common Mistakes`,
+        h3s: ['Top 3 Failure Modes', 'Rapid Recovery Strategies'],
+        keyPoints: ['Specific troubleshooting steps', 'Root cause diagnostics', 'Preventive safeguards'],
+        suggestedVisual: 'Decision-tree troubleshooting matrix',
+        hasTable: false
+      },
+      {
+        h2: `Frequently Asked Questions`,
+        h3s: [`What is the fastest way to master ${kw.toLowerCase()}?`, 'How do you measure long-term ROI?'],
+        keyPoints: ['Real practitioner answers', 'Zero generic boilerplate'],
+        suggestedVisual: 'Q&A card layout',
+        hasTable: false
+      }
+    ];
+  }
+
+  return {
+    outline,
+    recommendedTitle: title,
+    metaDescription: metaDesc,
+    entities: [kw, 'Best practices', 'Benchmarks', 'Specifications', 'Quality standards'],
+    faqs: [
+      `What is the most critical step when dealing with ${kw.toLowerCase()}?`,
+      `How does ${titleCased} compare to alternative approaches?`,
+      `Can beginners achieve consistent results without advanced tooling?`
+    ],
+    suggestedWordCount: input.targetWordCount || 2200,
+    builtInPromptUsed: true,
+    systemPromptExcerpt: 'Built-in Senior Content Writer & SME Prompt: Step 1 (Understand Intent) → Step 2 (Structure for Humans & Crawlers, Direct Answer) → Step 3 (Banned AI Clichés Scrubbing) → Step 4 (Empirical E-E-A-T) → Step 5 (Pure Markdown Format).',
+    keyDirectives: [
+      'Direct answer in first 2-3 sentences without filler',
+      'Descriptive H2/H3 natural search phrases without cliché filler',
+      'Benchmark tables, tested schedules, and real numbers',
+      'Zero banned AI buzzwords (delve, tapestry, landscape, elevate, robust)',
+      'High-intent FAQ answering real follow-up questions'
+    ]
+  };
+}
+
 export function startClientGeneration(input: GenerationInput): { success: boolean; job: Job } {
   const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const keyword = input.targetKeyword.trim();
+
+  // If outline wasn't explicitly generated by the user in the outline step, generate it from the built-in prompt
+  const initialOutline = (input.outline && input.outline.length > 0)
+    ? input.outline
+    : synthesizeClientOutline(input).outline;
 
   const initialJob: Job = {
     id: jobId,
@@ -306,6 +448,7 @@ export function startClientGeneration(input: GenerationInput): { success: boolea
     status: 'processing',
     stage: 'intent_analysis',
     progress: 15,
+    outline: initialOutline,
     log: [
       `Pipeline initialized for "${keyword}"`,
       `Target market: ${input.country || 'United States'} | Audience: ${input.audience || 'General Readers'}`,
@@ -319,11 +462,16 @@ export function startClientGeneration(input: GenerationInput): { success: boolea
   saveLocalJob(initialJob);
 
   // Run the asynchronous pipeline progression in the background
-  let currentProgress = 15;
   const stages: Array<{ stage: Job['stage']; progress: number; logMessage: string }> = [
     { stage: 'content_gap_analysis', progress: 35, logMessage: 'Stage 2: Analyzing competitor content gaps and SERP entities...' },
-    { stage: 'outline_creation', progress: 55, logMessage: 'Stage 3: Structuring human-first editorial outline with high-intent H2/H3 headings...' },
-    { stage: 'writing_article', progress: 75, logMessage: 'Stage 4: Drafting long-form content with benchmark tables, pro tips, and zero fluff...' },
+    {
+      stage: 'outline_creation',
+      progress: 55,
+      logMessage: (input.outline && input.outline.length > 0)
+        ? `Stage 3: Adopting structured outline (${input.outline.length} sections) crafted with built-in Senior Writer prompt...`
+        : `Stage 3: Structuring editorial outline (${initialOutline.length} sections) with built-in Senior Content Writer SME prompt...`
+    },
+    { stage: 'writing_article', progress: 75, logMessage: 'Stage 4: Drafting long-form content from outline with benchmark tables, pro tips, and zero fluff...' },
     { stage: 'seo_audit', progress: 90, logMessage: 'Stage 5: Conducting 100-point SEO audit, schema generation, and Pinterest pin synthesis...' }
   ];
 
@@ -391,7 +539,38 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
   let sections: ArticleSection[] = [];
   let faqs: FAQItem[] = [];
 
-  if (isFoodRecipe) {
+  if (input.outline && input.outline.length > 0) {
+    sections = input.outline.map((sec, idx) => {
+      const subheadingsMarkdown = (sec.h3s || []).map(h3 => 
+        `### ${h3}\n\nWhen implementing **${h3}**, practitioners focus on measurable inputs and reproducible benchmarks. Ensure clear baseline conditions before executing this phase.\n\n- **Critical Checkpoint**: Document prerequisite requirements.\n- **Action Protocol**: Follow step-by-step execution without skipping verification.\n- **Expected Outcome**: Consistent benchmark compliance.`
+      ).join('\n\n');
+
+      const keyPointsList = (sec.keyPoints || []).map(p => `- ${p}`).join('\n');
+      const tableMarkdown = sec.hasTable ? `\n\n### Specifications & Benchmark Matrix\n\n| Evaluation Metric | Standard Recommendation | Common Risk | Impact |\n| :--- | :--- | :--- | :--- |\n| **Core Execution** | Documented protocol | Deviating without testing | High (9/10) |\n| **Quality Assurance** | Real-time verification | Deferred inspection | Critical (10/10) |\n| **Sustained Output** | Scheduled reviews | Inconsistent cadence | Medium (7/10) |\n` : '';
+
+      return {
+        id: `sec_custom_${idx + 1}`,
+        heading: sec.h2,
+        level: 2 as const,
+        content: `${sec.keyPoints && sec.keyPoints.length > 0 ? `### Practitioner Priorities\n\n${keyPointsList}\n\n` : ''}${sec.h2} requires systematic execution grounded in verified best practices. Delivering direct answers and measurable outcomes for ${input.audience || 'readers'} eliminates guesswork.\n\n${subheadingsMarkdown}${tableMarkdown}`
+      };
+    });
+
+    faqs = [
+      {
+        question: `What is the most critical takeaway regarding ${keyword.toLowerCase()}?`,
+        answer: `Disciplined consistency. Following proven baseline standards and executing the step-by-step framework yields reliable, high-yield results.`
+      },
+      {
+        question: `How frequently should ${keyword.toLowerCase()} processes be evaluated?`,
+        answer: `Conducting structured reviews every quarter prevents process drift and keeps outputs aligned with updated benchmarks.`
+      },
+      {
+        question: `Can beginners achieve professional results?`,
+        answer: `Yes, provided they strictly follow the preparation requirements and avoid common shortcuts.`
+      }
+    ];
+  } else if (isFoodRecipe) {
     title = `Ultra-Crispy ${titleCased}: Kitchen-Tested Recipe & Secret Method`;
     metaDesc = `Learn how to make the crispiest ${keyword.toLowerCase()} without a deep fryer. Tested temperature schedule, secret seasoning blend, and pro troubleshooting.`;
     schemaType = 'Recipe';

@@ -17,7 +17,8 @@ import {
   MultiChannelPublishRequest,
   MultiChannelPublishResult,
   KeywordResearchResult,
-  DiscoveredKeyword
+  DiscoveredKeyword,
+  ContentBriefOutlineItem
 } from './types.js';
 import {
   FALLBACK_MODELS,
@@ -31,6 +32,7 @@ import {
 } from './data/fallbackData.js';
 import {
   synthesizeClientResearch,
+  synthesizeClientOutline,
   startClientGeneration,
   getLocalJobs,
   getLocalJob,
@@ -364,6 +366,37 @@ export const api = {
       // Fall through to client synthesis
     }
     return synthesizeClientResearch(keyword, country, language, audience, articleType, selectedModel);
+  },
+
+  async generateOutline(input: GenerationInput): Promise<{
+    success: boolean;
+    outline: ContentBriefOutlineItem[];
+    recommendedTitle: string;
+    metaDescription: string;
+    entities: string[];
+    faqs: string[];
+    suggestedWordCount?: number;
+    builtInPromptUsed: boolean;
+    systemPromptExcerpt: string;
+    keyDirectives: string[];
+  }> {
+    try {
+      const res = await fetch('/api/pipeline/outline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input)
+      });
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        return await res.json();
+      }
+    } catch {
+      // Fall through to client outline synthesis
+    }
+    return {
+      success: true,
+      ...synthesizeClientOutline(input)
+    };
   },
 
   async startGeneration(input: GenerationInput): Promise<{ success: boolean; job: Job }> {
