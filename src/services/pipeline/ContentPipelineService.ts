@@ -44,7 +44,7 @@ export class ContentPipelineService {
   /**
    * STAGE 1: Search Intent Analysis
    */
-  public async analyzeSearchIntent(keyword: string, audience?: string, articleType?: string): Promise<SearchIntentResult> {
+  public async analyzeSearchIntent(keyword: string, audience?: string, articleType?: string, selectedModel?: string): Promise<SearchIntentResult> {
     const prompt = `Analyze the search intent for the keyword: "${keyword}".
 Target Audience: ${audience || 'General public'}
 Desired Article Type: ${articleType || 'Best suited for intent'}
@@ -63,7 +63,11 @@ Return strict JSON:
 }`;
 
     try {
-      return await this.aiProvider.generateJson<SearchIntentResult>(prompt);
+      return await this.aiProvider.generateJson<SearchIntentResult>(
+        prompt,
+        undefined,
+        selectedModel ? { model: selectedModel } : undefined
+      );
     } catch (err) {
       console.warn(`[ContentPipelineService] AI Intent analysis failed or timed out, generating deterministic semantic intent:`, err);
       return this.fallbackSearchIntent(keyword, audience, articleType);
@@ -157,7 +161,11 @@ Return strict JSON:
 
     let result: any;
     try {
-      result = await this.aiProvider.generateJson(prompt, schemaDesc);
+      result = await this.aiProvider.generateJson(
+        prompt,
+        schemaDesc,
+        input.selectedModel ? { model: input.selectedModel } : undefined
+      );
     } catch (err) {
       console.warn('[ContentPipelineService] AI outline generation failed, generating fallback outline:', err);
       result = this.fallbackBriefData(input, intent);
@@ -274,7 +282,8 @@ Return valid JSON adhering to ContentBrief format.`;
     try {
       briefData = await this.aiProvider.generateJson<Omit<ContentBrief, 'id' | 'createdAt' | 'searchIntent' | 'contentType' | 'targetAudience'>>(
         prompt,
-        schemaDesc
+        schemaDesc,
+        input.selectedModel ? { model: input.selectedModel } : undefined
       );
     } catch (err) {
       console.warn(`[ContentPipelineService] Brief generation AI call failed, generating fallback brief:`, err);
@@ -918,6 +927,7 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
 
     let content = '';
     try {
+      console.log(`[ContentPipelineService] Requesting article generation using model: ${input.selectedModel || 'default'}`);
       content = await this.aiProvider.generate(userPrompt, {
         model: input.selectedModel,
         systemInstruction,
@@ -1190,7 +1200,8 @@ A standard 3 to 4-week rollout allows sufficient time for prerequisite validatio
     hasImages: boolean,
     hasSchema: boolean,
     internalLinksCount: number,
-    externalSourcesCount: number
+    externalSourcesCount: number,
+    selectedModel?: string
   ): Promise<SeoScoreBreakdown> {
     const prompt = `Perform an objective SEO audit of the following article for the keyword: "${brief.primaryKeyword}".
 Search Intent: ${brief.searchIntent.primaryIntent}
@@ -1224,7 +1235,11 @@ ${content.slice(0, 4500)}`;
 
     let auditResult: any;
     try {
-      auditResult = await this.aiProvider.generateJson(prompt);
+      auditResult = await this.aiProvider.generateJson(
+        prompt,
+        undefined,
+        selectedModel ? { model: selectedModel } : undefined
+      );
     } catch {
       auditResult = {
         searchIntent: 18,
@@ -1277,7 +1292,7 @@ ${content.slice(0, 4500)}`;
   /**
    * STAGE 5: Content Improvement (Rule 18: If score < 85, max 3 passes)
    */
-  public async improveWeakSections(content: string, audit: SeoScoreBreakdown, brief: ContentBrief): Promise<string> {
+  public async improveWeakSections(content: string, audit: SeoScoreBreakdown, brief: ContentBrief, selectedModel?: string): Promise<string> {
     const weakCategories = audit.explanations.filter(e => (e.score / e.max) < 0.85);
     const improvementPoints = weakCategories.map(c => `- ${c.category}: ${c.reason} (${(c.suggestions || []).join('; ')})`).join('\n');
 
@@ -1295,6 +1310,7 @@ ${content}`;
 
     try {
       return await this.aiProvider.generate(prompt, {
+        model: selectedModel,
         systemInstruction: 'You are an expert editor refining content for clarity, depth, and helpfulness. Output complete enhanced markdown.',
         temperature: 0.3
       });

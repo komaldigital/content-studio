@@ -580,6 +580,8 @@ export interface Job {
   progress: number; // 0 to 100
   articleId?: string;
   outline?: ContentBriefOutlineItem[];
+  selectedModel?: string;
+  modelUsed?: string;
   error?: string;
   log: string[];
   createdAt: string;

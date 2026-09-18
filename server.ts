@@ -49,15 +49,17 @@ async function startServer() {
   const store = DataStore.getInstance();
 
   // Helper to initialize active providers based on settings & testMode
-  function getProviders() {
+  function getProviders(overrideModel?: string) {
     const isTest = store.settings.testMode;
     const effectiveGeminiKey = store.settings.byok?.geminiApiKey || process.env.GEMINI_API_KEY || '';
     const effectiveOpenRouterKey = store.settings.byok?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
     const effectivePerplexityKey = store.settings.byok?.perplexityApiKey || store.settings.research?.perplexityApiKey || process.env.PERPLEXITY_API_KEY || '';
 
+    const modelToUse = overrideModel || store.settings.activeModel || store.settings.gemini.model || 'gemini-3.8-flash';
+
     const aiProvider = isTest
       ? new MockAIProvider()
-      : new MultiModelAIProvider(store.settings.activeModel || store.settings.gemini.model, store.settings.byok);
+      : new MultiModelAIProvider(modelToUse, store.settings.byok);
 
     const researchProvider = isTest
       ? new MockResearchProvider()
@@ -614,7 +616,8 @@ async function startServer() {
     }
 
     try {
-      const { researchProvider, pipeline } = getProviders();
+      const modelToUse = selectedModel || store.settings.activeModel;
+      const { researchProvider, pipeline } = getProviders(modelToUse);
       let research: any = null;
       try {
         research = await researchProvider.conductResearch(keyword, country, language);
@@ -625,7 +628,7 @@ async function startServer() {
 
       let intent: any = null;
       try {
-        intent = await pipeline.analyzeSearchIntent(keyword, audience, articleType);
+        intent = await pipeline.analyzeSearchIntent(keyword, audience, articleType, modelToUse);
       } catch (iErr: any) {
         console.warn('[Research] Intent analysis error, generating semantic fallback:', iErr?.message);
         intent = (pipeline as any).fallbackSearchIntent ? (pipeline as any).fallbackSearchIntent(keyword, audience, articleType) : {
@@ -652,10 +655,11 @@ async function startServer() {
     }
 
     try {
-      const { pipeline, researchProvider } = getProviders();
+      const modelToUse = input.selectedModel || store.settings.activeModel;
+      const { pipeline, researchProvider } = getProviders(modelToUse);
       let intent;
       try {
-        intent = await pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType);
+        intent = await pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType, modelToUse);
       } catch {
         intent = (pipeline as any).fallbackSearchIntent(input.targetKeyword, input.audience, input.articleType);
       }
@@ -667,7 +671,7 @@ async function startServer() {
         research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
       }
 
-      const outlineResult = await pipeline.generateOutline(input, intent, research);
+      const outlineResult = await pipeline.generateOutline({ ...input, selectedModel: modelToUse }, intent, research);
       res.json({
         success: true,
         ...outlineResult
@@ -684,8 +688,12 @@ async function startServer() {
     }
 
     try {
-      const { researchProvider, jobQueue } = getProviders();
-      const job = jobQueue.createJob(input.targetKeyword);
+      const selectedModel = input.selectedModel || store.settings.activeModel || 'gemini-3.8-flash';
+      if (input.selectedModel) {
+        store.settings.activeModel = input.selectedModel;
+      }
+      const { researchProvider, jobQueue } = getProviders(selectedModel);
+      const job = jobQueue.createJob(input.targetKeyword, selectedModel);
 
       // Launch background execution immediately without blocking HTTP response
       (async () => {
@@ -696,7 +704,7 @@ async function startServer() {
           store.addLog('warn', 'research', `SERP research failed or timed out, continuing with direct semantic analysis: ${err instanceof Error ? err.message : String(err)}`);
           research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
         }
-        await jobQueue.processJob(job.id, input, research);
+        await jobQueue.processJob(job.id, { ...input, selectedModel }, research);
       })().catch((err) => {
         store.addLog('error', 'article', `Background job execution failed: ${err.message}`);
       });
@@ -819,6 +827,7 @@ async function startServer() {
     if (customInstruction) instruction += ` Custom guidance: ${customInstruction}`;
 
     try {
+      const { aiProvider } = getProviders(article.modelUsed);
       const rewrittenContent = await aiProvider.rewrite(targetSection.content, instruction);
       targetSection.content = rewrittenContent;
 
@@ -848,19 +857,20 @@ async function startServer() {
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
     try {
-      const { pipeline } = getProviders();
+      const { pipeline } = getProviders(article.modelUsed);
       const audit = await pipeline.performSeoAudit(
         article.content,
         article.brief,
         Boolean(article.featuredImage),
         Boolean(article.jsonLdSchema),
         article.internalLinks.length,
-        article.externalSources.length
+        article.externalSources.length,
+        article.modelUsed
       );
 
       let improvedContent = article.content;
       if (audit.total < 85 && article.improvementPasses < 3) {
-        improvedContent = await pipeline.improveWeakSections(article.content, audit, article.brief);
+        improvedContent = await pipeline.improveWeakSections(article.content, audit, article.brief, article.modelUsed);
         article.improvementPasses++;
       }
 

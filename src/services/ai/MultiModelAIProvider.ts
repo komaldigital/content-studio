@@ -257,11 +257,12 @@ export class MultiModelAIProvider implements AIProviderInterface {
    */
   public async generate(prompt: string, options?: AIGenerateOptions): Promise<string> {
     const model = options?.model || this.currentModel;
+    console.log(`[MultiModelAIProvider] Executing generation with requested model: ${model}`);
 
     try {
       if (model.startsWith('claude-')) {
         return await this.callAnthropic(prompt, model, options);
-      } else if (model.startsWith('gpt-')) {
+      } else if (model.startsWith('gpt-') || model.startsWith('o1') || model.startsWith('o3')) {
         return await this.callOpenAI(prompt, model, options);
       } else if (model.startsWith('openrouter/')) {
         const resolved = this.resolveOpenRouterModel(model);
@@ -279,9 +280,9 @@ export class MultiModelAIProvider implements AIProviderInterface {
       const isQuotaError = err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.status === 'RESOURCE_EXHAUSTED';
 
       if (isQuotaError) {
-        console.warn(`[MultiModelAIProvider] Quota exceeded on ${model}. Attempting fallback...`);
+        console.warn(`[MultiModelAIProvider] Quota exceeded on ${model}. Attempting cross-provider failover...`);
 
-        // If user has an OpenAI key, failover to GPT-4o
+        // If user has an OpenAI key, failover to GPT-4o Mini
         if (this.byokKeys.openaiApiKey && !model.startsWith('gpt-')) {
           console.info(`[MultiModelAIProvider] Seamless failover to GPT-4o Mini using BYOK OpenAI Key...`);
           return await this.callOpenAI(prompt, 'gpt-4o-mini', options);
@@ -291,6 +292,12 @@ export class MultiModelAIProvider implements AIProviderInterface {
         if (this.byokKeys.openrouterApiKey && !model.startsWith('openrouter/')) {
           console.info(`[MultiModelAIProvider] Seamless failover to OpenRouter...`);
           return await this.callOpenRouter(prompt, 'meta-llama/llama-3.3-70b-instruct', options);
+        }
+
+        // If non-Gemini model failed on quota, try Gemini Flash Lite if Gemini key exists
+        if (this.byokKeys.geminiApiKey && !model.startsWith('gemini-') && !model.startsWith('google/')) {
+          console.info(`[MultiModelAIProvider] Seamless failover to Gemini 3.1 Flash Lite...`);
+          return await this.callGemini(prompt, 'gemini-3.1-flash-lite', options);
         }
       }
 
@@ -477,8 +484,9 @@ export class MultiModelAIProvider implements AIProviderInterface {
     let lastError: any = null;
     for (const modelCandidate of fallbackModels) {
       try {
+        console.log(`[MultiModelAIProvider] Attempting generation with Gemini candidate: ${modelCandidate}`);
         const timeoutPromise = new Promise<null>((_, reject) =>
-          setTimeout(() => reject(new Error(`Model ${modelCandidate} request timed out after 7s`)), 7000)
+          setTimeout(() => reject(new Error(`Model ${modelCandidate} request timed out after 60s`)), 60000)
         );
         const callPromise = client.models.generateContent({
           model: modelCandidate,
@@ -491,11 +499,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         }
       } catch (err: any) {
         lastError = err;
-        console.warn(`[MultiModelAIProvider] Gemini candidate ${modelCandidate} failed: ${err.message}. Trying next model...`);
-        // If it was a quota error (429 / RESOURCE_EXHAUSTED), break immediately to avoid waiting for exhausted models
-        if (err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED')) {
-          break;
-        }
+        console.warn(`[MultiModelAIProvider] Gemini candidate ${modelCandidate} failed: ${err.message}. Trying next candidate if available...`);
       }
     }
 
@@ -530,7 +534,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         Authorization: `Bearer ${key}`
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(18000)
+      signal: AbortSignal.timeout(60000)
     });
 
     const data = await res.json();
@@ -564,7 +568,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(18000)
+      signal: AbortSignal.timeout(60000)
     });
 
     const data = await res.json();
@@ -620,7 +624,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         'X-Title': 'AI SEO Content Studio'
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(18000)
+      signal: AbortSignal.timeout(60000)
     });
 
     const data = await res.json();
@@ -653,7 +657,7 @@ export class MultiModelAIProvider implements AIProviderInterface {
         models: [model],
         message: prompt
       }),
-      signal: AbortSignal.timeout(18000)
+      signal: AbortSignal.timeout(60000)
     });
 
     const data = await res.json();

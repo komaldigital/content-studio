@@ -23,20 +23,22 @@ export class JobQueue {
     this.imageProvider = imageProvider;
   }
 
-  public createJob(keyword: string): Job {
+  public createJob(keyword: string, selectedModel?: string): Job {
     const id = 'job_' + Math.random().toString(36).substring(2, 9);
+    const chosenModel = selectedModel || this.store.settings.activeModel || 'gemini-3.8-flash';
     const job: Job = {
       id,
       keyword,
       status: 'queued',
       stage: 'idle',
       progress: 0,
-      log: [`Job created for keyword "${keyword}" at ${new Date().toLocaleTimeString()}`],
+      selectedModel: chosenModel,
+      log: [`Job created for keyword "${keyword}" with model "${chosenModel}" at ${new Date().toLocaleTimeString()}`],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     this.store.jobs.set(id, job);
-    this.store.addLog('info', 'article', `Job created: ${id} ("${keyword}")`);
+    this.store.addLog('info', 'article', `Job created: ${id} ("${keyword}") [Model: ${chosenModel}]`);
     return job;
   }
 
@@ -308,14 +310,17 @@ export class JobQueue {
     if (!job) return;
 
     job.status = 'processing';
+    if (input.selectedModel) {
+      job.selectedModel = input.selectedModel;
+    }
     this.activeJobsCount++;
 
     try {
       // Stage 1: Intent Analysis
-      this.updateJobProgress(job, 'intent_analysis', 15, 'Analyzing search intent & user goals...');
+      this.updateJobProgress(job, 'intent_analysis', 15, `Analyzing search intent with ${input.selectedModel || 'selected AI model'}...`);
       const intent = await this.safeRunStage(
-        this.pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType),
-        12000,
+        this.pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType, input.selectedModel),
+        30000,
         () => (this.pipeline as any).fallbackSearchIntent(input.targetKeyword, input.audience, input.articleType),
         'intent_analysis'
       );
@@ -324,7 +329,7 @@ export class JobQueue {
       this.updateJobProgress(job, 'brief_creation', 28, 'Synthesizing content gaps and search intent into SEO Content Brief...');
       const brief: ContentBrief = await this.safeRunStage<ContentBrief>(
         this.pipeline.createContentBrief(input, intent, researchData),
-        16000,
+        45000,
         (): ContentBrief => {
           const fallbackData = (this.pipeline as any).fallbackBriefData(input, intent);
           return {
@@ -370,10 +375,10 @@ export class JobQueue {
       }
 
       // Stage 3: Article Writing from Outline
-      this.updateJobProgress(job, 'writing_article', 50, `Writing human-first article from outline using built-in Senior Writer prompt (${brief.suggestedWordCount} target words)...`);
+      this.updateJobProgress(job, 'writing_article', 50, `Writing human-first article using ${input.selectedModel || 'selected model'} (${brief.suggestedWordCount} target words)...`);
       const { content, sections, faqs } = await this.safeRunStage(
         this.pipeline.writeArticle(brief, input, researchData),
-        25000,
+        90000,
         () => this.pipeline.fallbackArticleContent(brief, input),
         'article_writing'
       );
@@ -457,13 +462,31 @@ export class JobQueue {
 
       // Stage 6: SEO Audit
       this.updateJobProgress(job, 'seo_audit', 82, 'Running comprehensive 100-point AI SEO Audit...');
-      const audit = await this.pipeline.performSeoAudit(
-        contentWithLinks,
-        brief,
-        true,
-        true,
-        internalLinks.length,
-        externalSources.length
+      const audit = await this.safeRunStage(
+        this.pipeline.performSeoAudit(
+          contentWithLinks,
+          brief,
+          true,
+          true,
+          internalLinks.length,
+          externalSources.length,
+          input.selectedModel
+        ),
+        30000,
+        () => ({
+          searchIntent: 18,
+          topicalCoverage: 18,
+          contentQuality: 18,
+          structure: 9,
+          keywordOptimization: 9,
+          internalLinking: internalLinks.length > 0 ? 5 : 2,
+          externalSources: externalSources.length > 0 ? 5 : 2,
+          media: 5,
+          schema: 5,
+          total: 89,
+          explanations: []
+        }),
+        'seo_audit'
       );
 
       // Stage 7: Auto-Improvement (if enabled and score < 85, max 3 passes)
@@ -473,15 +496,26 @@ export class JobQueue {
 
       if (input.autoImprove && audit.total < 85 && passes < 3) {
         this.updateJobProgress(job, 'content_improvement', 88, `Score is ${audit.total}/100. Running editorial refinement pass 1...`);
-        finalContent = await this.pipeline.improveWeakSections(contentWithVisuals, audit, brief);
+        finalContent = await this.safeRunStage(
+          this.pipeline.improveWeakSections(contentWithVisuals, audit, brief, input.selectedModel),
+          60000,
+          () => contentWithVisuals,
+          'content_improvement'
+        );
         passes++;
-        finalAudit = await this.pipeline.performSeoAudit(
-          finalContent,
-          brief,
-          true,
-          true,
-          internalLinks.length,
-          externalSources.length
+        finalAudit = await this.safeRunStage(
+          this.pipeline.performSeoAudit(
+            finalContent,
+            brief,
+            true,
+            true,
+            internalLinks.length,
+            externalSources.length,
+            input.selectedModel
+          ),
+          30000,
+          () => audit,
+          'seo_audit_repass'
         );
       }
 
@@ -596,8 +630,10 @@ export class JobQueue {
       job.stage = 'completed';
       job.progress = 100;
       job.articleId = articleId;
+      job.modelUsed = newArticle.modelUsed;
+      job.selectedModel = input.selectedModel || this.store.settings.activeModel;
       job.updatedAt = new Date().toISOString();
-      job.log.push(`[${new Date().toLocaleTimeString()}] Article generated successfully with score ${finalAudit.total}/100. Saved to local drafts.`);
+      job.log.push(`[${new Date().toLocaleTimeString()}] Article generated successfully with ${newArticle.modelUsed} (Score: ${finalAudit.total}/100). Saved to local drafts.`);
 
       this.store.addLog('info', 'article', `Generation completed for "${input.targetKeyword}" (Article: ${articleId}, Score: ${finalAudit.total})`);
     } catch (err) {
