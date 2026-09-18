@@ -616,11 +616,11 @@ async function startServer() {
     }
 
     try {
-      const modelToUse = selectedModel || store.settings.activeModel;
+      const modelToUse = selectedModel || store.settings.activeModel || 'gemini-3.1-flash-lite';
       const { researchProvider, pipeline } = getProviders(modelToUse);
       let research: any = null;
       try {
-        research = await researchProvider.conductResearch(keyword, country, language);
+        research = await researchProvider.conductResearch(keyword, country, language, 'hybrid', modelToUse);
       } catch (rErr: any) {
         console.warn('[Research] Research provider error, generating semantic fallback:', rErr?.message);
         research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(keyword) : null;
@@ -642,7 +642,7 @@ async function startServer() {
         };
       }
 
-      res.json({ research, intent });
+      res.json({ research, intent, modelUsed: modelToUse });
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
@@ -655,25 +655,31 @@ async function startServer() {
     }
 
     try {
-      const modelToUse = input.selectedModel || store.settings.activeModel;
+      const modelToUse = input.selectedModel || store.settings.activeModel || 'gemini-3.1-flash-lite';
       const { pipeline, researchProvider } = getProviders(modelToUse);
-      let intent;
-      try {
-        intent = await pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType, modelToUse);
-      } catch {
-        intent = (pipeline as any).fallbackSearchIntent(input.targetKeyword, input.audience, input.articleType);
+      
+      let intent = req.body.intent;
+      if (!intent) {
+        try {
+          intent = await pipeline.analyzeSearchIntent(input.targetKeyword, input.audience, input.articleType, modelToUse);
+        } catch {
+          intent = (pipeline as any).fallbackSearchIntent(input.targetKeyword, input.audience, input.articleType);
+        }
       }
 
-      let research = null;
-      try {
-        research = await researchProvider.conductResearch(input.targetKeyword, input.country, input.language);
-      } catch {
-        research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
+      let research = req.body.research;
+      if (!research) {
+        try {
+          research = await researchProvider.conductResearch(input.targetKeyword, input.country, input.language, 'hybrid', modelToUse);
+        } catch {
+          research = (researchProvider as any).buildFallbackResearch ? (researchProvider as any).buildFallbackResearch(input.targetKeyword) : null;
+        }
       }
 
       const outlineResult = await pipeline.generateOutline({ ...input, selectedModel: modelToUse }, intent, research);
       res.json({
         success: true,
+        modelUsed: modelToUse,
         ...outlineResult
       });
     } catch (err) {

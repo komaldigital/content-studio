@@ -213,7 +213,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     };
 
     try {
-      const res = await api.generateOutline(input);
+      const res = await api.generateOutline(input, intentData, researchData);
       if (res.success && res.outline) {
         setOutlineData(res.outline);
         setOutlineMeta({
@@ -738,17 +738,16 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
 
               {/* Quick Select Trending OpenRouter & Top Models */}
               <div className="flex flex-wrap gap-1.5 pb-1">
-                <span className="text-[10px] text-slate-500 self-center mr-1">Trending:</span>
+                <span className="text-[10px] text-slate-500 self-center mr-1">Top Engines:</span>
                 {[
+                  { id: 'gemini-3.1-flash-lite', label: 'Gemini Flash Lite', tag: 'Fast & Direct' },
+                  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash', tag: 'Google Search' },
+                  { id: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro', tag: 'Deep SME' },
                   { id: 'openrouter/anthropic/claude-sonnet-5', label: 'Claude Sonnet 5', tag: 'Flagship' },
                   { id: 'openrouter/anthropic/claude-opus-5', label: 'Claude Opus 5', tag: 'Max IQ' },
                   { id: 'openrouter/anthropic/claude-sonnet-4.6', label: 'Claude 4.6', tag: '1M Ctx' },
-                  { id: 'openrouter/anthropic/claude-sonnet-4.5', label: 'Claude 4.5', tag: 'Coding' },
-                  { id: 'openrouter/anthropic/claude-3.7-sonnet', label: 'Claude 3.7', tag: 'Hybrid' },
                   { id: 'openrouter/deepseek/deepseek-r1', label: 'DeepSeek R1', tag: 'Reasoning' },
-                  { id: 'openrouter/deepseek/deepseek-chat', label: 'DeepSeek V3', tag: 'Fast' },
-                  { id: 'openrouter/openai/o3-mini', label: 'o3-mini', tag: 'STEM' },
-                  { id: 'gemini-3.8-flash', label: 'Gemini 3.8', tag: 'Search' }
+                  { id: 'openrouter/openai/o3-mini', label: 'o3-mini', tag: 'STEM' }
                 ].map(pill => (
                   <button
                     key={pill.id}
@@ -1179,6 +1178,24 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 <span>{isGenerating ? 'Scheduling...' : 'Step 3: Generate Article'}</span>
               </button>
             </div>
+
+            {/* Active Engine Indicator */}
+            <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1 border-t border-slate-800/80">
+              <span className="flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Active Research & Outline Engine: <strong className="text-emerald-300 font-semibold">{activeModelDetails?.name || selectedModel}</strong></span>
+              </span>
+              {selectedModel.startsWith('gemini-') ? (
+                <span className="text-[10px] text-emerald-300 font-medium px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Google Gemini
+                </span>
+              ) : (
+                <span className="text-[10px] text-purple-300 font-medium px-2 py-0.5 rounded-full bg-purple-950/80 border border-purple-800">
+                  {selectedModel.split('/').pop()}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1261,7 +1278,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   {isResearching && (
                     <div className="py-16 text-center space-y-4">
                       <div className="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
-                      <p className="text-sm text-slate-400">Grounding query with Gemini and analyzing SERP content gaps...</p>
+                      <p className="text-sm text-slate-300 font-medium">Researching with {activeModelDetails?.name || selectedModel}...</p>
+                      <p className="text-xs text-slate-500">Analyzing search intent, competitor ranking patterns, and topical content gaps.</p>
                     </div>
                   )}
 
@@ -1378,7 +1396,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                     <div className="py-16 text-center space-y-4">
                       <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto" />
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-purple-200">Executing Built-in Senior Writer Prompt...</p>
+                        <p className="text-sm font-semibold text-purple-200">Executing Built-in Senior Writer Prompt with {activeModelDetails?.name || selectedModel}...</p>
                         <p className="text-xs text-slate-400">Constructing intent-driven H2s, practitioner subheadings, and benchmark table specifications.</p>
                       </div>
                     </div>

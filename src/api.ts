@@ -368,7 +368,7 @@ export const api = {
     return synthesizeClientResearch(keyword, country, language, audience, articleType, selectedModel);
   },
 
-  async generateOutline(input: GenerationInput): Promise<{
+  async generateOutline(input: GenerationInput, intent?: any, research?: any): Promise<{
     success: boolean;
     outline: ContentBriefOutlineItem[];
     recommendedTitle: string;
@@ -379,12 +379,13 @@ export const api = {
     builtInPromptUsed: boolean;
     systemPromptExcerpt: string;
     keyDirectives: string[];
+    modelUsed?: string;
   }> {
     try {
       const res = await fetch('/api/pipeline/outline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input)
+        body: JSON.stringify({ ...input, intent, research })
       });
       const contentType = res.headers.get('content-type') || '';
       if (res.ok && contentType.includes('application/json')) {

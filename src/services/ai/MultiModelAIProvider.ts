@@ -276,11 +276,17 @@ export class MultiModelAIProvider implements AIProviderInterface {
     } catch (err: any) {
       console.warn(`[MultiModelAIProvider] Primary model ${model} encountered error:`, err?.message || err);
 
-      // Check if it's 429 quota exhaustion or rate limit
-      const isQuotaError = err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.status === 'RESOURCE_EXHAUSTED';
+      // Check if it's 429 quota exhaustion, 503 high demand, or transient rate limit
+      const isQuotaOrDemandError = err?.message?.includes('429') ||
+        err?.message?.includes('503') ||
+        err?.message?.includes('RESOURCE_EXHAUSTED') ||
+        err?.message?.includes('UNAVAILABLE') ||
+        err?.message?.includes('high demand') ||
+        err?.status === 429 ||
+        err?.status === 503;
 
-      if (isQuotaError) {
-        console.warn(`[MultiModelAIProvider] Quota exceeded on ${model}. Attempting cross-provider failover...`);
+      if (isQuotaOrDemandError) {
+        console.warn(`[MultiModelAIProvider] Quota or demand spike encountered on ${model}. Attempting cross-provider failover...`);
 
         // If user has an OpenAI key, failover to GPT-4o Mini
         if (this.byokKeys.openaiApiKey && !model.startsWith('gpt-')) {
@@ -294,8 +300,8 @@ export class MultiModelAIProvider implements AIProviderInterface {
           return await this.callOpenRouter(prompt, 'meta-llama/llama-3.3-70b-instruct', options);
         }
 
-        // If non-Gemini model failed on quota, try Gemini Flash Lite if Gemini key exists
-        if (this.byokKeys.geminiApiKey && !model.startsWith('gemini-') && !model.startsWith('google/')) {
+        // If Gemini model hit 503 or 429, try Gemini 3.1 Flash Lite
+        if (this.byokKeys.geminiApiKey && model !== 'gemini-3.1-flash-lite') {
           console.info(`[MultiModelAIProvider] Seamless failover to Gemini 3.1 Flash Lite...`);
           return await this.callGemini(prompt, 'gemini-3.1-flash-lite', options);
         }
@@ -469,24 +475,27 @@ export class MultiModelAIProvider implements AIProviderInterface {
     }
     if (options?.responseMimeType === 'application/json') {
       config.responseMimeType = 'application/json';
-    }
-    if (options?.useGoogleSearchGrounding) {
+    } else if (options?.useGoogleSearchGrounding) {
+      // Note: Gemini API does not allow combining tools with responseMimeType: 'application/json'
       config.tools = [{ googleSearch: {} }];
     }
 
-    const requestedModel = model || 'gemini-3.8-flash';
+    const requestedModel = model || 'gemini-3.1-flash-lite';
     const fallbackModels = [
       requestedModel,
       'gemini-3.1-flash-lite',
+      'gemini-3.8-flash',
       'gemini-flash-latest'
     ].filter((m, i, arr) => arr.indexOf(m) === i);
 
     let lastError: any = null;
+    const timeoutMs = (options?.maxOutputTokens && options.maxOutputTokens > 4000) ? 45000 : 20000;
+
     for (const modelCandidate of fallbackModels) {
       try {
         console.log(`[MultiModelAIProvider] Attempting generation with Gemini candidate: ${modelCandidate}`);
         const timeoutPromise = new Promise<null>((_, reject) =>
-          setTimeout(() => reject(new Error(`Model ${modelCandidate} request timed out after 60s`)), 60000)
+          setTimeout(() => reject(new Error(`Model ${modelCandidate} request timed out after ${timeoutMs / 1000}s`)), timeoutMs)
         );
         const callPromise = client.models.generateContent({
           model: modelCandidate,
