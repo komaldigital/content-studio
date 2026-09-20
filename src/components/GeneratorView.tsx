@@ -1020,7 +1020,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
               />
             </div>
 
-            {/* Senior Content Writer & SME Engine Controls */}
+            {/* Scientific Knowledge Hub Primary Engine Controls */}
             <div className="p-4 rounded-xl bg-slate-900/60 border border-emerald-900/40 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1029,11 +1029,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
-                      <span>Senior Practitioner & SME Human Engine</span>
+                      <span>Scientific Knowledge Hub Primary Prompt & Engine</span>
                       <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-900/70 text-emerald-200">Active</span>
                     </div>
                     <div className="text-[11px] text-slate-400">
-                      Step 1-5 intent satisfaction, 40+ banned AI tells scrubbed, direct 2-3 sentence answer up top.
+                      Grade 6 reading level, neutral scientific tone, 2-3 line paragraphs, 7-part content structure & Page 1 SEO optimization.
                     </div>
                   </div>
                 </div>
@@ -1043,29 +1043,60 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  {showPromptDetails ? 'Hide Rules' : 'Inspect Rules'}
+                  {showPromptDetails ? 'Hide Primary Prompt' : 'Inspect Primary Prompt'}
                 </button>
               </div>
 
               {showPromptDetails && (
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-2 leading-relaxed">
-                  <div className="font-semibold text-emerald-400">Built-in Protocol Standards:</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-400">
+                <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-3 leading-relaxed">
+                  <div className="font-semibold text-emerald-400 flex items-center justify-between">
+                    <span>Primary Prompt Specification:</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Scientific Knowledge Hub</span>
+                  </div>
+                  <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-emerald-300/90 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+{`You are a Top SEO content writer for Scientific Knowledge Hub, a trusted educational website that delivers accurate, research-based scientific information in a clear, simple, and unbiased way.
+Write an SEO-optimized article on the topic: [keyword].
+
+Writing Requirements:
+- Write for a Grade 6 reading level
+- Use a neutral, objective, and educational tone
+- Avoid hype, opinions, or emotional language
+- Explain scientific terms clearly when first mentioned
+- Keep sentences short and paragraphs no longer than 2–3 lines
+- Use active voice, switching to passive only when scientific neutrality is needed
+
+SEO Requirements:
+- Include primary keyword in H1, first 100 words, and at least one H2
+- Structure content for featured snippets and People Also Ask
+- Add short FAQ section with concise answers
+
+Content Structure:
+- H1: Clear, keyword-focused title
+- Introduction: Simple definition and context (40–70 words)
+- H2: What is [Primary Keyword]?
+- H2: How does it work? (step-by-step, simplified)
+- H2: Why is it important?
+- H2: Real-world examples or global context
+- H2: Common questions or misconceptions
+- FAQ Section: 3–5 short, direct answers
+- Conclusion: Brief summary focused on understanding, not persuasion`}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-400 text-[11px]">
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Step 1 (Intent):</strong> Direct answer in first 2-3 sentences. No fluff.</span>
+                      <span><strong>Reading Level:</strong> Grade 6 vocabulary, accessible to 11–12 year olds.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Step 2 (Structure):</strong> Natural keyword placement, short paragraphs (2-4 sentences).</span>
+                      <span><strong>Tone:</strong> Calm, encyclopedia-style, zero hype or emotional words.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Step 3 (Anti-AI Slop):</strong> Banned: delve, tapestry, landscape, leverage, robust, paramount, etc.</span>
+                      <span><strong>Banned Words:</strong> delve, tapestry, landscape, leverage, robust, paramount, etc.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Step 4 (E-E-A-T):</strong> Real trade-offs, benchmarks, and practitioner edge cases.</span>
+                      <span><strong>Featured Snippets:</strong> 40-50 word direct answers under every H2.</span>
                     </div>
                   </div>
                 </div>

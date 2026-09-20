@@ -328,54 +328,57 @@ Return valid JSON adhering to ContentBrief format.`;
     const isHowTo = intent.primaryIntent === 'how-to';
 
     return {
-      recommendedTitle: isRecipe
-        ? `${titleCased}: Easy, Flavorful & Quick Recipe Guide`
-        : isHowTo
-        ? `How to Master ${titleCased}: Complete Step-by-Step Guide`
-        : `The Complete Guide to ${titleCased}: Tips, Strategies & Best Practices`,
+      recommendedTitle: `${titleCased}: What It Is, How It Works, and Why It Matters`,
       alternativeTitles: [
-        `Simple & Fast ${titleCased} That Works Every Time`,
-        `${titleCased} Explained: Essential Steps & Pro Tips`,
-        `The Ultimate Reference for ${titleCased}`,
-        `Everything You Need to Know About ${titleCased}`
+        `What Is ${titleCased}? Clear Scientific Guide`,
+        `${titleCased} Explained: How It Works & Key Facts`,
+        `The Educational Guide to ${titleCased}`,
+        `Understanding ${titleCased}: Everything You Need to Know`
       ],
       slug: kw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      metaDescription: `Master ${kw} with this comprehensive, practical guide. Discover step-by-step instructions, expert tips, and common pitfalls to avoid.`,
+      metaDescription: `Discover what ${kw} is, how it works step-by-step, and why it matters in this clear, research-based educational guide.`,
       alternativeMetaDescriptions: [
-        `Looking for the best way to handle ${kw}? Here is your complete, tested guide with clear instructions.`,
-        `Everything you need to know about ${kw}, from core essentials to advanced recommendations.`,
-        `Discover proven tips and step-by-step guidance for ${kw}. Save time and achieve consistent results.`
+        `Learn the science of ${kw}. Clear definitions, real-world examples, and step-by-step explanations written for Grade 6 comprehension.`,
+        `What is ${kw} and how does it work? Read our unbiased, research-grounded scientific overview.`,
+        `Explore ${kw} with simple explanations, key facts, and clear answers to common questions.`
       ],
-      h1: `${titleCased}: Complete Practical Guide`,
+      h1: `${titleCased}: What It Is, How It Works, and Why It Matters`,
       outline: (input.outline && input.outline.length > 0) ? input.outline : [
         {
-          h2: `Key Fundamentals & Why ${titleCased} Matters`,
-          h3s: [`Core Principles`, `What to Prepare First`],
-          keyPoints: [`Core concept overview`, `Preparation essentials`, `Expected outcomes`],
-          suggestedVisual: `Overview infobox summarizing key parameters of ${kw}`
+          h2: `What is ${titleCased}?`,
+          h3s: [`Clear Definition`, `Core Scientific Concepts`],
+          keyPoints: [`Grade 6 accessible definition`, `Technical terms explained simply on first mention`, `Answers primary search intent immediately`],
+          suggestedVisual: `Clear educational diagram introducing ${kw}`
         },
         {
-          h2: `Step-by-Step Walkthrough`,
-          h3s: [`Phase 1: Getting Started`, `Phase 2: Execution`, `Phase 3: Fine-Tuning`],
-          keyPoints: [`Clear sequential steps`, `Exact measurements and benchmarks`, `Pro checkpoints`],
-          suggestedVisual: `Process diagram or photo sequence demonstrating the key steps`
+          h2: `How does it work?`,
+          h3s: [`Step-by-Step Breakdown`, `Key Process Stages`],
+          keyPoints: [`Simplified sequential explanation`, `Clear mechanics and numbered steps`, `Structured comparison table of key components`],
+          suggestedVisual: `Step-by-step process flowchart illustrating how ${kw} functions`,
+          hasTable: true
         },
         {
-          h2: `Comparison & Best Practices Reference Table`,
-          h3s: [`Method Comparisons`, `Common Trade-Offs`],
-          keyPoints: [`Side-by-side metrics`, `Time vs efficiency`, `Recommended selections`],
-          suggestedVisual: `Clean comparison table outlining options and specs`
+          h2: `Why is it important?`,
+          h3s: [`Scientific Significance`, `Everyday & Global Impact`],
+          keyPoints: [`Core scientific and practical value`, `Real-world benefits in simple terms`],
+          suggestedVisual: `Infographic summarizing the major benefits and importance of ${kw}`
         },
         {
-          h2: `Common Pitfalls & How to Avoid Them`,
-          h3s: [`Frequent Mistakes`, `Troubleshooting Guide`],
-          keyPoints: [`Top beginner mistakes`, `Quick recovery fixes`],
-          suggestedVisual: `Checklist badge highlighting essential safeguards`
+          h2: `Real-world examples or global context`,
+          h3s: [`Observed Natural Occurrences`, `Verified Research & Studies`],
+          keyPoints: [`Real-world cases and practical examples`, `Verified dates, data, and scientific facts without speculation`],
+          suggestedVisual: `Photographic illustration of ${kw} in real-world application`
+        },
+        {
+          h2: `Common questions or misconceptions`,
+          h3s: [`Common Myths Debunked`, `What Science Actually Confirms`],
+          keyPoints: [`Clarifying 2-3 frequent misunderstandings`, `Objective, factual corrections using calm language`],
+          suggestedVisual: `Misconception vs factual reality comparison table`
         },
         {
           h2: `Frequently Asked Questions`,
-          h3s: intent.likelyQuestions.slice(0, 3),
-          keyPoints: [`Direct, concise answers to high-volume user queries`],
+          h3s: intent.likelyQuestions.slice(0, 4),
+          keyPoints: [`3 to 5 short, direct answers formatted for People Also Ask`],
           suggestedVisual: `Accordion FAQ block`
         }
       ],
@@ -1170,14 +1173,78 @@ Yes. Because the core framework relies on objective benchmarks and verified inpu
 A standard 3 to 4-week rollout allows sufficient time for prerequisite validation, parallel testing, and team training without business disruption.`;
     }
 
-    // Default: WordRocket All-in-One SEO and One Shot Blog Post Structure
-    const outlineBlocks = brief.outline.map((sec, idx) => {
-      const subBlocks = (sec.h3s || []).map(h3 => `### ${h3}\n\nTo achieve consistent results when addressing ${h3.toLowerCase()}, practitioners focus on clear inputs, measurable standards, and verified benchmarks. A standard implementation protocol minimizes wasted cycles while preserving quality control.\n\n- **Primary Checkpoint**: Verify all prerequisite requirements before initiating the workflow.\n- **Action Protocol**: Follow sequential steps without skipping quality verification phases.\n- **Output Verification**: Compare final results against expected specifications.\n`).join('\n');
+    // Default: Scientific Knowledge Hub Educational SEO Structure
+    const introParagraph = `Understanding **${kw}** is simple once you look at the basic science behind it. In clear terms, ${kw} refers to a core scientific concept or process that helps us understand how things function in the real world. This educational guide explains how it works, why it matters, and the evidence supporting it.`;
 
-      return `## ${sec.h2}\n\n${sec.keyPoints?.join('. ') || `Implementing ${sec.h2} requires systematic execution grounded in verified best practices.`} When optimizing for both search intent and practical application, maintaining consistent quality across every phase is the top priority.\n\n${subBlocks}\n| Parameter | Recommended Standard | Common Pitfall | Impact Score |\n| :--- | :--- | :--- | :--- |\n| Core Setup | Documented process | Ad-hoc adjustments | High (9/10) |\n| Quality Verification | Continuous monitoring | Delayed inspection | Critical (10/10) |\n| Ongoing Maintenance | Scheduled check-ins | Neglected updates | Medium (7/10) |\n`;
-    }).join('\n\n');
+    return `# ${title}
 
-    return `# ${title}\n\n**${kw}** succeeds when practitioners apply verified baseline standards instead of ad-hoc workarounds. The core goal is simple: deliver predictable, high-quality results for ${audience} without wasting hours on manual revisions.\n\nAccording to recent industry benchmarks, teams using structured protocols for ${kw} improve operational predictability and long-term efficiency by up to 34% compared to ad-hoc methods.\n\n${outlineBlocks}\n\n## Frequently Asked Questions\n\n### What is the single most important factor for success with ${kw}?\nDisciplined consistency. Following proven baseline standards beats attempting complex variations before mastering the fundamentals.\n\n### How frequently should ${kw} workflows be evaluated?\nQuarterly reviews work best to spot process drift, update benchmarks, and resolve friction points before they hurt overall performance.\n\n### Where can teams find verified resources to support ${kw}?\nStick to official documentation, peer-reviewed benchmarks, and accredited industry standards over unverified forums or anecdotal advice.`;
+${introParagraph}
+
+## What is ${titleCased}?
+
+**${kw}** is a term used to describe a specific and observable phenomenon. In simple words, it is a process that occurs under clear, measurable conditions. 
+
+Scientists study this topic to observe how different parts interact with one another. When learning about this concept for the first time, it helps to focus on the basic rules that guide it. 
+
+Every scientific term has a clear definition. When we break down the parts of **${kw}**, we see that it follows natural laws that are both predictable and testable.
+
+## How does it work?
+
+Understanding how **${kw}** works is easiest when we look at it step-by-step. The entire process follows an orderly sequence of events:
+
+1. **Initial Stage**: The process begins when specific conditions or basic elements come together.
+2. **Active Phase**: The core mechanism takes place as energy, information, or materials interact.
+3. **Stabilization**: The system reaches a steady state where results can be observed and measured.
+
+### Process Summary Table
+
+| Stage | Main Action | Key Purpose |
+| :--- | :--- | :--- |
+| **Stage 1: Input** | Baseline conditions are established | Prepares the system for activity |
+| **Stage 2: Reaction** | Core process actively takes place | Generates observable results |
+| **Stage 3: Outcome** | Measurable data is recorded | Confirms scientific accuracy |
+
+## Why is it important?
+
+**${kw}** plays an important role in how we understand our world. Without this foundational process, many natural systems and practical technologies would not function as expected.
+
+First, it helps researchers answer fundamental questions about natural behavior. By studying these patterns, scientists can predict outcomes with higher accuracy.
+
+Second, it provides practical value for everyday life. From school laboratories to global scientific teams, knowing the facts about this topic helps people make informed, evidence-based decisions.
+
+## Real-world examples or global context
+
+Real-world examples of **${kw}** appear in many different environments. Observations documented in scientific field studies show that these principles remain consistent across various regions.
+
+For example, researchers tracking data over multiple decades have recorded how changes in environmental factors directly influence outcomes. In documented studies, controlled tests confirmed that following standardized scientific methods yielded consistent, repeatable results.
+
+These global examples demonstrate that the principles behind **${kw}** apply broadly and reliably across different scientific fields.
+
+## Common questions or misconceptions
+
+There are several common misconceptions surrounding **${kw}** that can confuse learners. Looking at verified scientific facts helps clear up this confusion:
+
+- **Misconception 1: It happens at random.** Scientific evidence confirms that this process follows specific, predictable physical laws.
+- **Misconception 2: It is too complicated for beginners.** When broken into sequential steps, the core mechanism is straightforward and easy to understand.
+- **Misconception 3: It has no practical effect.** Research consistently shows that understanding this topic leads to measurable improvements in real-world applications.
+
+## Frequently Asked Questions
+
+### What is the simplest definition of ${kw}?
+**${kw}** is a natural or practical process that follows clear, measurable steps to produce observable scientific outcomes.
+
+### How do scientists verify that ${kw} is working correctly?
+Researchers use controlled experiments, standardized measurements, and repeated testing to confirm that results match verified scientific benchmarks.
+
+### Why do students learn about ${kw} in school?
+Learning about this topic builds strong critical thinking skills and gives students a factual foundation for understanding how science shapes everyday life.
+
+### What is the most common mistake when studying ${kw}?
+The most frequent mistake is assuming the process is completely random, rather than recognizing the predictable steps and conditions that govern it.
+
+## Conclusion
+
+Understanding **${kw}** provides a clear window into how natural and practical systems function. By focusing on simple definitions, step-by-step mechanisms, and verified real-world examples, anyone can understand the essential science behind it. Accurate knowledge helps us appreciate the order, logic, and predictability of the world around us.`;
   }
 
   /**
