@@ -670,75 +670,78 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
       }
     ];
   } else {
-    // Default Scientific Knowledge Hub Structure
-    title = `${titleCased}: What It Is, How It Works, and Why It Matters`;
-    metaDesc = `Learn about ${keyword.toLowerCase()} in this clear, research-based educational guide. Simple definitions, step-by-step facts, and real-world examples.`;
-    schemaType = 'Article';
-    wordCountTarget = input.targetWordCount || 2200;
+    // Default Lone Goose Bakery Artisanal Recipe & Craft Structure
+    title = `${titleCased}`;
+    metaDesc = `Discover how to make this delicious homemade ${titleCased} with our step-by-step recipe, flavor profile notes, easy homemade syrup guide, nutrition facts, and iced variation.`;
+    schemaType = 'Recipe';
+    wordCountTarget = input.targetWordCount || 1650;
 
     sections = [
       {
-        id: 'sec_sci_1',
-        heading: `What is ${titleCased}?`,
+        id: 'sec_lgb_intro',
+        heading: `Introduction`,
         level: 2,
-        content: `**${keyword.toLowerCase()}** is an important topic in science and everyday life. At its core, it refers to observable principles that help explain how related systems function in the natural and modern world.\n\nScientists study **${keyword.toLowerCase()}** by examining measurable factors, consistent patterns, and physical evidence. Understanding these basics gives readers a clear foundation before exploring detailed steps.`
+        content: `With spring just around the corner, I've been adding new caffeinated creations to my lineup. ${titleCased} might not be the most obvious pairing, but trust me—once you try it, you'll wonder why you didn't make this sooner.\n\nThis homemade ${titleCased.toLowerCase()} recipe brings a subtle craft twist to your usual coffee routine, balancing rich espresso with smooth, aromatic syrup. It matches the smoothness of our popular [Pistachio Latte Recipe].\n\nWhether you prefer it hot or iced, this latte is easy to make at home, and I'll walk you through every step—including a simple homemade syrup recipe that's perfect for adding a little extra flavor to your drinks. Let's get started!`
       },
       {
-        id: 'sec_sci_2',
-        heading: `How does it work?`,
+        id: 'sec_lgb_flavor',
+        heading: `Flavor & Taste`,
         level: 2,
-        content: `### Step-by-Step Breakdown\n\nTo understand how **${keyword.toLowerCase()}** works, researchers break the process down into clear, ordered stages:\n\n1. **Initial Trigger**: The cycle begins when specific baseline conditions or inputs interact.\n2. **Core Transition**: Next, energy or resources move through the system, producing observable changes.\n3. **Balanced Outcome**: Finally, the process reaches an equilibrium or stable end state.\n\n### Key Mechanisms & Characteristics\n\n| Stage | Core Function | Observable Effect | Scientific Significance |\n| :--- | :--- | :--- | :--- |\n| **Phase 1** | Input Activation | Measurable starting condition | Establishes reliable baseline |\n| **Phase 2** | Systematic Reaction | Energy or material transfer | Drives primary operation |\n| **Phase 3** | Stabilization | Consistent final result | Enables predictable analysis |\n\n> **Scientific Note**: Keeping variables controlled allows observers to verify each step accurately without confounding external factors.`
+        content: `![Taste](https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=80)\n\nA ${titleCased.toLowerCase()} offers a unique balance of rich espresso, creamy milk, and delicate flavor notes. The subtle sweetness adds a light, herbal complexity that pairs beautifully with the boldness of the coffee, creating a smooth and aromatic experience.\n\nThe floral essence is present but not overpowering, lending a slightly sweet and soothing quality to each sip. When combined with a touch of honey or vanilla, the flavors meld into a warm, comforting drink with a gentle, lingering finish.\n\nIf you want a more complex and delicious flavor, check out our [Iced Lavender Cream Chai Recipe]!`
       },
       {
-        id: 'sec_sci_3',
-        heading: `Why is it important?`,
+        id: 'sec_lgb_full_recipe',
+        heading: `${titleCased} Full Recipe`,
         level: 2,
-        content: `Understanding **${keyword.toLowerCase()}** matters because it directly influences both scientific knowledge and practical applications.\n\nWhen people understand how these mechanisms operate, they can make informed decisions based on verified evidence rather than guesswork. Furthermore, research into **${keyword.toLowerCase()}** continues to uncover practical solutions in technology, health, and environmental science.`
+        content: `![Preparation](https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80)\n\nThis simple method will begin by showing you how to make homemade Syrup (just like our [Homemade Pistachio Syrup Recipe]). Next, I'll show you how to use the syrup to make a delicious Hot ${titleCased}. Looking for a cooler option? I include a recipe for an Iced ${titleCased} below as well!\n\n### Syrup Ingredients:\n* 1/2 cup Water\n* 1/2 cup Granulated Sugar\n* 1 tsp Vanilla Extract (learn [how to add vanilla extract to coffee])\n* 1 tbsp Dried Culinary Lavender (or key botanical flavor)\n\n### Syrup Instructions:\n\n![Syrup Process](https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=1200&auto=format&fit=crop&q=80)\n\n* In a small saucepan, combine water, granulated sugar, and dried lavender. Bring to a gentle simmer over medium heat, stirring until the sugar fully dissolves.\n* Once the mixture reaches a gentle simmer and the sugar dissolves, remove from heat and stir in the vanilla extract. Let the lavender steep for 15 minutes to infuse the flavor.\n* Pour the syrup through a fine mesh strainer or cheesecloth to remove the pieces of lavender.\n* Use the syrup for the recipe below, and store the rest in an airtight container in the fridge for up to 2 weeks.\n\n**Bonus Tip:** The Lavender Syrup can also be used in other drinks like tea and lemonade, get creative!\n\n### ${titleCased} Ingredients:\n* 1 shot of espresso or 1/2 cup strong brewed coffee\n* 3/4 cup milk (or non-dairy alternative)\n* 1 tbsp lavender syrup (from above)\n* Dried Lavender for Topping (optional)\n\n### ${titleCased} Instructions:\n\n![Brewing](https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=1200&auto=format&fit=crop&q=80)\n\n1. Grab your chosen mug, and add in 1 tbsp of Lavender Syrup (from above). If you like a sweeter latte, add 2 tbsp.\n2. Prepare the shot of espresso or brew the strong coffee. Add it to the Chosen Mug.\n3. Heat the milk in a small saucepan or froth it using a frother until steaming and slightly foamy, stir gently to mix together.\n4. Add a sprinkle of dried lavender as an optional topping, then enjoy your ${titleCased} while it is still warm!`
       },
       {
-        id: 'sec_sci_4',
-        heading: `Real-world examples or global context`,
+        id: 'sec_lgb_nutrition',
+        heading: `Nutrition Facts`,
         level: 2,
-        content: `### Documented Evidence & Global Studies\n\nReal-world applications of **${keyword.toLowerCase()}** appear across multiple scientific disciplines and geographical regions.\n\nPeer-reviewed studies published over the past decade show consistent data supporting these principles. In laboratories and field observations around the world, researchers document reliable outcomes that match theoretical models.`
+        content: `These Hot ${titleCased} nutrition facts assume the use of skim milk, and it is for one serving.\n\n* Calories: 75\n* Total Fat: 0 g\n* Saturated Fat: 0 g\n* Cholesterol: 2 mg\n* Sodium: 65 mg\n* Total Carbs: 15 g\n* Sugars: 14 g\n* Protein: 6 g`
       },
       {
-        id: 'sec_sci_5',
-        heading: `Common questions or misconceptions`,
+        id: 'sec_lgb_iced',
+        heading: `Iced ${titleCased} Recipe:`,
         level: 2,
-        content: `### Myth vs. Scientific Reality\n\n* **Misconception 1**: The process happens instantaneously without intermediate stages. In reality, evidence demonstrates that each transition requires measured time and specific inputs.\n* **Misconception 2**: Results vary randomly from one test to another. When baseline variables remain consistent, outcomes follow predictable scientific laws.\n* **Misconception 3**: Complex equipment is always needed to observe basic effects. Many fundamental aspects can be demonstrated through simple, controlled classroom experiments.`
+        content: `![Iced](https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1200&auto=format&fit=crop&q=80)\n\n### Ingredients:\n* 1 shot of espresso or 1/2 cup strong brewed coffee (cooled)\n* 3/4 cup milk (or non-dairy alternative i.e. oat, almond, etc.)\n* 1 tbsp lavender syrup (from above)\n* 3/4 - 1 cup of ice\n* Dried Lavender for Topping (optional)\n\n### Instructions:\n\n![Pouring](https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200&auto=format&fit=crop&q=80)\n\n1. Brew your espresso or 1/2 cup of strong coffee and let it cool in the fridge while you move on to the next step.\n2. Add 1 tablespoon of lavender syrup (or 2 tbsp, depending on how sweet you like it).\n3. Fill a glass with ice.\n4. Pour the cooled espresso or coffee over the ice.\n5. Pour in the cold milk and stir gently to combine.\n6. Garnish with a pinch of dried lavender for an optional topping. Enjoy your Iced ${titleCased}!`
       },
       {
-        id: 'sec_sci_6',
-        heading: `Conclusion`,
+        id: 'sec_lgb_muffins',
+        heading: `Muffins Anyone?`,
         level: 2,
-        content: `In summary, **${keyword.toLowerCase()}** is a foundational concept with clear rules, observable stages, and measurable importance. By focusing on tested evidence and clear definitions, learners can build a solid scientific understanding that serves as a springboard for further study.`
+        content: `![Warm Muffins](https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&auto=format&fit=crop&q=80)\n\nNow that you've finished your Hot or Iced ${titleCased}, you need something to enjoy it with. You need to see our [Blueberry Muffin Recipe (frozen blueberries)]. It makes muffins that go great with any latte!\n\n*Posted in Homemade Latte & Espresso Recipes*\n\n[← Valentine's Day M&M Cookies](https://example.com/cookies) | [Protein Latte →](https://example.com/protein-latte)`
       }
     ];
 
     faqs = [
       {
-        question: `What is the simplest definition of ${keyword.toLowerCase()}?`,
-        answer: `${titleCased} refers to the verified scientific process and fundamental principles that govern how this system functions under standard conditions.`
+        question: `Can I make this ${titleCased} with non-dairy milk?`,
+        answer: `Yes! Oat milk, almond milk, or coconut milk all froth beautifully and complement the delicate floral notes.`
       },
       {
-        question: `How do researchers verify how ${keyword.toLowerCase()} functions?`,
-        answer: `Scientists rely on controlled experiments, empirical measurements, and peer-reviewed studies to verify facts without speculation.`
+        question: `How long does the homemade syrup keep?`,
+        answer: `Stored in an airtight jar or glass bottle in the refrigerator, the syrup remains fresh and flavorful for up to 2 weeks.`
       },
       {
-        question: `Why does ${titleCased} matter for non-scientists?`,
-        answer: `Understanding the basic facts helps individuals make evidence-based choices in daily life and evaluate claims accurately.`
+        question: `What if I do not have an espresso machine?`,
+        answer: `You can use 1/2 cup of very strongly brewed dark roast coffee, an Aeropress, or a Moka pot.`
       }
     ];
   }
 
-  const fullContent = sections.map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n');
+  const fullContent = (template === 'all-in-one-seo' || template === 'one-shot-blog' || template === 'product-review' || template === 'review' || input.outline)
+    ? sections.map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n')
+    : `# ${title}\n\n![${title}](https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1200&auto=format&fit=crop&q=80)\n\n${sections[0].content}\n\n` +
+      sections.slice(1).map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n');
 
   const featuredImage: ArticleImage = {
     id: `img_hero_${Date.now()}`,
     type: 'featured',
-    url: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',
-    altText: `High-resolution visual showcasing ${keyword.toLowerCase()} best practices and setup`,
-    caption: `Mastering ${keyword.toLowerCase()} with structured techniques and benchmark standards.`,
+    url: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1200&auto=format&fit=crop&q=80',
+    altText: `Artisan ${titleCased} in ceramic mug with latte art and delicate lavender garnish`,
+    caption: `Homemade ${titleCased} crafted with rich espresso and artisanal syrup.`,
     aspectRatio: '16:9',
     searchIntentMatch: 'Primary Hero Visual'
   };
@@ -748,11 +751,11 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     {
       id: `img_sec_${Date.now()}`,
       type: 'article',
-      url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&auto=format&fit=crop&q=80',
-      altText: `Detailed preparation matrix and checklist for ${keyword.toLowerCase()}`,
-      caption: `Step-by-step workflow setup.`,
+      url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=80',
+      altText: `Rich coffee beans, culinary dried lavender, and wooden scoop showcasing flavor ingredients`,
+      caption: `Flavor & taste profile ingredients.`,
       aspectRatio: '16:9',
-      searchIntentMatch: 'Process Walkthrough'
+      searchIntentMatch: 'Taste & Ingredients'
     }
   ];
 

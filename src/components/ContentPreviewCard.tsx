@@ -578,6 +578,22 @@ export const ContentPreviewCard: React.FC<ContentPreviewCardProps> = ({
                     >
                       {children}
                     </strong>
+                  ),
+                  img: ({ src, alt }) => (
+                    <figure className="my-6">
+                      <img
+                        src={src}
+                        alt={alt || ''}
+                        className="w-full max-h-[460px] object-cover rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-800"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                      {alt && alt !== 'Taste' && alt !== 'Preparation' && alt !== 'Iced' && alt !== 'Brewing' && (
+                        <figcaption className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2 italic">
+                          {alt}
+                        </figcaption>
+                      )}
+                    </figure>
                   )
                 }}
               >
@@ -708,7 +724,24 @@ export const ContentPreviewCard: React.FC<ContentPreviewCardProps> = ({
 
               {/* Main Markdown Content */}
               <div className="prose prose-invert max-w-none text-slate-200">
-                <Markdown remarkPlugins={[remarkGfm]}>{resolvedContent}</Markdown>
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    img: ({ src, alt }) => (
+                      <figure className="my-6">
+                        <img
+                          src={src}
+                          alt={alt || ''}
+                          className="w-full max-h-[460px] object-cover rounded-xl shadow-md border border-slate-800"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </figure>
+                    )
+                  }}
+                >
+                  {resolvedContent}
+                </Markdown>
               </div>
 
               {/* Section Visuals Grid */}
@@ -883,7 +916,24 @@ export const ContentPreviewCard: React.FC<ContentPreviewCardProps> = ({
                 <span>{wordCount.toLocaleString()} words</span>
               </div>
               <div className="prose prose-sm max-w-none text-slate-800 text-xs">
-                <Markdown remarkPlugins={[remarkGfm]}>{resolvedContent}</Markdown>
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    img: ({ src, alt }) => (
+                      <figure className="my-4">
+                        <img
+                          src={src}
+                          alt={alt || ''}
+                          className="w-full max-h-[260px] object-cover rounded-lg shadow border border-slate-200"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      </figure>
+                    )
+                  }}
+                >
+                  {resolvedContent}
+                </Markdown>
               </div>
             </div>
           </div>

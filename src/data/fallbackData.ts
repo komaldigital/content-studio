@@ -361,6 +361,334 @@ const sampleBrief: ContentBrief = {
 
 export const FALLBACK_ARTICLES: Article[] = [
   {
+    id: 'art_lavender_latte',
+    title: 'Lavender Latte',
+    slug: 'lavender-latte',
+    metaDescription: 'Learn how to make this easy, fragrant homemade Lavender Latte hot or iced. Includes homemade lavender syrup, sensory flavor profile, nutrition facts, and muffin pairing.',
+    wordCount: 1650,
+    readingTimeMinutes: 6,
+    content: `# Lavender Latte
+
+![Lavender Latte](https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1200&auto=format&fit=crop&q=80)
+
+With spring just around the corner, I've been adding new caffeinated creations to my lineup. Lavender and coffee might not be the most obvious pairing, but trust me—once you try it, you'll wonder why you didn't make this sooner. This homemade lavender latte recipe brings a subtle floral twist to your usual coffee routine, balancing rich espresso with smooth, aromatic lavender syrup. It's matches the smoothness of our popular [Pistachio Latte Recipe]. Whether you prefer it hot or iced, this latte is easy to make at home, and I'll walk you through every step—including a simple lavender syrup recipe that's perfect for adding a little extra flavor to your drinks. Let's get started!
+
+## Flavor & Taste
+
+![Taste](https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=80)
+
+A lavender latte offers a unique balance of rich espresso, creamy milk, and delicate floral notes. The subtle sweetness of lavender adds a light, herbal complexity that pairs beautifully with the boldness of the coffee, creating a smooth and aromatic experience. The floral essence is present but not overpowering, lending a slightly sweet and soothing quality to each sip. When combined with a touch of honey or vanilla, the flavors meld into a warm, comforting drink with a gentle, lingering finish.
+
+If you want a more complex and delicious flavor, check out our [Iced Lavender Cream Chai Recipe]!
+
+## Lavender Latte Full Recipe
+
+![Preparation](https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80)
+
+This simple method will begin by showing you how to make homemade Lavender Syrup (just like our [Homemade Pistachio Syrup Recipe]). Next, I'll show you how to use the syrup to make a delicious Hot Lavender Latte. Looking for a cooler option? I include a recipe for an Iced Lavender Latte below as well!
+
+### Lavender Syrup Ingredients:
+- 1/2 cup Water
+- 1/2 cup Granulated Sugar
+- 1 tsp Vanilla Extract (learn [how to add vanilla extract to coffee])
+- 1 tbsp Dried Culinary Lavender
+
+### Lavender Syrup Instructions:
+
+![Lavender Syrup](https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=1200&auto=format&fit=crop&q=80)
+
+- In a small saucepan, combine water, granulated sugar, and dried lavender. Bring to a gentle simmer over medium heat, stirring until the sugar fully dissolves.
+- Once the mixture reaches a gentle simmer and the sugar dissolves, remove from heat and stir in the vanilla extract. Let the lavender steep for 15 minutes to infuse the flavor.
+- Pour the syrup through a fine mesh strainer or cheesecloth to remove the pieces of lavender.
+- Use the syrup for the recipe below, and store the rest in an airtight container in the fridge for up to 2 weeks.
+
+**Bonus Tip:** The Lavender Syrup can be also used in other drinks like tea and lemonade, get creative!
+
+### Lavender Latte Ingredients:
+- 1 shot of espresso or 1/2 cup strong brewed coffee
+- 3/4 cup milk (or non-dairy alternative)
+- 1 tbsp lavender syrup (from above)
+- Dried Lavender for Topping (optional)
+
+### Lavender Latte Instructions:
+
+![Brewing](https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=1200&auto=format&fit=crop&q=80)
+
+1. Grab your chosen mug, and add in 1 tbsp of Lavender Syrup (from above). If you like a sweeter latte, add 2 tbsp.
+2. Prepare the shot of espresso or brew the strong coffee. Add it to the Chosen Mug.
+3. Heat the milk in a small saucepan or froth it using a frother until steaming and slightly foamy, stir gently to mix together.
+4. Add a sprinkle of dried lavender as an optional topping, then enjoy your Lavender Latte while it is still warm!
+
+## Nutrition Facts
+
+These Hot Lavender Latte nutrition facts assume the use of skim milk, and it is for one serving.
+
+- Calories: 75
+- Total Fat: 0 g
+- Saturated Fat: 0 g
+- Cholesterol: 2 mg
+- Sodium: 65 mg
+- Total Carbs: 15 g
+- Sugars: 14 g
+- Protein: 6 g
+
+## Iced Lavender Latte Recipe:
+
+![Iced](https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1200&auto=format&fit=crop&q=80)
+
+### Ingredients:
+- 1 shot of espresso or 1/2 cup strong brewed coffee (cooled)
+- 3/4 cup milk (or non-dairy alternative i.e. oat, almond, etc.)
+- 1 tbsp lavender syrup (from above)
+- 3/4 - 1 cup of ice
+- Dried Lavender for Topping (optional)
+
+### Instructions:
+
+![Pouring](https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200&auto=format&fit=crop&q=80)
+
+1. Brew your espresso or 1/2 cup of strong coffee and let it cool in the fridge while you move on to the next step.
+2. Add 1 tablespoon of lavender syrup (or 2 tbsp, depending on how sweet you like it).
+3. Fill a glass with ice.
+4. Pour the cooled espresso or coffee over the ice.
+5. Pour in the cold milk and stir gently to combine.
+6. Garnish with a pinch of dried lavender for an optional topping. Enjoy your Iced Lavender Latte!
+
+## Muffins Anyone?
+
+![Warm Muffins](https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&auto=format&fit=crop&q=80)
+
+Now that you've finished your Hot or Iced Lavender Latte, you need something to enjoy it with. You need to see our [Blueberry Muffin Recipe (frozen blueberries)]. It makes muffins that go great with any latte!
+
+*Posted in Homemade Latte & Espresso Recipes*
+
+[← Valentine's Day M&M Cookies](https://example.com/cookies) | [Protein Latte →](https://example.com/protein-latte)`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    wordpressStatus: 'publish',
+    schemaType: 'Recipe',
+    jsonLdSchema: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Recipe',
+      name: 'Lavender Latte',
+      author: {
+        '@type': 'Person',
+        name: 'Lone Goose Bakery'
+      },
+      prepTime: 'PT15M',
+      cookTime: 'PT5M',
+      totalTime: 'PT20M',
+      recipeYield: '1 serving',
+      nutrition: {
+        '@type': 'NutritionInformation',
+        calories: '75 calories',
+        fatContent: '0 g',
+        sugarContent: '14 g',
+        proteinContent: '6 g'
+      }
+    }, null, 2),
+    seoScore: {
+      searchIntent: 20,
+      topicalCoverage: 20,
+      contentQuality: 20,
+      structure: 10,
+      keywordOptimization: 10,
+      internalLinking: 5,
+      externalSources: 5,
+      media: 5,
+      schema: 5,
+      total: 100,
+      explanations: [
+        { category: 'Search Intent', score: 20, max: 20, reason: 'Authentic 1st-person artisan recipe with step-by-step hot and iced guides.' },
+        { category: 'Topical Coverage', score: 20, max: 20, reason: 'Covers homemade lavender syrup, hot latte, iced latte, flavor notes, nutrition facts, and muffin pairing.' },
+        { category: 'Content Quality', score: 20, max: 20, reason: 'Zero AI slop. Natural human cadence, exact measurements, and sensory taste breakdown.' },
+        { category: 'Structure', score: 10, max: 10, reason: 'Pristine Lone Goose Bakery hierarchy with sub-component and primary recipes.' },
+        { category: 'Keyword Optimization', score: 10, max: 10, reason: 'Natural density for Lavender Latte, lavender syrup, and homemade latte recipes.' },
+        { category: 'Media & Schema', score: 10, max: 10, reason: 'Includes multiple high-res preparation photos and full Recipe JSON-LD schema.' }
+      ]
+    },
+    sections: [
+      {
+        id: 'sec_ll_intro',
+        heading: 'Introduction',
+        level: 2,
+        content: 'Personal seasonal hook introducing the floral twist on everyday coffee routines.'
+      },
+      {
+        id: 'sec_ll_flavor',
+        heading: 'Flavor & Taste',
+        level: 2,
+        content: 'Sensory breakdown of the delicate herbal complexity, espresso boldness, and smooth finish.'
+      },
+      {
+        id: 'sec_ll_full_recipe',
+        heading: 'Lavender Latte Full Recipe',
+        level: 2,
+        content: 'Complete method including homemade lavender syrup, hot latte instructions, and iced variation.'
+      },
+      {
+        id: 'sec_ll_nutrition',
+        heading: 'Nutrition Facts',
+        level: 2,
+        content: 'Itemized nutrition facts for one serving with skim milk.'
+      },
+      {
+        id: 'sec_ll_iced',
+        heading: 'Iced Lavender Latte Recipe:',
+        level: 2,
+        content: 'Six-step cooled espresso and ice preparation method.'
+      },
+      {
+        id: 'sec_ll_muffins',
+        heading: 'Muffins Anyone?',
+        level: 2,
+        content: 'Bakery pairing recommendation linking to blueberry muffin recipe.'
+      }
+    ],
+    faqs: [
+      {
+        question: 'Can I use fresh lavender instead of dried?',
+        answer: 'Yes, but ensure it is culinary-grade English lavender (Lavandula angustifolia) free from pesticides. Use double the quantity of fresh flowers as dried.'
+      },
+      {
+        question: 'How long does homemade lavender syrup last in the fridge?',
+        answer: 'Stored in an airtight glass container or syrup bottle, homemade lavender syrup stays fresh for up to 2 weeks.'
+      },
+      {
+        question: 'What non-dairy milk works best with lavender latte?',
+        answer: 'Oat milk is the top choice because its natural creamy sweetness and neutral grain profile balance the floral lavender without competing.'
+      }
+    ],
+    featuredImage: {
+      id: 'img_lavender_latte_hero',
+      type: 'featured',
+      url: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1200&auto=format&fit=crop&q=80',
+      altText: 'Hot lavender latte in a white ceramic mug with delicate latte art and dried lavender flowers',
+      caption: 'Lavender Latte crafted with homemade lavender syrup and rich espresso.',
+      aspectRatio: '16:9',
+      searchIntentMatch: 'Hero Presentation'
+    },
+    articleImages: [
+      {
+        id: 'img_ll_1',
+        type: 'article',
+        url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=80',
+        altText: 'Coffee beans and culinary lavender on wooden background representing flavor and taste',
+        caption: 'Flavor & Taste ingredients',
+        aspectRatio: '16:9',
+        searchIntentMatch: 'Flavor Profile'
+      },
+      {
+        id: 'img_ll_2',
+        type: 'article',
+        url: 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=1200&auto=format&fit=crop&q=80',
+        altText: 'Vibrant blooming purple lavender field used for culinary syrup',
+        caption: 'Lavender Syrup Infusion',
+        aspectRatio: '16:9',
+        searchIntentMatch: 'Syrup Preparation'
+      },
+      {
+        id: 'img_ll_3',
+        type: 'article',
+        url: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1200&auto=format&fit=crop&q=80',
+        altText: 'Two tall iced lavender latte glasses filled with ice and lavender garnish',
+        caption: 'Iced Lavender Latte Recipe',
+        aspectRatio: '16:9',
+        searchIntentMatch: 'Iced Variation'
+      },
+      {
+        id: 'img_ll_4',
+        type: 'article',
+        url: 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&auto=format&fit=crop&q=80',
+        altText: 'Hands breaking open warm fresh blueberry muffins',
+        caption: 'Muffins Anyone? Pairing',
+        aspectRatio: '16:9',
+        searchIntentMatch: 'Bakery Pairing'
+      }
+    ],
+    internalLinks: [
+      { postId: 101, title: 'Pistachio Latte Recipe', url: 'https://example.com/pistachio-latte', anchorTextCandidate: 'Pistachio Latte Recipe', targetSection: 'Introduction', status: 'inserted' },
+      { postId: 102, title: 'How to Add Vanilla Extract to Coffee', url: 'https://example.com/vanilla-coffee', anchorTextCandidate: 'how to add vanilla extract to coffee', targetSection: 'Lavender Syrup Ingredients', status: 'inserted' },
+      { postId: 103, title: 'Iced Lavender Cream Chai Recipe', url: 'https://example.com/lavender-chai', anchorTextCandidate: 'Iced Lavender Cream Chai Recipe', targetSection: 'Flavor & Taste', status: 'inserted' },
+      { postId: 104, title: 'Blueberry Muffin Recipe (Frozen Blueberries)', url: 'https://example.com/blueberry-muffins', anchorTextCandidate: 'Blueberry Muffin Recipe (frozen blueberries)', targetSection: 'Muffins Anyone?', status: 'inserted' }
+    ],
+    externalSources: [
+      {
+        name: 'Specialty Coffee Association (SCA)',
+        url: 'https://sca.coffee',
+        authorityType: 'org',
+        context: 'Standard espresso extraction and milk microfoam parameters for specialty latte drinks.',
+        status: 'included'
+      }
+    ],
+    improvementPasses: 1,
+    factCheckFlags: [],
+    isHighRiskContent: false,
+    versions: [],
+    brief: {
+      id: 'brief_lavender_latte',
+      primaryKeyword: 'Lavender Latte',
+      secondaryKeywords: ['lavender syrup recipe', 'iced lavender latte', 'homemade latte', 'culinary lavender coffee'],
+      searchIntent: {
+        primaryIntent: 'recipe',
+        secondaryIntent: 'how-to',
+        userGoal: 'Users searching for "Lavender Latte" seek a clear, delicious homemade recipe with both hot and iced methods, homemade syrup ratios, and flavor notes.',
+        expectedContentType: 'Artisan Bakery Recipe & Step-by-Step Guide',
+        expectedDepth: 'Complete Walkthrough',
+        likelyQuestions: [
+          'How do I make lavender syrup for coffee?',
+          'Can I make an iced lavender latte?',
+          'What does a lavender latte taste like?'
+        ],
+        commercialViability: 'high'
+      },
+      targetAudience: 'Home baristas and artisanal coffee lovers',
+      contentType: 'recipe',
+      recommendedTitle: 'Lavender Latte',
+      alternativeTitles: ['Homemade Lavender Latte Recipe (Hot & Iced)'],
+      slug: 'lavender-latte',
+      metaDescription: 'Learn how to make this easy, fragrant homemade Lavender Latte hot or iced. Includes homemade lavender syrup, sensory flavor profile, nutrition facts, and muffin pairing.',
+      alternativeMetaDescriptions: [
+        'How to make a Lavender Latte at home: hot & iced recipes, homemade lavender syrup, and sensory flavor breakdown.'
+      ],
+      h1: 'Lavender Latte',
+      outline: [
+        { h2: 'Flavor & Taste' },
+        { h2: 'Lavender Latte Full Recipe' },
+        { h2: 'Nutrition Facts' },
+        { h2: 'Iced Lavender Latte Recipe:' },
+        { h2: 'Muffins Anyone?' }
+      ],
+      entities: ['Lavender Latte', 'Culinary Lavender', 'Espresso', 'Simple Syrup', 'Steamed Milk', 'Vanilla Extract'],
+      relatedConcepts: ['Flavored lattes', 'Cold brew', 'Herbal syrups', 'Bakery pairings'],
+      questionsToAnswer: [
+        'How to make homemade lavender syrup?',
+        'How to froth milk without a machine?',
+        'What are the nutrition facts of a lavender latte?'
+      ],
+      contentGapsToAddress: ['Exact steeping time for lavender (15 minutes to avoid bitterness)'],
+      internalLinkOpportunities: ['/recipes/pistachio-latte', '/recipes/iced-lavender-chai', '/recipes/blueberry-muffins'],
+      externalSourceOpportunities: [
+        {
+          type: 'org',
+          name: 'Specialty Coffee Association (SCA)',
+          relevance: 'Milk steaming temperature guidelines (140-155°F) for maximum natural sweetness.'
+        }
+      ],
+      imageRecommendations: [
+        { placement: 'Hero', concept: 'Hot lavender latte in ceramic mug with latte art', altTextSuggestion: 'Lavender Latte with foam art and dried lavender flowers' },
+        { placement: 'Flavor & Taste', concept: 'Wooden scoop, coffee beans, lavender flowers', altTextSuggestion: 'Taste profile ingredients' },
+        { placement: 'Full Recipe', concept: 'Espresso extraction', altTextSuggestion: 'Brewing espresso for latte' },
+        { placement: 'Syrup Instructions', concept: 'Lavender flower field', altTextSuggestion: 'Lavender syrup' },
+        { placement: 'Iced Recipe', concept: 'Two tall glasses of iced latte', altTextSuggestion: 'Iced Lavender Latte' },
+        { placement: 'Muffins', concept: 'Hands breaking open warm blueberry muffin', altTextSuggestion: 'Warm blueberry muffins' }
+      ],
+      schemaRecommendation: 'Recipe',
+      suggestedWordCount: 1650,
+      createdAt: new Date().toISOString()
+    }
+  },
+  {
     id: 'art_honey_garlic_shrimp',
     title: 'Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish',
     slug: 'honey-garlic-shrimp-guide',

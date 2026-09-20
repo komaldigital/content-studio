@@ -15,6 +15,7 @@ import {
   DiscoveredKeyword,
   GeneratedImageItem
 } from '../../types.js';
+import { FALLBACK_ARTICLES } from '../../data/fallbackData.js';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
@@ -868,6 +869,11 @@ Steamed jasmine rice or brown rice is the classic base to soak up extra sauce. F
       }
     };
     this.articles.set(shrimpArticleId, shrimpArticle);
+
+    // Seed flagship Lone Goose Bakery and fallback articles
+    for (const art of FALLBACK_ARTICLES) {
+      this.articles.set(art.id, art);
+    }
 
     // Seed Calendar
     this.calendar.set('cal_1', {

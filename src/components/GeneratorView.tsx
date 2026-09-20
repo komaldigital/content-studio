@@ -59,26 +59,26 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   initialKeyword,
   initialSecondaryKeywords
 }) => {
-  const [keyword, setKeyword] = useState(initialKeyword || 'easy chicken dinner recipes');
+  const [keyword, setKeyword] = useState(initialKeyword || 'Lavender Latte');
   const [secondaryKeywords, setSecondaryKeywords] = useState(
-    initialSecondaryKeywords?.join(', ') || 'quick weeknight meals, 30 minute chicken recipes'
+    initialSecondaryKeywords?.join(', ') || 'lavender syrup recipe, iced lavender latte, homemade latte'
   );
   const [country, setCountry] = useState('United States');
   const [language, setLanguage] = useState('English');
-  const [audience, setAudience] = useState('Busy home cooks and parents seeking low-stress meals');
-  const [tone, setTone] = useState<ToneType>('authoritative');
-  const [articleType, setArticleType] = useState<ArticleType>('all-in-one-seo');
-  const [brandName, setBrandName] = useState('AI SEO Studio');
+  const [audience, setAudience] = useState('Home baristas, coffee lovers, and artisan bakers');
+  const [tone, setTone] = useState<ToneType>('conversational');
+  const [articleType, setArticleType] = useState<ArticleType>('recipe');
+  const [brandName, setBrandName] = useState('Lone Goose Bakery');
   const [autoImprove, setAutoImprove] = useState(true);
 
   // Senior Subject-Matter Expert Prompt States
-  const [voiceNotes, setVoiceNotes] = useState('Senior practitioner who has done this for years. Smart, slightly opinionated, in a hurry. Zero brochure fluff.');
+  const [voiceNotes, setVoiceNotes] = useState('Warm, artisan baker/coffee craft expert. First-person personal ("I", "my lineup", "trust me"), sensory flavor profile, modular recipes, nutrition facts, iced variation, and bakery pairing.');
   const [competitorUrls, setCompetitorUrls] = useState('');
   const [showPromptDetails, setShowPromptDetails] = useState(false);
 
   // WordRocket Template & Core Engine States
-  const [selectedTemplate, setSelectedTemplate] = useState<WordRocketTemplateId>('all-in-one-seo');
-  const [targetWordCount, setTargetWordCount] = useState<number>(2500);
+  const [selectedTemplate, setSelectedTemplate] = useState<WordRocketTemplateId>('how-to-guide');
+  const [targetWordCount, setTargetWordCount] = useState<number>(1650);
   const [includeSerpAnalysis, setIncludeSerpAnalysis] = useState<boolean>(true);
   const [enableSitemapLinks, setEnableSitemapLinks] = useState<boolean>(true);
   const [sitemapUrlCount, setSitemapUrlCount] = useState<number>(12);
