@@ -32,8 +32,9 @@ import {
   RotateCcw,
   Download
 } from 'lucide-react';
-import { Article, ArticleSection, AppSettings } from '../types.js';
+import { Article, ArticleSection, AppSettings, HumanQualityAuditResult } from '../types.js';
 import { api } from '../api.js';
+import { auditContentHumanQuality } from '../services/prompts/SeniorContentWriterPrompt.js';
 import { MultiChannelPublishModal } from './MultiChannelPublishModal.js';
 import { ContentPreviewCard } from './ContentPreviewCard.js';
 import { ContentMarkdownEditor } from './ContentMarkdownEditor.js';
@@ -82,6 +83,8 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
   const [wpStatusNotice, setWpStatusNotice] = useState<string | null>(null);
   const [isMultiPublishOpen, setIsMultiPublishOpen] = useState(false);
   const [isImprovingSeo, setIsImprovingSeo] = useState(false);
+  const [isSanitizingSlop, setIsSanitizingSlop] = useState(false);
+  const [slopNotice, setSlopNotice] = useState<string | null>(null);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [sectionActionLoading, setSectionActionLoading] = useState(false);
   const [customInstruction, setCustomInstruction] = useState('');
@@ -173,6 +176,24 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
       alert('SEO improvement failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsImprovingSeo(false);
+    }
+  };
+
+  const handleSanitizeAntiSlop = async () => {
+    setIsSanitizingSlop(true);
+    setSlopNotice(null);
+    try {
+      const res = await api.sanitizeAntiSlop(selectedArticle.id);
+      if (res.success) {
+        setSlopNotice(`Cleaned ${res.substitutionsCount || 0} AI cliché terms. Human Score: ${res.humanQualityAudit?.humanScore || 98}% (Grade ${res.humanQualityAudit?.readingLevelGrade || '6'})`);
+        onRefreshArticles();
+      } else {
+        setSlopNotice('Anti-slop check completed.');
+      }
+    } catch (err) {
+      setSlopNotice('Error: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setIsSanitizingSlop(false);
     }
   };
 
@@ -582,6 +603,23 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                     <span>{citationReport?.score || selectedArticle.aiCitationReport?.score || 92}% AI Citation Ready</span>
                   </button>
+                  {(() => {
+                    const hAudit = selectedArticle.humanQualityAudit || auditContentHumanQuality(selectedArticle.content);
+                    return (
+                      <button
+                        onClick={() => setActiveTab('audit')}
+                        className={`text-xs font-semibold px-2 py-0.5 rounded border flex items-center gap-1 transition-colors cursor-pointer ${
+                          hAudit.detectedSlopCount === 0
+                            ? 'bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+                            : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300'
+                        }`}
+                        title={`Human Writing Score: ${hAudit.humanScore}%, Reading Level: Grade ${hAudit.readingLevelGrade}`}
+                      >
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        <span>{hAudit.humanScore}% Human Quality (Grade {hAudit.readingLevelGrade})</span>
+                      </button>
+                    );
+                  })()}
                   {selectedArticle.isHighRiskContent && (
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3 text-amber-400" />
@@ -1458,6 +1496,149 @@ export const ArticlesView: React.FC<ArticlesViewProps> = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Anti-AI Slop, Cadence & Human Quality Section */}
+                {(() => {
+                  const humanAudit: HumanQualityAuditResult = selectedArticle.humanQualityAudit || auditContentHumanQuality(selectedArticle.content);
+                  return (
+                    <div className="border-t border-slate-800 pt-6 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                            Human Writing Quality, Rhythm &amp; Grade 6 Readability
+                          </h3>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            Guarantees objective Scientific Knowledge Hub tone, bans robotic AI clichés, and verifies conversational answer clarity.
+                          </p>
+                        </div>
+
+                        <button
+                          id="sanitize-slop-btn"
+                          onClick={handleSanitizeAntiSlop}
+                          disabled={isSanitizingSlop}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                          title="Run deterministic regex anti-slop pass and human cadence audit"
+                        >
+                          <Sparkles className={`w-3.5 h-3.5 text-emerald-400 ${isSanitizingSlop ? 'animate-spin' : ''}`} />
+                          <span>{isSanitizingSlop ? 'Sanitizing Slop...' : 'Sanitize AI Clichés'}</span>
+                        </button>
+                      </div>
+
+                      {slopNotice && (
+                        <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-xs text-emerald-300 flex items-center justify-between">
+                          <span>{slopNotice}</span>
+                          <button onClick={() => setSlopNotice(null)} className="text-slate-400 hover:text-white">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Metrics Row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Human Quality Score</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className={`text-xl font-bold font-mono ${humanAudit.humanScore >= 90 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                              {humanAudit.humanScore}/100
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {humanAudit.humanScore >= 90 ? 'Clean Human Rhythm' : 'Needs Review'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Reading Level</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-bold font-mono text-emerald-400">
+                              Grade {humanAudit.readingLevelGrade}
+                            </span>
+                            <span className="text-[10px] text-slate-400 truncate max-w-[120px]" title={humanAudit.readingLevelLabel}>
+                              {humanAudit.readingLevelLabel}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sentence Burstiness</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-bold font-mono text-emerald-400">
+                              {humanAudit.burstinessScore}
+                            </span>
+                            <span className="text-[10px] text-slate-400 capitalize">
+                              {humanAudit.burstinessRating} variance
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1">
+                          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Direct Answer First</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-bold font-mono text-emerald-400">
+                              {humanAudit.directAnswerScore}%
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              Immediate Factual Answers
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* AI Clichés / Slop Status */}
+                      <div className="p-4 rounded-xl bg-slate-950/50 border border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-200">AI Cliché &amp; Buzzword Detection</span>
+                          {humanAudit.detectedSlopCount === 0 ? (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                              <Check className="w-3 h-3" /> 0 AI Clichés Detected
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                              {humanAudit.detectedSlopCount} Clichés Found
+                            </span>
+                          )}
+                        </div>
+
+                        {humanAudit.detectedSlopCount === 0 ? (
+                          <p className="text-xs text-slate-400">
+                            Zero statistical tells or robotic tropes detected. Content reads naturally, avoiding words like &quot;delve&quot;, &quot;tapestry&quot;, &quot;robust&quot;, &quot;beacon&quot;, &quot;in conclusion&quot;, or fake conversational filler.
+                          </p>
+                        ) : (
+                          <div className="space-y-2 pt-1">
+                            <p className="text-xs text-amber-300/90">
+                              Found {humanAudit.detectedSlopCount} phrases that sound synthetic or formulaic:
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {humanAudit.detectedSlopList.map((phrase, pIdx) => (
+                                <span key={pIdx} className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">
+                                  &quot;{phrase}&quot;
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Suggestions */}
+                      {humanAudit.suggestions.length > 0 && (
+                        <div className="p-3.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-xs space-y-1.5">
+                          <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                            Human Quality Recommendations
+                          </div>
+                          <ul className="space-y-1 text-slate-300">
+                            {humanAudit.suggestions.map((sug, sIdx) => (
+                              <li key={sIdx} className="flex items-start gap-1.5">
+                                <span className="text-emerald-400 mt-0.5">•</span>
+                                <span>{sug}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}

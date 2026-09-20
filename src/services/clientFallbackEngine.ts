@@ -12,7 +12,7 @@ import {
   ContentBriefOutlineItem
 } from '../types.js';
 import { FALLBACK_ARTICLES } from '../data/fallbackData.js';
-import { sanitizeAndEnforceHumanWriting } from './prompts/SeniorContentWriterPrompt.js';
+import { sanitizeAndEnforceHumanWriting, auditContentHumanQuality } from './prompts/SeniorContentWriterPrompt.js';
 
 const CLIENT_JOBS_KEY = 'aiseo_client_jobs';
 const CLIENT_ARTICLES_KEY = 'aiseo_custom_articles';
@@ -851,6 +851,7 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     }, null, 2),
     schemaType,
     seoScore,
+    humanQualityAudit: auditContentHumanQuality(cleanContent),
     improvementPasses: 1,
     wordCount: wordCountTarget,
     readingTimeMinutes: Math.max(3, Math.round(wordCountTarget / 230)),

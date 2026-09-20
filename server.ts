@@ -37,6 +37,7 @@ import { MultiModelAIProvider, AVAILABLE_MODELS } from './src/services/ai/MultiM
 import { HybridLiveResearchProvider } from './src/services/research/HybridLiveResearchProvider.js';
 import { SitemapLinkingService } from './src/services/linking/SitemapLinkingService.js';
 import { DedicatedImageGeneratorService } from './src/services/images/DedicatedImageGeneratorService.js';
+import { sanitizeAndEnforceHumanWriting, auditContentHumanQuality } from './src/services/prompts/SeniorContentWriterPrompt.js';
 
 dotenv.config();
 
@@ -793,6 +794,7 @@ async function startServer() {
       const words = updates.content.trim().split(/\s+/).filter(Boolean).length;
       article.wordCount = words;
       article.readingTimeMinutes = Math.max(1, Math.round(words / 200));
+      article.humanQualityAudit = auditContentHumanQuality(updates.content);
     }
     article.updatedAt = new Date().toISOString();
     store.articles.set(article.id, article);
@@ -857,7 +859,7 @@ async function startServer() {
     }
   });
 
-  // Re-run SEO audit & improvement (Rule 18)
+  // Re-run SEO audit & improvement (Rule 18) with Human Quality & Anti-Slop Check
   app.post('/api/articles/:id/improve-seo', async (req: Request, res: Response) => {
     const article = store.articles.get(req.params.id);
     if (!article) return res.status(404).json({ error: 'Article not found' });
@@ -880,11 +882,56 @@ async function startServer() {
         article.improvementPasses++;
       }
 
+      // Enforce zero AI slop and compute human quality metrics
+      const sanitized = sanitizeAndEnforceHumanWriting(improvedContent);
+      const humanAudit = auditContentHumanQuality(sanitized.content);
+
       article.seoScore = audit;
-      article.content = improvedContent;
+      article.content = sanitized.content;
+      article.humanQualityAudit = humanAudit;
+      article.updatedAt = new Date().toISOString();
+      store.articles.set(article.id, article);
+      store.saveArticles();
+
+      res.json({ success: true, article, audit, humanQualityAudit: humanAudit });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
+
+  // Dedicated Anti-AI Slop & Grade 6 Humanizer Pass
+  app.post('/api/articles/:id/sanitize-anti-slop', async (req: Request, res: Response) => {
+    const article = store.articles.get(req.params.id);
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+
+    try {
+      const sanitized = sanitizeAndEnforceHumanWriting(article.content);
+      const humanAudit = auditContentHumanQuality(sanitized.content);
+
+      article.content = sanitized.content;
+      article.humanQualityAudit = humanAudit;
       article.updatedAt = new Date().toISOString();
 
-      res.json({ success: true, article, audit });
+      const newVersionNumber = (article.versions.length || 0) + 1;
+      article.versions.push({
+        versionNumber: newVersionNumber,
+        createdAt: new Date().toISOString(),
+        summary: `Anti-AI Slop & Humanizer Pass (${sanitized.substitutionsCount} clichés sanitized, Human Score: ${humanAudit.humanScore}%)`,
+        title: article.title,
+        content: article.content,
+        seoScore: article.seoScore?.total || 90
+      });
+
+      store.articles.set(article.id, article);
+      store.saveArticles();
+
+      res.json({
+        success: true,
+        article,
+        substitutionsCount: sanitized.substitutionsCount,
+        detectedBannedPhrases: sanitized.detectedBannedPhrases,
+        humanQualityAudit: humanAudit
+      });
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }

@@ -10,6 +10,7 @@ import { ContentPipelineService } from '../pipeline/ContentPipelineService.js';
 import { ImageProviderInterface } from '../images/ImageProviderInterface.js';
 import { SecurityValidator } from '../security/SecurityValidator.js';
 import { SitemapLinkingService } from '../linking/SitemapLinkingService.js';
+import { auditContentHumanQuality } from '../prompts/SeniorContentWriterPrompt.js';
 
 export class JobQueue {
   private store: DataStore;
@@ -557,6 +558,7 @@ export class JobQueue {
         jsonLdSchema,
         schemaType: brief.schemaRecommendation,
         seoScore: finalAudit,
+        humanQualityAudit: auditContentHumanQuality(finalContent),
         improvementPasses: passes,
         wordCount,
         readingTimeMinutes: Math.ceil(wordCount / 220),

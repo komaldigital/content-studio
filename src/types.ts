@@ -419,6 +419,19 @@ export interface FactCheckFinding {
   notes: string;
 }
 
+export interface HumanQualityAuditResult {
+  humanScore: number; // 0 - 100
+  readingLevelGrade: number; // e.g. 6.2
+  readingLevelLabel: string; // e.g. "Grade 6.2 (Target achieved)"
+  burstinessScore: number; // sentence length variance
+  burstinessRating: 'High (Natural Cadence)' | 'Medium (Balanced)' | 'Low (Robotic Cadence)';
+  detectedSlopCount: number;
+  detectedSlopList: string[];
+  directAnswerScore: number; // % of sections having direct factual answer first
+  paragraphLengthAvgLines: number;
+  suggestions: string[];
+}
+
 export interface ArticleSection {
   id: string;
   heading: string;
@@ -545,6 +558,7 @@ export interface Article {
   jsonLdSchema: string;
   schemaType: 'Article' | 'BlogPosting' | 'FAQPage' | 'HowTo' | 'Recipe';
   seoScore: SeoScoreBreakdown;
+  humanQualityAudit?: HumanQualityAuditResult;
   improvementPasses: number;
   wordCount: number;
   readingTimeMinutes: number;

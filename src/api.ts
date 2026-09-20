@@ -43,6 +43,7 @@ import {
   saveLocalArticle,
   deleteLocalArticle
 } from './services/clientFallbackEngine.js';
+import { sanitizeAndEnforceHumanWriting, auditContentHumanQuality } from './services/prompts/SeniorContentWriterPrompt.js';
 
 const BYOK_STORAGE_KEY = 'aiseo_byok_keys';
 const ACTIVE_MODEL_STORAGE_KEY = 'aiseo_active_model';
@@ -553,6 +554,39 @@ export const api = {
       return { success: true, article, newScore: article.seoScore.total };
     }
     return { success: true, newScore: 98 };
+  },
+
+  async sanitizeAntiSlop(articleId: string) {
+    try {
+      const res = await fetch(`/api/articles/${articleId}/sanitize-anti-slop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+        return await res.json();
+      }
+    } catch {}
+
+    // Client fallback if offline or standalone
+    const article = await this.getArticle(articleId);
+    if (article) {
+      const sanitized = sanitizeAndEnforceHumanWriting(article.content);
+      const audit = auditContentHumanQuality(sanitized.content);
+      article.content = sanitized.content;
+      article.humanQualityAudit = audit;
+      await this.updateArticle(articleId, {
+        content: article.content,
+        humanQualityAudit: audit
+      });
+      return {
+        success: true,
+        article,
+        substitutionsCount: sanitized.substitutionsCount,
+        detectedBannedPhrases: sanitized.detectedBannedPhrases,
+        humanQualityAudit: audit
+      };
+    }
+    return { success: false, error: 'Article not found' };
   },
 
   async generateIntentImage(articleId: string, options: {
