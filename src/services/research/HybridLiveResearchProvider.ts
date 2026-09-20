@@ -194,8 +194,9 @@ Return strict JSON:
     const modelsToTry = [
       preferredModel,
       'gemini-3.1-flash-lite',
-      'gemini-3.8-flash',
-      'gemini-flash-latest'
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3.8-flash'
     ].filter(Boolean) as string[];
     const uniqueCandidates = Array.from(new Set(modelsToTry));
 

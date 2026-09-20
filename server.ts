@@ -694,7 +694,7 @@ async function startServer() {
     }
 
     try {
-      const selectedModel = input.selectedModel || store.settings.activeModel || 'gemini-3.8-flash';
+      const selectedModel = input.selectedModel || store.settings.activeModel || 'gemini-3.1-flash-lite';
       if (input.selectedModel) {
         store.settings.activeModel = input.selectedModel;
       }

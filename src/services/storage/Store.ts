@@ -34,7 +34,7 @@ export class DataStore {
 
   private constructor() {
     this.settings = {
-      activeModel: 'gemini-3.8-flash',
+      activeModel: 'gemini-3.1-flash-lite',
       byok: {
         geminiApiKey: process.env.GEMINI_API_KEY || '',
         openaiApiKey: process.env.OPENAI_API_KEY || '',
@@ -44,7 +44,7 @@ export class DataStore {
         perplexityApiKey: process.env.PERPLEXITY_API_KEY || ''
       },
       gemini: {
-        model: 'gemini-3.8-flash',
+        model: 'gemini-3.1-flash-lite',
         maxOutputTokens: 8192,
         temperature: 0.5,
         topP: 0.95,

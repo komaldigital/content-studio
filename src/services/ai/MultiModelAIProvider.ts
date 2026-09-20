@@ -20,12 +20,28 @@ export interface ModelMetadata {
 
 export const AVAILABLE_MODELS: ModelMetadata[] = [
   {
+    id: 'gemini-3.1-flash-lite',
+    name: 'Gemini 3.1 Flash Lite (Google)',
+    provider: 'google',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.00015',
+    bestFor: 'Ultra-fast production, highest throughput, resilient low latency'
+  },
+  {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash (Google)',
+    provider: 'google',
+    contextWindow: '1M tokens',
+    costPer1kWords: '$0.0002',
+    bestFor: 'High-speed factual generation with established quotas'
+  },
+  {
     id: 'gemini-3.8-flash',
     name: 'Gemini 3.8 Flash (Google)',
     provider: 'google',
     contextWindow: '1M tokens',
     costPer1kWords: '$0.0003',
-    bestFor: 'Ultra-fast production, live search grounding, high-volume bulk scaling'
+    bestFor: 'Next-gen live search grounding and multimodal research'
   },
   {
     id: 'gemini-3.1-pro-preview',
@@ -34,14 +50,6 @@ export const AVAILABLE_MODELS: ModelMetadata[] = [
     contextWindow: '2M tokens',
     costPer1kWords: '$0.0025',
     bestFor: 'Deep long-form research, ultimate guides, complex topical reasoning'
-  },
-  {
-    id: 'gemini-3.1-flash-lite',
-    name: 'Gemini 3.1 Flash Lite (Google)',
-    provider: 'google',
-    contextWindow: '1M tokens',
-    costPer1kWords: '$0.00015',
-    bestFor: 'Ultra-low cost keyword clusters, summaries, and social pins'
   },
   {
     id: 'gpt-4o',
@@ -484,8 +492,9 @@ export class MultiModelAIProvider implements AIProviderInterface {
     const fallbackModels = [
       requestedModel,
       'gemini-3.1-flash-lite',
-      'gemini-3.8-flash',
-      'gemini-flash-latest'
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-3.8-flash'
     ].filter((m, i, arr) => arr.indexOf(m) === i);
 
     let lastError: any = null;
