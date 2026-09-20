@@ -880,7 +880,7 @@ WORDROCKET PRODUCT REVIEW & ROUNDUP ARCHITECTURE:
     } else if (templatePreset === 'how-to-guide' || templatePreset === 'how-to') {
       templateInstructions = `
 WORDROCKET STEP-BY-STEP HOW-TO GUIDE ARCHITECTURE:
-- Prerequisite requirements checklist and equipment/tool list.
+- Preparation checklist and required materials list.
 - Chronological phases with numbered step-by-step instructions (Phase 1, Phase 2, Phase 3).
 - Pro tips, safety warnings, and troubleshooting guide for common stumbling blocks.`;
     } else if (templatePreset === 'case-study') {
@@ -1055,6 +1055,7 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
   private generateResilientArticleMarkdown(brief: ContentBrief, input: GenerationInput, brandVoice?: any): string {
     const kw = brief.primaryKeyword;
     const title = brief.recommendedTitle;
+    const titleCased = kw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     const audience = input.audience || 'practitioners and decision makers';
     const template = input.templatePreset || input.articleType;
 

@@ -310,105 +310,58 @@ export function synthesizeClientOutline(input: GenerationInput): {
 } {
   const kw = input.targetKeyword.trim();
   const titleCased = kw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  const isFoodRecipe = /(wing|chicken|recipe|cook|bake|sauce|cookie|salad|soup|pasta|steak|roast|air fryer|grill|bbq|dinner|lunch|breakfast|dessert|ingredient|dish|crispy|crust|fry)/i.test(kw) || input.articleType === 'recipe';
 
-  let title = `${titleCased}: The Complete Practical Guide`;
-  let metaDesc = `Discover the ultimate guide to ${kw.toLowerCase()}. Step-by-step techniques, essential tips, common mistakes to avoid, and expert recommendations.`;
-  let outline: ContentBriefOutlineItem[] = [];
-
-  if (isFoodRecipe) {
-    title = `Ultra-Crispy ${titleCased}: Kitchen-Tested Recipe & Secret Method`;
-    metaDesc = `Learn how to make the crispiest ${kw.toLowerCase()} without a deep fryer. Tested temperature schedule, secret seasoning blend, and pro troubleshooting.`;
-    outline = [
-      {
-        h2: `The Core Secret to Extra-Crispy ${titleCased} (Direct Answer)`,
-        h3s: ['Aggressive Surface Drying', 'The Alkaline Baking Powder Trick', 'Elevated Wire-Rack Airflow'],
-        keyPoints: ['Direct answer upfront in first 2-3 sentences', 'Baking powder (alkaline pH) vs baking soda', 'Wire rack elevates wings for 360-degree heat convection'],
-        suggestedVisual: 'High-res close-up demonstrating golden blistered crackling skin',
-        hasTable: false
-      },
-      {
-        h2: 'Kitchen Equipment & Essential Ingredients Matrix',
-        h3s: ['Exact Measurements & Ratios', 'Tools Required for Flawless Crunch'],
-        keyPoints: ['1 tbsp aluminum-free baking powder per 3-4 lbs wings', 'Diamond Crystal kosher salt measurement', 'Rimmed baking sheet with nested wire rack'],
-        suggestedVisual: 'Ingredient and equipment flat-lay showing pre-measured components',
-        hasTable: true
-      },
-      {
-        h2: 'Step-by-Step Cooking Schedule: Master Oven & Air Fryer Methods',
-        h3s: ['Phase 1: Prep & Refrigerator Air-Drying', 'Phase 2: 425°F (220°C) Oven Roast', 'Phase 3: Air Fryer Conversion Times'],
-        keyPoints: ['30-60 min fridge chill for dry skin', '45-50 min bake at 425°F with mid-point rotation', 'Internal pull temp: 175°F-185°F for collagen breakdown'],
-        suggestedVisual: 'Step-by-step cooking progression photos from seasoned raw to golden crisp',
-        hasTable: true
-      },
-      {
-        h2: '3 Signature Glazes & The Proper Saucing Technique',
-        h3s: ['Classic Buffalo Glaze', 'Garlic Parmesan Emulsion', 'Sweet Honey Garlic & Soy'],
-        keyPoints: ['Toss wings immediately prior to serving to prevent sogginess', 'Whisk butter with hot sauce to create a stable emulsion', 'Keep oven-warmed sauce ready on the side'],
-        suggestedVisual: 'Tossed wings in bowls showing three distinct vibrant glazes',
-        hasTable: false
-      },
-      {
-        h2: 'Common Pitfalls & Troubleshooting Guide',
-        h3s: ['Why Wings Turn Out Soggy', 'Preventing Bitter Metallic Aftertaste'],
-        keyPoints: ['Crowding the sheet traps steam', 'Never use baking soda instead of baking powder', 'Frozen wings release excess water—always thaw completely'],
-        suggestedVisual: 'Infographic highlighting the top 4 mistakes to avoid',
-        hasTable: false
-      },
-      {
-        h2: 'Frequently Asked Questions',
-        h3s: ['Why use baking powder instead of cornstarch?', 'How do I keep wings warm for game day?'],
-        keyPoints: ['Fast answers without filler', 'Reheating guidelines in a 400°F oven'],
-        suggestedVisual: 'Clean FAQ accordion box',
-        hasTable: false
-      }
-    ];
-  } else {
-    outline = [
-      {
-        h2: `Direct Answer: The Bottom Line on ${titleCased}`,
-        h3s: ['Core Definitive Answer', 'Immediate Practical Takeaways'],
-        keyPoints: ['Direct answer delivered in opening 2-3 sentences', 'Key trade-offs and decision factors', 'Who this is best for'],
-        suggestedVisual: 'Executive summary highlight box',
-        hasTable: false
-      },
-      {
-        h2: `Prerequisites, Setup & Readiness Framework`,
-        h3s: ['Mandatory Requirements', 'Environment Configuration'],
-        keyPoints: ['Essential toolchain specifications', 'Calibration thresholds', 'Common preparation errors'],
-        suggestedVisual: 'System architecture diagram or setup checklist',
-        hasTable: true
-      },
-      {
-        h2: `Step-by-Step Implementation Protocol`,
-        h3s: ['Phase 1: Baseline Calibration', 'Phase 2: Execution Sequence', 'Phase 3: Verification Checkpoints'],
-        keyPoints: ['Sequential instructions with zero fluff', 'Measurable benchmarks at each step', 'Quality assurance gates'],
-        suggestedVisual: 'Process flowchart showing phases and checkpoints',
-        hasTable: false
-      },
-      {
-        h2: `Benchmark Matrix & Comparative Analysis`,
-        h3s: ['Standard vs Alternative Approaches', 'Performance & Efficiency Trade-Offs'],
-        keyPoints: ['Empirical score matrix', 'Time-to-value metrics', 'Resource footprint comparisons'],
-        suggestedVisual: 'Comparative data table and score chart',
-        hasTable: true
-      },
-      {
-        h2: `Edge Cases, Diagnostics & Common Mistakes`,
-        h3s: ['Top 3 Failure Modes', 'Rapid Recovery Strategies'],
-        keyPoints: ['Specific troubleshooting steps', 'Root cause diagnostics', 'Preventive safeguards'],
-        suggestedVisual: 'Decision-tree troubleshooting matrix',
-        hasTable: false
-      },
-      {
-        h2: `Frequently Asked Questions`,
-        h3s: [`What is the fastest way to master ${kw.toLowerCase()}?`, 'How do you measure long-term ROI?'],
-        keyPoints: ['Real practitioner answers', 'Zero generic boilerplate'],
-        suggestedVisual: 'Q&A card layout',
-        hasTable: false
-      }
-    ];
-  }
+  let title = `${titleCased}: What It Is, How It Works, and Why It Matters`;
+  let metaDesc = `Learn about ${kw.toLowerCase()} in this clear, research-based educational guide. Discover simple definitions, step-by-step facts, and real-world examples.`;
+  
+  const outline: ContentBriefOutlineItem[] = [
+    {
+      h2: `What is ${titleCased}?`,
+      h3s: ['Clear Definition', 'Core Scientific Concepts'],
+      keyPoints: ['Grade 6 accessible definition', 'Technical terms explained simply on first mention', 'Answers primary search intent immediately'],
+      suggestedVisual: `Clear educational diagram introducing ${kw}`,
+      hasTable: false
+    },
+    {
+      h2: `How does it work?`,
+      h3s: ['Step-by-Step Breakdown', 'Key Process Stages'],
+      keyPoints: ['Simplified sequential explanation', 'Clear mechanics and numbered steps', 'Structured comparison table of key components'],
+      suggestedVisual: `Step-by-step process flowchart illustrating how ${kw} functions`,
+      hasTable: true
+    },
+    {
+      h2: `Why is it important?`,
+      h3s: ['Scientific Significance', 'Everyday & Global Impact'],
+      keyPoints: ['Core scientific and practical value', 'Real-world benefits in simple terms'],
+      suggestedVisual: `Infographic summarizing the major benefits and importance of ${kw}`,
+      hasTable: false
+    },
+    {
+      h2: `Real-world examples or global context`,
+      h3s: ['Observed Natural Occurrences', 'Verified Research & Studies'],
+      keyPoints: ['Real-world cases and practical examples', 'Verified dates, data, and scientific facts without speculation'],
+      suggestedVisual: `Photographic illustration of ${kw} in real-world application`,
+      hasTable: false
+    },
+    {
+      h2: `Common questions or misconceptions`,
+      h3s: ['Common Myths Debunked', 'What Science Actually Confirms'],
+      keyPoints: ['Clarifying 2-3 frequent misunderstandings', 'Objective, factual corrections using calm language'],
+      suggestedVisual: `Misconception vs factual reality comparison table`,
+      hasTable: false
+    },
+    {
+      h2: `Frequently Asked Questions`,
+      h3s: [
+        `What is the simplest definition of ${kw.toLowerCase()}?`,
+        `How do researchers study ${kw.toLowerCase()}?`,
+        `Why is ${titleCased} relevant in everyday life?`
+      ],
+      keyPoints: ['3 to 5 short, direct answers formatted for People Also Ask'],
+      suggestedVisual: `Accordion FAQ block`,
+      hasTable: false
+    }
+  ];
 
   return {
     outline,
@@ -529,11 +482,10 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
   const articleId = `art_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   
   const template = input.templatePreset || (input.articleType as any) || 'all-in-one-seo';
-  const isFoodRecipe = /(wing|chicken|recipe|cook|bake|sauce|cookie|salad|soup|pasta|steak|roast|air fryer|grill|bbq|dinner|lunch|breakfast|dessert|ingredient|dish|crispy|crust|fry)/i.test(keyword) || input.articleType === 'recipe';
 
-  let title = `${titleCased}: The Complete Practical Guide`;
-  let metaDesc = `Discover the ultimate guide to ${keyword.toLowerCase()}. Step-by-step techniques, essential tips, common mistakes to avoid, and expert recommendations.`;
-  let schemaType: 'Article' | 'BlogPosting' | 'FAQPage' | 'HowTo' | 'Recipe' = isFoodRecipe ? 'Recipe' : 'Article';
+  let title = `${titleCased}: What It Is, How It Works, and Why It Matters`;
+  let metaDesc = `Learn about ${keyword.toLowerCase()} in this clear, research-based educational guide. Discover simple definitions, step-by-step facts, and real-world examples.`;
+  let schemaType: 'Article' | 'BlogPosting' | 'FAQPage' | 'HowTo' | 'Recipe' = 'Article';
   let wordCountTarget = input.targetWordCount || 2200;
 
   let sections: ArticleSection[] = [];
@@ -542,85 +494,32 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
   if (input.outline && input.outline.length > 0) {
     sections = input.outline.map((sec, idx) => {
       const subheadingsMarkdown = (sec.h3s || []).map(h3 => 
-        `### ${h3}\n\nWhen implementing **${h3}**, practitioners focus on measurable inputs and reproducible benchmarks. Ensure clear baseline conditions before executing this phase.\n\n- **Critical Checkpoint**: Document prerequisite requirements.\n- **Action Protocol**: Follow step-by-step execution without skipping verification.\n- **Expected Outcome**: Consistent benchmark compliance.`
+        `### ${h3}\n\nWhen exploring **${h3}**, clear definitions and observable evidence guide understanding. Each phase provides factual context to help readers learn the subject without unnecessary complexity.\n\n* **Core Concept**: ${h3} provides important context for understanding ${keyword.toLowerCase()}.\n* **How It Works**: Clear cause-and-effect relationships explain the central mechanisms simply.\n* **Observed Facts**: Verified evidence helps learners evaluate real-world effects.`
       ).join('\n\n');
 
       const keyPointsList = (sec.keyPoints || []).map(p => `- ${p}`).join('\n');
-      const tableMarkdown = sec.hasTable ? `\n\n### Specifications & Benchmark Matrix\n\n| Evaluation Metric | Standard Recommendation | Common Risk | Impact |\n| :--- | :--- | :--- | :--- |\n| **Core Execution** | Documented protocol | Deviating without testing | High (9/10) |\n| **Quality Assurance** | Real-time verification | Deferred inspection | Critical (10/10) |\n| **Sustained Output** | Scheduled reviews | Inconsistent cadence | Medium (7/10) |\n` : '';
+      const tableMarkdown = sec.hasTable ? `\n\n### Core Summary & Comparison\n\n| Focus Area | Key Observation | Scientific Significance | Practical Takeaway |\n| :--- | :--- | :--- | :--- |\n| **Baseline Principle** | Observable standard | Establishes tested foundation | Reliable understanding |\n| **Active Mechanism** | Direct cause and effect | Drives system operation | Predictable results |\n| **Practical Outcome** | Measured result | Validates research models | Everyday application |\n` : '';
 
       return {
         id: `sec_custom_${idx + 1}`,
         heading: sec.h2,
         level: 2 as const,
-        content: `${sec.keyPoints && sec.keyPoints.length > 0 ? `### Practitioner Priorities\n\n${keyPointsList}\n\n` : ''}${sec.h2} requires systematic execution grounded in verified best practices. Delivering direct answers and measurable outcomes for ${input.audience || 'readers'} eliminates guesswork.\n\n${subheadingsMarkdown}${tableMarkdown}`
+        content: `${sec.keyPoints && sec.keyPoints.length > 0 ? `### Key Topics Covered\n\n${keyPointsList}\n\n` : ''}${sec.h2} requires clear, objective explanation grounded in verified facts. Understanding ${keyword.toLowerCase()} helps readers grasp how core scientific principles work in everyday life.\n\n${subheadingsMarkdown}${tableMarkdown}`
       };
     });
 
     faqs = [
       {
-        question: `What is the most critical takeaway regarding ${keyword.toLowerCase()}?`,
-        answer: `Disciplined consistency. Following proven baseline standards and executing the step-by-step framework yields reliable, high-yield results.`
+        question: `What is the simplest definition of ${keyword.toLowerCase()}?`,
+        answer: `${titleCased} refers to the verified process and foundational principles that explain how this topic functions in a clear, understandable way.`
       },
       {
-        question: `How frequently should ${keyword.toLowerCase()} processes be evaluated?`,
-        answer: `Conducting structured reviews every quarter prevents process drift and keeps outputs aligned with updated benchmarks.`
+        question: `How do researchers study ${keyword.toLowerCase()}?`,
+        answer: `Scientists and educators examine observable evidence, documented studies, and controlled measurements to confirm how it works.`
       },
       {
-        question: `Can beginners achieve professional results?`,
-        answer: `Yes, provided they strictly follow the preparation requirements and avoid common shortcuts.`
-      }
-    ];
-  } else if (isFoodRecipe) {
-    title = `Ultra-Crispy ${titleCased}: Kitchen-Tested Recipe & Secret Method`;
-    metaDesc = `Learn how to make the crispiest ${keyword.toLowerCase()} without a deep fryer. Tested temperature schedule, secret seasoning blend, and pro troubleshooting.`;
-    schemaType = 'Recipe';
-    wordCountTarget = input.targetWordCount || 2400;
-
-    sections = [
-      {
-        id: 'sec_rec_1',
-        heading: `The Core Secret to Extra-Crispy ${titleCased} (Direct Answer)`,
-        level: 2,
-        content: `### The 3 Rules of Maximum Crispiness\n\nThe secret to restaurant-quality **${keyword.toLowerCase()}** at home without a deep fryer comes down to three non-negotiable kitchen techniques:\n\n1. **Aggressive Surface Drying**: Pat every single piece bone-dry with paper towels. Any residual surface moisture produces steam instead of dry radiant crisping.\n2. **The Alkaline Baking Powder Trick**: Toss the dry pieces with **aluminum-free baking powder** (1 tablespoon per 3 lbs) and kosher salt. The alkaline pH alters the surface proteins, causing the skin to break down and bubble into micro-blisters of shattering crunch.\n3. **Elevated Wire-Rack Airflow**: Never place the pieces flat on a baking sheet where they simmer in rendered fat. Place them on a wire cooling rack nested inside a rimmed baking sheet so 360-degree heat circulates evenly around the entire piece.`
-      },
-      {
-        id: 'sec_rec_2',
-        heading: `Kitchen Equipment & Essential Ingredients Matrix`,
-        level: 2,
-        content: `### Recipe Specifications & Measurements\n\n| Component | Measurement | Culinary Purpose |\n| :--- | :--- | :--- |\n| **Chicken Wings** | 3 to 4 lbs (split into drumettes & flats) | Base protein (pat completely dry) |\n| **Aluminum-Free Baking Powder** | 1 tablespoon (level) | Raises skin pH for crackling blistered skin |\n| **Kosher Salt** | 1.5 teaspoons (Diamond Crystal preferred) | Draws out moisture and seasons deep to the bone |\n| **Garlic Powder & Smoked Paprika** | 1 teaspoon each | Adds savory depth and rich mahogany color |\n| **Cracked Black Pepper** | 1/2 teaspoon | Subtle bite |\n| **Wire Cooling Rack + Rimmed Sheet** | 1 set | Essential for all-around airflow |\n\n> **Kitchen Alert**: Make sure you use **Baking Powder**, NOT Baking Soda! Baking soda has a bitter, metallic taste that will ruin the entire batch.`
-      },
-      {
-        id: 'sec_rec_3',
-        heading: `Step-by-Step Cooking Schedule: Oven & Air Fryer Times`,
-        level: 2,
-        content: `### Master Oven Baking Schedule (425°F / 220°C)\n\n* **Phase 1: Prep & Dry (15 Mins)**: Blot wings with triple-layer paper towels. Place them on a wire rack and let them air-dry in the refrigerator for 30–60 minutes (or overnight for competition-grade skin).\n* **Phase 2: Seasoning Toss**: Whisk baking powder, salt, garlic powder, and smoked paprika in a small bowl. Dust evenly over the wings in a dry bowl until fully coated.\n* **Phase 3: The 45-Minute Roast**: Arrange wings skin-side up with 1/2-inch space between each piece on the prepared wire rack. Bake at **425°F (220°C)** for 45 to 50 minutes. Rotate the baking sheet at the 25-minute mark for uniform golden browning.\n* **Phase 4: Target Internal Temperature**: Pull wings when internal temperature hits **175°F–185°F (79°C–85°C)**. Unlike lean chicken breast, wing collagen breaks down and tenderizes at higher temperatures.\n\n### Air Fryer Conversion\nPreheat air fryer to **380°F (193°C)**. Arrange wings in a single layer without overlapping. Cook for **20 minutes**, flipping once at 10 minutes. Crank the heat to **400°F (204°C)** for the final **5 minutes** to blister the exterior.`
-      },
-      {
-        id: 'sec_rec_4',
-        heading: `3 Signature Glazes & The Proper Saucing Technique`,
-        level: 2,
-        content: `### How to Sauce Without Losing Crispiness\n\nAlways toss wings in sauce **immediately before serving**. If you sauce them and let them sit on the counter for 10 minutes, the steam will soften the crackling crust.\n\n* **Classic Buffalo**: Whisk 1/2 cup Frank's RedHot with 4 tablespoons melted unsalted butter and 1 tablespoon honey in a warm bowl.\n* **Garlic Parmesan Butter**: Melt 4 tablespoons unsalted butter with 3 grated garlic cloves, 1/4 cup finely grated Parmigiano-Reggiano, and 1 tablespoon fresh minced parsley.\n* **Sweet Honey Garlic & Soy**: Simmer 1/3 cup honey, 2 tablespoons low-sodium soy sauce, 1 tablespoon apple cider vinegar, and 1 teaspoon grated ginger for 3 minutes until syrupy.`
-      },
-      {
-        id: 'sec_rec_5',
-        heading: `Common Pitfalls & Troubleshooting Guide`,
-        level: 2,
-        content: `### Mistakes That Ruin Crispiness\n\n* **Crowding the Pan**: Overcrowded wings steam each other instead of roasting. Keep at least 1/2 inch of space between pieces.\n* **Skipping the Wire Rack**: Cooking flat on foil traps moisture and renders fat beneath the wings, resulting in soft, flabby undersides.\n* **Using Frozen Wings Directly**: Thaw wings completely before starting. Frozen wings release ice crystals that destroy the baking powder coating.`
-      }
-    ];
-
-    faqs = [
-      {
-        question: `Why use baking powder instead of flour or cornstarch?`,
-        answer: `Baking powder is alkaline. It alters the pH level of the chicken skin, allowing proteins to break down and liquid to evaporate much faster, creating tiny micro-blisters that yield shattering crunch without the heavy batter of flour.`
-      },
-      {
-        question: `How do I keep baked chicken wings warm for a party?`,
-        answer: `Keep the unsauced wings on their wire rack on a baking sheet in a 200°F (93°C) warm oven for up to 45 minutes. Toss in warm sauce right as your guests are ready to eat.`
-      },
-      {
-        question: `Can I make these ahead of time?`,
-        answer: `Yes. Season the wings and leave them uncovered on the wire rack in your refrigerator for up to 24 hours. The cold circulating refrigerator air dries out the skin even further, producing the crispiest skin imaginable.`
+        question: `Why is ${titleCased} important to understand?`,
+        answer: `Learning the core facts helps people make well-informed, evidence-based decisions without confusing technical jargon.`
       }
     ];
   } else if (template === 'all-in-one-seo') {
@@ -771,47 +670,63 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
       }
     ];
   } else {
-    // Default How-to / Authority
-    title = `${titleCased}: Complete Step-by-Step Guide & Action Plan`;
-    metaDesc = `Master ${keyword.toLowerCase()} with this actionable, step-by-step guide. Clear instructions, expert tips, and common mistakes to avoid.`;
-    schemaType = template === 'how-to' || template === 'how-to-guide' ? 'HowTo' : 'Article';
-    wordCountTarget = input.targetWordCount || 1900;
+    // Default Scientific Knowledge Hub Structure
+    title = `${titleCased}: What It Is, How It Works, and Why It Matters`;
+    metaDesc = `Learn about ${keyword.toLowerCase()} in this clear, research-based educational guide. Simple definitions, step-by-step facts, and real-world examples.`;
+    schemaType = 'Article';
+    wordCountTarget = input.targetWordCount || 2200;
 
     sections = [
       {
-        id: 'sec_gen_1',
-        heading: `Why Master ${titleCased}? Core Fundamentals`,
+        id: 'sec_sci_1',
+        heading: `What is ${titleCased}?`,
         level: 2,
-        content: `### Core Fundamentals\n\nMastering **${keyword.toLowerCase()}** requires understanding foundational mechanics before diving into execution. Whether you are a beginner or looking to refine existing skills, focusing on high-leverage techniques produces consistent, reliable results every single time.\n\nKey advantages:\n* **Predictable Outcomes**: Eliminates guesswork through structured milestones.\n* **Efficiency Gains**: Reduces execution time by up to 35%.\n* **Error Prevention**: Addresses common failure points before they compromise quality.`
+        content: `**${keyword.toLowerCase()}** is an important topic in science and everyday life. At its core, it refers to observable principles that help explain how related systems function in the natural and modern world.\n\nScientists study **${keyword.toLowerCase()}** by examining measurable factors, consistent patterns, and physical evidence. Understanding these basics gives readers a clear foundation before exploring detailed steps.`
       },
       {
-        id: 'sec_gen_2',
-        heading: `Essential Requirements & Preparation Checklist`,
+        id: 'sec_sci_2',
+        heading: `How does it work?`,
         level: 2,
-        content: `### Equipment & Preparation\n\nBefore initiating any work on **${keyword.toLowerCase()}**, assembling the right tools ensures a smooth workflow.\n\n| Component | Recommendation | Function / Purpose |\n| :--- | :--- | :--- |\n| **Primary Setup** | Professional Grade | Baseline stability and consistency |\n| **Measuring Gauge** | High-Precision | Eliminates variance in critical phases |\n| **Safety / Care** | Protective Gear | Prevents accidental rework |\n\n> **Pro Tip:** Spend 80% of your time on setup verification. A calibrated staging environment makes execution twice as fast.`
+        content: `### Step-by-Step Breakdown\n\nTo understand how **${keyword.toLowerCase()}** works, researchers break the process down into clear, ordered stages:\n\n1. **Initial Trigger**: The cycle begins when specific baseline conditions or inputs interact.\n2. **Core Transition**: Next, energy or resources move through the system, producing observable changes.\n3. **Balanced Outcome**: Finally, the process reaches an equilibrium or stable end state.\n\n### Key Mechanisms & Characteristics\n\n| Stage | Core Function | Observable Effect | Scientific Significance |\n| :--- | :--- | :--- | :--- |\n| **Phase 1** | Input Activation | Measurable starting condition | Establishes reliable baseline |\n| **Phase 2** | Systematic Reaction | Energy or material transfer | Drives primary operation |\n| **Phase 3** | Stabilization | Consistent final result | Enables predictable analysis |\n\n> **Scientific Note**: Keeping variables controlled allows observers to verify each step accurately without confounding external factors.`
       },
       {
-        id: 'sec_gen_3',
-        heading: `Step-by-Step Execution Guide`,
+        id: 'sec_sci_3',
+        heading: `Why is it important?`,
         level: 2,
-        content: `### Step 1: Initial Calibration\nLay out all components in logical order. Verify baseline parameters align with recommended targets.\n\n### Step 2: The Core Process\nExecute the central phase steadily. Monitor visual indicators closely for uniform consistency and smooth transitions.\n\n### Step 3: Verification & Refinement\nConduct an immediate inspection against quality benchmarks and make minor calibrations before completion.`
+        content: `Understanding **${keyword.toLowerCase()}** matters because it directly influences both scientific knowledge and practical applications.\n\nWhen people understand how these mechanisms operate, they can make informed decisions based on verified evidence rather than guesswork. Furthermore, research into **${keyword.toLowerCase()}** continues to uncover practical solutions in technology, health, and environmental science.`
       },
       {
-        id: 'sec_gen_4',
-        heading: `Common Mistakes & Expert Solutions`,
+        id: 'sec_sci_4',
+        heading: `Real-world examples or global context`,
         level: 2,
-        content: `### Pitfalls to Steer Clear Of\n\n1. **Skipping Calibration**: Jumping directly to execution leads to uneven results.\n2. **Over-adjusting Mid-process**: Allow changes time to settle before applying secondary corrections.\n3. **Neglecting Environment**: Ambient factors directly impact performance.`
+        content: `### Documented Evidence & Global Studies\n\nReal-world applications of **${keyword.toLowerCase()}** appear across multiple scientific disciplines and geographical regions.\n\nPeer-reviewed studies published over the past decade show consistent data supporting these principles. In laboratories and field observations around the world, researchers document reliable outcomes that match theoretical models.`
+      },
+      {
+        id: 'sec_sci_5',
+        heading: `Common questions or misconceptions`,
+        level: 2,
+        content: `### Myth vs. Scientific Reality\n\n* **Misconception 1**: The process happens instantaneously without intermediate stages. In reality, evidence demonstrates that each transition requires measured time and specific inputs.\n* **Misconception 2**: Results vary randomly from one test to another. When baseline variables remain consistent, outcomes follow predictable scientific laws.\n* **Misconception 3**: Complex equipment is always needed to observe basic effects. Many fundamental aspects can be demonstrated through simple, controlled classroom experiments.`
+      },
+      {
+        id: 'sec_sci_6',
+        heading: `Conclusion`,
+        level: 2,
+        content: `In summary, **${keyword.toLowerCase()}** is a foundational concept with clear rules, observable stages, and measurable importance. By focusing on tested evidence and clear definitions, learners can build a solid scientific understanding that serves as a springboard for further study.`
       }
     ];
 
     faqs = [
       {
-        question: `How long does ${keyword} take to complete?`,
-        answer: `Under standard conditions, preparing and executing takes approximately 30 to 45 minutes.`
+        question: `What is the simplest definition of ${keyword.toLowerCase()}?`,
+        answer: `${titleCased} refers to the verified scientific process and fundamental principles that govern how this system functions under standard conditions.`
       },
       {
-        question: `Can beginners achieve professional results?`,
-        answer: `Yes. By adhering to the step-by-step instructions, even beginners achieve top-tier results on their first attempt.`
+        question: `How do researchers verify how ${keyword.toLowerCase()} functions?`,
+        answer: `Scientists rely on controlled experiments, empirical measurements, and peer-reviewed studies to verify facts without speculation.`
+      },
+      {
+        question: `Why does ${titleCased} matter for non-scientists?`,
+        answer: `Understanding the basic facts helps individuals make evidence-based choices in daily life and evaluate claims accurately.`
       }
     ];
   }
@@ -867,7 +782,7 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
     primaryKeyword: keyword,
     secondaryKeywords: input.secondaryKeywords || [],
     searchIntent: {
-      primaryIntent: schemaType === 'HowTo' ? 'how-to' : (template === 'product-review' || template === 'review') ? 'review' : 'informational',
+      primaryIntent: (schemaType as string) === 'HowTo' ? 'how-to' : (template === 'product-review' || template === 'review') ? 'review' : 'informational',
       userGoal: `Complete guide to ${keyword.toLowerCase()}`,
       expectedContentType: 'Comprehensive Guide',
       expectedDepth: 'High',
