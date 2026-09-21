@@ -1043,55 +1043,68 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  {showPromptDetails ? 'Hide Benchmark Prompt' : 'Inspect Benchmark Prompt'}
+                  {showPromptDetails ? 'Hide Master SEO Prompt' : 'Inspect Master SEO Prompt'}
                 </button>
               </div>
 
               {showPromptDetails && (
                 <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-3 leading-relaxed">
                   <div className="font-semibold text-emerald-400 flex items-center justify-between">
-                    <span>Benchmark Prompt Specification:</span>
-                    <span className="text-[10px] text-slate-400 font-mono">Expert Complete Guide & Food Science</span>
+                    <span>Active Master System Prompt:</span>
+                    <span className="text-[10px] text-emerald-400 font-mono px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800">Master Prompt Active (Every Content)</span>
                   </div>
-                  <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-emerald-300/90 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
-{`You are an elite food science writer, recipe developer, and culinary educator.
-Write a comprehensive, authoritative complete guide on: [keyword].
+                  <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-emerald-300/90 whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto">
+{`You are an expert SEO writer.
 
-Style & Voice Benchmark ("Honey Garlic Shrimp: A Complete Guide"):
-1. Tone: Direct, authoritative, culinary-science grounded. Zero fluff, zero filler, zero conversational filler questions.
-2. Opening Hook: 1 punchy, high-information paragraph (effort-to-flavor ratio, pantry staples, total time, article roadmap).
-3. Section 1 ("## What Is [Topic]?"):
-   - Paragraph 1: Definition, cooking style, and caramelized glaze texture.
-   - Paragraph 2: Technique origins (Asian-American stir-fries & American pan-sauces) and core invariant idea.
-   - Subsection ("### Why the Sauce Thickens / Science Behind It"): Explain exact food science physics (evaporation, sugar concentration, reduction vs emulsification).
-4. Section 2 ("## Ingredients You'll Need"):
-   - "A standard batch for four servings uses:" declaration.
-   - Bulleted ingredients with exact measurements and functional parenthetical notes.
-5. Section 3 ("## Step-by-Step Cooking Technique"):
-   - Numbered H3 steps: Prep and dry (moisture turns to steam), Whisk sauce (prevents sugar burn), High-heat sear, Reduce and glaze.
-   - Explain the physical and chemical reason behind every action.
-6. Section 4 ("## Key Reference: Cook Times & Substitutions"):
-   - 4-column markdown table: | Ingredient / Step | Standard Choice | Best Alternative | Purpose |
-7. Section 5 ("## Frequently Asked Questions"):
-   - 3-4 real troubleshooting questions with science-backed practical answers.
-8. Banned AI Words: delve, tapestry, landscape, elevate, robust, game-changer, unlock, testament, nestled.`}
+Before writing, SEARCH THE WEB for the target keyword. Study the current top-ranking pages, search intent, related questions, useful facts, and content gaps.
+
+Then create a better, original article that fully satisfies the searcher.
+
+Rules:
+* Write for humans first, SEO second.
+* Never copy or closely rewrite another page.
+* Cover the topic completely but avoid unnecessary filler.
+* Use the target keyword naturally.
+* Include relevant related terms naturally.
+* Use clear H2/H3 headings.
+* Answer the main question quickly.
+* Add useful details, examples, tips, or insights competitors miss.
+* Use short paragraphs and simple Grade 6–8 language.
+* Sound natural, experienced, and conversational.
+* Avoid robotic or repetitive wording.
+* Avoid common AI-style phrases such as “in today’s world,” “delve,” “comprehensive guide,” “unlock,” “seamless,” “whether you’re,” “it’s important to note,” and “game-changer.”
+* Do not keyword stuff.
+* Do not invent facts, statistics, quotes, or sources.
+* Add trustworthy sources when factual claims need verification.
+* Make every section useful enough that a reader would not need to search again.
+
+Output:
+1. SEO Title
+2. Meta Description
+3. Article
+4. FAQ
+5. Suggested internal links
+6. Suggested external sources
+7. Featured image prompt
+
+Goal: Create genuinely useful, original content that can compete in Google Search by being more helpful and complete—not by manipulating rankings.`}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-400 text-[11px]">
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Tone:</strong> Authoritative culinary science with high information density.</span>
+                      <span><strong>Human First:</strong> Conversational, Grade 6–8 readability, short paragraphs.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Science Explanations:</strong> Teaches reduction vs emulsification, evaporative concentration, and heat management.</span>
+                      <span><strong>Competitor Gap Coverage:</strong> Answers main questions fast; adds insights competitors miss.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Banned Words:</strong> delve, tapestry, landscape, robust, elevate, game-changer, unleash.</span>
+                      <span><strong>Banned Clichés:</strong> in today’s world, delve, comprehensive guide, unlock, seamless, whether you’re, it’s important to note, game-changer.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Structure:</strong> 4-column reference table, numbered technique steps & science FAQs.</span>
+                      <span><strong>7-Part Deliverable:</strong> Title, Meta, Article, FAQ, Internal links, External sources, Featured image prompt.</span>
                     </div>
                   </div>
                 </div>

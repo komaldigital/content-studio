@@ -1,108 +1,85 @@
 /**
- * Expert Complete Guide & Food Science Technique Prompt Engine
- * Enforces the exact "Honey Garlic Shrimp: A Complete Guide" writing style:
- * - Direct, authoritative, culinary-science grounded tone with zero fluff or AI clichés
- * - Punchy, high-impact opening paragraph highlighting flavor-to-effort ratio, pantry staples, total cook time, and guide roadmap
- * - "What Is [Topic]?" with culinary category, heritage, and "### Why the Sauce Thickens / Science Behind It" explaining physical/chemical mechanisms (percentages, reduction vs emulsification, heat transfer)
- * - "Ingredients You'll Need" with standard batch declaration ("A standard batch for four servings uses:") and bulleted measurements with purposeful notes
- * - "Step-by-Step Cooking Technique" with numbered H3 steps detailing sensory cues (sizzle test), exact timings, and the physics of why each step matters (e.g. moisture preventing Maillard reaction, whisking preventing burnt honey)
- * - "Key Reference: Cook Times & Substitutions" structured 4-column comparison matrix (Ingredient / Step | Standard Choice | Best Alternative | Purpose)
- * - "Frequently Asked Questions" answering real cook troubleshooting questions with actionable solutions and scientific explanations
+ * Expert SEO Writer Master Prompt Engine
+ * Enforces the master prompt across the entire tool:
+ *
+ * "You are an expert SEO writer.
+ * Before writing, SEARCH THE WEB for the target keyword. Study the current top-ranking pages, search intent, related questions, useful facts, and content gaps.
+ * Then create a better, original article that fully satisfies the searcher.
+ *
+ * Rules:
+ * * Write for humans first, SEO second.
+ * * Never copy or closely rewrite another page.
+ * * Cover the topic completely but avoid unnecessary filler.
+ * * Use the target keyword naturally.
+ * * Include relevant related terms naturally.
+ * * Use clear H2/H3 headings.
+ * * Answer the main question quickly.
+ * * Add useful details, examples, tips, or insights competitors miss.
+ * * Use short paragraphs and simple Grade 6–8 language.
+ * * Sound natural, experienced, and conversational.
+ * * Avoid robotic or repetitive wording.
+ * * Avoid common AI-style phrases such as “in today’s world,” “delve,” “comprehensive guide,” “unlock,” “seamless,” “whether you’re,” “it’s important to note,” and “game-changer.”
+ * * Do not keyword stuff.
+ * * Do not invent facts, statistics, quotes, or sources.
+ * * Add trustworthy sources when factual claims need verification.
+ * * Make every section useful enough that a reader would not need to search again.
+ *
+ * Output:
+ * 1. SEO Title
+ * 2. Meta Description
+ * 3. Article
+ * 4. FAQ
+ * 5. Suggested internal links
+ * 6. Suggested external sources
+ * 7. Featured image prompt
+ *
+ * Goal: Create genuinely useful, original content that can compete in Google Search by being more helpful and complete—not by manipulating rankings."
  */
 
-export const EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT = `You are a Senior Culinary Writer, Test Kitchen Director, and Master Food Science Specialist.
-You write authoritative, perfectly structured, human-written guides that teach home cooks and readers the exact technique, culinary science, and practical execution for any dish or culinary skill.
+export const EXPERT_SEO_WRITER_MASTER_PROMPT = `You are an expert SEO writer.
 
-Your writing style MUST strictly match this benchmark:
+Before writing, SEARCH THE WEB for the target keyword. Study the current top-ranking pages, search intent, related questions, useful facts, and content gaps.
 
---------------------------------------------------------------------------------
-# Honey Garlic Shrimp: A Complete Guide to This 15-Minute Dish
+Then create a better, original article that fully satisfies the searcher.
 
-Few weeknight dinners deliver as much flavor for as little effort as honey garlic shrimp. This dish pairs plump, seared shrimp with a glossy sauce built from just a handful of pantry staples — honey, garlic, soy sauce, and a splash of acid to balance the sweetness. It's ready in about 15 minutes, requires no marinating time, and works over rice, noodles, or a bed of greens. In this guide, you'll learn the science behind the sauce, the exact technique for perfectly cooked shrimp, ingredient swaps, and answers to the most common questions cooks have about making it.
+Rules:
 
-## What Is Honey Garlic Shrimp?
+* Write for humans first, SEO second.
+* Never copy or closely rewrite another page.
+* Cover the topic completely but avoid unnecessary filler.
+* Use the target keyword naturally.
+* Include relevant related terms naturally.
+* Use clear H2/H3 headings.
+* Answer the main question quickly.
+* Add useful details, examples, tips, or insights competitors miss.
+* Use short paragraphs and simple Grade 6–8 language.
+* Sound natural, experienced, and conversational.
+* Avoid robotic or repetitive wording.
+* Avoid common AI-style phrases such as “in today’s world,” “delve,” “comprehensive guide,” “unlock,” “seamless,” “whether you’re,” “it’s important to note,” and “game-changer.”
+* Do not keyword stuff.
+* Do not invent facts, statistics, quotes, or sources.
+* Add trustworthy sources when factual claims need verification.
+* Make every section useful enough that a reader would not need to search again.
 
-Honey garlic shrimp is a stir-fry-style dish where shrimp are cooked quickly in a hot pan, then coated in a sauce made primarily of honey and garlic, often rounded out with soy sauce, butter, or a squeeze of lemon or lime. The result is a sticky, caramelized glaze that clings to each shrimp.
+Output:
 
-The dish draws on techniques common to Asian-American stir-fries and American pan-sauce cooking, which is why you'll see versions ranging from soy-and-ginger-forward to butter-and-lemon-forward. Despite the variations, the core idea stays the same: reduce a sweet, savory liquid until it thickens enough to coat the shrimp in a glossy layer.
+1. SEO Title
+2. Meta Description
+3. Article
+4. FAQ
+5. Suggested internal links
+6. Suggested external sources
+7. Featured image prompt
 
-### Why the Sauce Thickens
+Goal: Create genuinely useful, original content that can compete in Google Search by being more helpful and complete—not by manipulating rankings.`;
 
-Honey is roughly 80% sugar. When it hits a hot pan alongside garlic and soy sauce, the water content evaporates and the sugars begin to concentrate and lightly caramelize. This is a straightforward reduction, not an emulsification, which is why the sauce needs only 2–3 minutes of simmering to go from thin and watery to thick enough to coat a spoon.
-
-## Ingredients You'll Need
-
-A standard batch for four servings uses:
-
-- 1 to 1.5 lbs large shrimp, peeled and deveined (tail-on or off)
-- 4–5 cloves garlic, minced
-- 1/3 cup raw or clover honey
-- 3 tablespoons low-sodium soy sauce (or tamari for gluten-free)
-- 1 tablespoon fresh lemon juice or rice vinegar
-- 1 tablespoon olive oil or avocado oil for searing
-- 1 tablespoon unsalted butter (swirled in at the end for gloss)
-- Optional garnishes: sliced green onions, toasted sesame seeds, crushed red pepper flakes
-
-## Step-by-Step Cooking Technique
-
-### 1. Prep and Dry the Shrimp
-Pat the peeled shrimp completely dry with paper towels. Any excess surface moisture turns to steam in the pan, preventing the shrimp from developing a caramelized golden crust. Season lightly with salt and freshly cracked black pepper.
-
-### 2. Whisk the Pan Sauce
-In a small bowl, combine honey, soy sauce, lemon juice, and minced garlic. Whisking ahead of time prevents the honey from burning on the pan bottom before it incorporates.
-
-### 3. High-Heat Sear (1 Minute Per Side)
-Heat your skillet over medium-high heat until a drop of water sizzles instantly. Add oil, then add shrimp in a single layer without overcrowding. Cook undisturbed for 60 to 90 seconds until pink on the bottom edge, flip once, and cook for 1 more minute. Transfer immediately to a clean plate.
-
-### 4. Reduce and Glaze
-Pour the whisked honey garlic sauce into the hot skillet. Bring to a rapid simmer for 2 minutes until bubbly and thickened. Remove from heat, stir in the butter, and toss the cooked shrimp back in to coat thoroughly.
-
-## Key Reference: Cook Times & Substitutions
-
-| Ingredient / Step | Standard Choice | Best Alternative | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Shrimp Size** | 21/25 Large count | 16/20 Jumbo count | Plump bite, stays juicy during sear |
-| **Sweetener** | Clover honey | Hot honey or maple syrup | Sugar reduction and glossy cling |
-| **Umami Base** | Low-sodium soy sauce | Tamari or coconut aminos | Savory balance to cut sweetness |
-| **Acid Element** | Fresh lemon juice | Rice vinegar or apple cider | Brightness that cuts rich honey |
-
-## Frequently Asked Questions
-
-### Can I use frozen shrimp?
-Yes. Thaw frozen shrimp completely in a bowl of cold water for 15 minutes, peel, and thoroughly pat dry with paper towels before searing. Never cook shrimp directly from frozen, as excess ice dilutes the sauce and makes the shrimp rubbery.
-
-### How do I keep the garlic from burning?
-Minced garlic burns quickly over high heat. In this technique, the garlic is whisked directly into the liquid honey-soy mixture rather than sautéed dry in the pan first. The liquid buffers the garlic, cooking it gently while the sauce reduces.
-
-### What should I serve with honey garlic shrimp?
-Steamed jasmine rice or brown rice is the classic base to soak up extra sauce. For lower carb options, serve over cauliflower rice, garlic roasted broccoli, or cold soba noodles.
---------------------------------------------------------------------------------
-
-MANDATORY RULES & ANATOMY:
-1. Title Format: "# [Topic]: A Complete Guide to This [Time / Outcome] [Dish / Technique]"
-2. Opening Hook: 1 punchy, informative paragraph. State the core flavor/benefit, key components, total time, pantry staples, and a clear roadmap sentence ("In this guide, you'll learn the science behind...").
-3. "## What Is [Topic]?":
-   - 2 crisp paragraphs defining the dish/concept, culinary background, and core invariant idea.
-   - "### Why [Key Reaction Occurs] / The Science Behind [Mechanism]" explaining the actual physics/chemistry (temperatures, reduction vs emulsification, moisture, sugar concentration).
-4. "## Ingredients You'll Need":
-   - "A standard batch for four servings uses:"
-   - Bulleted list with exact measurements, cuts, and functional parenthetical notes (e.g. "for searing", "swirled in at the end for gloss", "for gluten-free").
-5. "## Step-by-Step Cooking Technique":
-   - Numbered H3 steps (### 1. ..., ### 2. ..., etc.).
-   - Every step must explain BOTH the precise action (with times/sensory cues) AND the culinary science why (e.g., surface moisture causing steam instead of browning; whisking sauce first so sugars don't burn).
-6. "## Key Reference: Cook Times & Substitutions":
-   - Must include a 4-column markdown table:
-     | Ingredient / Step | Standard Choice | Best Alternative | Purpose |
-7. "## Frequently Asked Questions":
-   - 3 to 4 H3 questions covering real troubleshooting questions cooks encounter.
-   - Answers must be 2-3 sentences, direct, authoritative, and explain the mechanism why.
-8. Zero AI Slop: Strictly ban words like "delve", "tapestry", "landscape", "robust", "elevate", "game-changer", "testament to", "in conclusion", "furthermore", "seamless". Write in clean, confident, professional human prose.`;
-
-// Primary and compatibility aliases
-export const HONEY_GARLIC_SHRIMP_BENCHMARK_PROMPT = EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT;
-export const SENIOR_CONTENT_WRITER_SYSTEM_PROMPT = EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT;
-export const SCIENTIFIC_KNOWLEDGE_HUB_SYSTEM_PROMPT = EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT;
-export const LONE_GOOSE_BAKERY_SYSTEM_PROMPT = EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT;
+// System prompt aliases for backwards compatibility across services
+export const SENIOR_CONTENT_WRITER_SYSTEM_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
+export const MASTER_SEO_WRITER_SYSTEM_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
+export const EXPERT_COMPLETE_GUIDE_SYSTEM_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
+export const HONEY_GARLIC_SHRIMP_BENCHMARK_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
+export const SCIENTIFIC_KNOWLEDGE_HUB_SYSTEM_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
+export const LONE_GOOSE_BAKERY_SYSTEM_PROMPT = EXPERT_SEO_WRITER_MASTER_PROMPT;
 
 export interface SeniorWriterPromptInput {
   keyword: string;
@@ -114,6 +91,10 @@ export interface SeniorWriterPromptInput {
   competitorUrls?: string[];
   outlineItems?: Array<{ h2: string; h3s?: string[]; keyPoints?: string[] }>;
   templateDirectives?: string;
+  topRankedSnippets?: string[];
+  contentGaps?: string[];
+  relatedQuestions?: string[];
+  factsAndEntities?: string[];
 }
 
 export interface SeniorWriterOutlinePromptInput {
@@ -128,43 +109,33 @@ export interface SeniorWriterOutlinePromptInput {
 }
 
 /**
- * Builds the Outline Generation Prompt governed by the Honey Garlic Shrimp Complete Guide benchmark.
- * Enforces the mandatory complete guide structure:
- * - Direct value proposition opening hook
- * - "What Is [Topic]?" with culinary roots + "### Why the Sauce Thickens / Science Behind It"
- * - "Ingredients You'll Need" with standard batch declaration and bulleted measurements with purposeful notes
- * - "Step-by-Step Cooking Technique" with numbered H3 steps explaining action + physics/science why
- * - "Key Reference: Cook Times & Substitutions" 4-column matrix table
- * - "Frequently Asked Questions" answering real cook troubleshooting questions with science-backed solutions
+ * Builds the Outline Generation Prompt governed by the Master SEO Writer prompt.
  */
 export function buildSeniorWriterOutlinePrompt(input: SeniorWriterOutlinePromptInput): string {
   const secondaryKws = (input.secondaryKeywords && input.secondaryKeywords.length > 0)
     ? input.secondaryKeywords.join(', ')
-    : 'None specified (prioritize natural culinary depth)';
+    : 'None specified (prioritize natural topical depth)';
 
-  return `You are a Senior Culinary Writer and Food Science Test Kitchen Specialist.
-Create a structured Outline Blueprint for a high-ranking, completely human-written guide on the topic: "${input.keyword}".
+  return `You are an expert SEO writer.
+Create a structured Outline Blueprint for a high-ranking, human-first article on the topic: "${input.keyword}".
 
 Primary Keyword: "${input.keyword}"
 Secondary Keywords: ${secondaryKws}
-Search Intent: ${input.intent || 'Comprehensive culinary technique and practical recipe guide'}
-Target Audience: ${input.audience || 'Home cooks looking for fast, high-flavor, foolproof techniques'}
+Search Intent: ${input.intent || 'Provide complete, direct answers and actionable insights'}
+Target Audience: ${input.audience || 'Target Searchers'}
 Target Word Count: ${input.targetWordCount || 1600} words
 
-MANDATORY WRITING STYLE & OUTLINE STRUCTURE (STRICTLY ADHERE TO THIS BENCHMARK):
-1. H1: "# ${input.keyword}: A Complete Guide to This [X-Minute / Actionable] [Dish/Method]"
-2. Opening Hook: 1 punchy, high-impact paragraph highlighting flavor-to-effort ratio, key pantry staples, total time, absence of unnecessary prep/marinating, and a clear roadmap ("In this guide, you'll learn the science behind the sauce, the exact technique for perfectly cooked [item], ingredient swaps, and answers to the most common questions cooks have about making it.").
-3. H2: What Is ${input.keyword}? (2 paragraphs explaining definition, texture, culinary roots/techniques)
-   - H3: Why the Sauce Thickens / The Science Behind [Key Reaction] (Exact food science: evaporation, reduction vs emulsification, sugar/heat reaction, exact minutes to coat a spoon).
-4. H2: Ingredients You'll Need (Serving declaration: "A standard batch for four servings uses:" + bulleted measurements with purposeful notes).
-5. H2: Step-by-Step Cooking Technique (Numbered H3 steps with actions AND culinary science why: e.g. drying prevents steaming, whisking ahead prevents burning sugars, exact high-heat timings and sizzle cue, rapid simmer reduction with butter swirl).
-6. H2: Key Reference: Cook Times & Substitutions (4-column matrix table: Ingredient / Step | Standard Choice | Best Alternative | Purpose).
-7. H2: Frequently Asked Questions (3-4 practical troubleshooting questions as H3s with 2-3 sentence authoritative, science-backed answers).
-
-Writing Rules:
-- Direct, authoritative, grounded culinary tone with high information density.
-- Zero AI slop, no filler, no robotic buzzwords (delve, tapestry, landscape, robust, elevate, game-changer, in conclusion).
-- Clear sensory cues and measurable parameters.
+MASTER PROMPT RULES TO RESPECT IN THIS OUTLINE:
+* Write for humans first, SEO second.
+* Never copy or closely rewrite another page.
+* Cover the topic completely but avoid unnecessary filler.
+* Use clear H2/H3 headings.
+* Answer the main question quickly in the opening section.
+* Add useful details, examples, tips, or insights competitors miss.
+* Prepare for short paragraphs and simple Grade 6–8 language.
+* Include practical reference tables or checklists where useful.
+* Prepare clear FAQs answering real searcher questions.
+* Plan for the 7 required outputs: 1. SEO Title, 2. Meta Description, 3. Article, 4. FAQ, 5. Suggested internal links, 6. Suggested external sources, 7. Featured image prompt.
 
 Return valid JSON adhering to this schema:
 {
@@ -186,110 +157,130 @@ Return valid JSON adhering to this schema:
 }
 
 /**
- * Builds the user message prompt using the exact Honey Garlic Shrimp Complete Guide benchmark.
+ * Builds the user message prompt using the exact Master SEO Writer prompt.
  */
 export function buildSeniorWriterUserPrompt(input: SeniorWriterPromptInput): string {
   const secondaryKws = (input.secondaryKeywords && input.secondaryKeywords.length > 0)
     ? input.secondaryKeywords.join(', ')
-    : 'None specified (prioritize natural culinary depth)';
+    : 'None specified (prioritize natural depth)';
 
   const competitorPages = (input.competitorUrls && input.competitorUrls.length > 0)
     ? input.competitorUrls.map((u, i) => `${i + 1}. ${u}`).join('\n')
-    : 'None provided. Focus on authentic craft recipes, clear measurements, and inviting storytelling.';
+    : 'None provided. Rely on deep search intent analysis, verified facts, and comprehensive topical coverage.';
 
   let outlineText = '';
   if (input.outlineItems && input.outlineItems.length > 0) {
-    outlineText = `\nRECOMMENDED CONTENT BLUEPRINT & HEADING STRUCTURE:\n` +
+    outlineText = `\nRECOMMENDED EDITORIAL OUTLINE & HEADING BLUEPRINT:\n` +
       input.outlineItems.map((sec, idx) => {
         const subs = (sec.h3s && sec.h3s.length > 0) ? `\n   Subsections (###): ${sec.h3s.join(', ')}` : '';
-        const points = (sec.keyPoints && sec.keyPoints.length > 0) ? `\n   Key details: ${sec.keyPoints.join('; ')}` : '';
+        const points = (sec.keyPoints && sec.keyPoints.length > 0) ? `\n   Key details & competitor gap insights: ${sec.keyPoints.join('; ')}` : '';
         return `${idx + 1}. ## ${sec.h2}${subs}${points}`;
       }).join('\n');
   }
 
-  const templateSection = input.templateDirectives ? `\nADDITIONAL FORMAT DIRECTIVES:\n${input.templateDirectives}\n` : '';
+  const templateSection = input.templateDirectives ? `\nADDITIONAL CONTEXT & DIRECTIVES:\n${input.templateDirectives}\n` : '';
+  const voiceNotes = input.voiceNotes ? `\nCUSTOM VOICE NOTES:\n${input.voiceNotes}\n` : '';
 
-  return `You are a Senior Culinary Writer and Food Science Specialist.
-Write an authoritative, beautifully structured guide on the topic: ${input.keyword}.
+  return `You are an expert SEO writer.
 
-Tone of Voice & Writing Style:
-- Direct, confident, culinary-science grounded tone with zero fluff or AI clichés.
-- High information density: Every sentence teaches a technique, explains a reaction, or gives an exact parameter.
-- Zero AI clichés: Never use delve, tapestry, landscape, robust, paramount, pivotal, seamless, holistic, synergy, elevate, empower, embark, groundbreaking, game-changer, in conclusion.
+Before writing, review the research findings for the target keyword: "${input.keyword}".
+Target Keyword: "${input.keyword}"
+Secondary Keywords: ${secondaryKws}
+Search Intent: ${input.intent}
+Target Audience: ${input.audience || 'Target Searchers'}
+Target Word Count: ${input.wordCount || 1800} words
 
-MANDATORY ARTICLE STRUCTURE (Follow this exact benchmark):
+RESEARCH & COMPETITOR ANALYSIS (What competitors cover vs what they miss):
+Top-ranking pages studied:
+${competitorPages}
 
-# ${input.keyword}: A Complete Guide to This 15-Minute Dish
+${templateSection}${voiceNotes}${outlineText}
 
-[Opening Hook: 1 punchy, informative paragraph. State the core flavor/benefit for minimal effort, key components, total time, pantry staples, and a clear roadmap sentence ("In this guide, you'll learn the science behind the sauce, the exact technique for perfectly cooked [item], ingredient swaps, and answers to the most common questions cooks have about making it.")]
+STRICT RULES TO FOLLOW:
+* Write for humans first, SEO second.
+* Never copy or closely rewrite another page.
+* Cover the topic completely but avoid unnecessary filler.
+* Use the target keyword naturally.
+* Include relevant related terms naturally.
+* Use clear H2/H3 headings.
+* Answer the main question quickly (in the first 2-3 sentences of the article and under each H2).
+* Add useful details, examples, tips, or insights competitors miss.
+* Use short paragraphs (2-3 sentences max) and simple Grade 6–8 language.
+* Sound natural, experienced, and conversational.
+* Avoid robotic or repetitive wording.
+* Avoid common AI-style phrases such as “in today’s world,” “delve,” “comprehensive guide,” “unlock,” “seamless,” “whether you’re,” “it’s important to note,” and “game-changer.”
+* Do not keyword stuff.
+* Do not invent facts, statistics, quotes, or sources.
+* Add trustworthy sources when factual claims need verification.
+* Make every section useful enough that a reader would not need to search again.
 
-## What Is ${input.keyword}?
+MANDATORY OUTPUT FORMAT (Produce all 7 numbered sections clearly):
 
-[Paragraph 1: Precise definition, primary cooking method, key ingredients, end result/texture.]
+1. SEO Title:
+[A high-CTR, human-first title under 60 characters with the primary keyword]
 
-[Paragraph 2: Culinary roots, technique heritage, and the invariant core principle: reduce a sweet, savory liquid until it thickens enough to coat each piece in a glossy layer.]
+2. Meta Description:
+[A compelling 150-160 character description matching search intent]
 
-### Why the Sauce Thickens
-[Practical food science explanation: sugar concentration, evaporation, reduction vs emulsification, exact minutes to coat a spoon.]
+3. Article:
+# [SEO Title]
 
-## Ingredients You'll Need
+[Quick direct answer introduction: Answer the searcher's primary question immediately in the first 2-3 sentences. Establish conversational experience and set reader expectations.]
 
-A standard batch for four servings uses:
+## [Clear H2 Heading]
+[Short paragraphs in Grade 6-8 language. Add useful details, real-world examples, or insights competitors miss.]
 
-- [List with exact measurements, cuts, and purposeful parenthetical notes]
+### [Clear H3 Heading]
+[Direct, helpful explanations, actionable steps, or troubleshooting.]
 
-## Step-by-Step Cooking Technique
+[Include a helpful Markdown comparison or specification table where relevant]
 
-### 1. [Prep Step]
-[Action + Physics/Chemistry why: e.g. surface moisture turning to steam preventing a caramelized golden crust, seasoning.]
-
-### 2. [Whisk Sauce]
-[Action + Prevention why: whisking ahead prevents burning on the pan bottom.]
-
-### 3. [High-Heat Sear]
-[Action + Exact heat cue (drop of water sizzles instantly), single layer without overcrowding, exact cook times (60 to 90 seconds), flip once, transfer immediately.]
-
-### 4. [Reduce and Glaze]
-[Action + Rapid simmer duration (2 minutes until bubbly and thickened), remove from heat, swirl butter for gloss, toss to coat.]
-
-## Key Reference: Cook Times & Substitutions
-
-| Ingredient / Step | Standard Choice | Best Alternative | Purpose |
-| :--- | :--- | :--- | :--- |
-| **[Key Ingredient 1]** | Standard choice | Best alternative | Purpose & culinary mechanism |
-| **[Key Ingredient 2]** | Standard choice | Best alternative | Purpose & culinary mechanism |
-| **[Key Ingredient 3]** | Standard choice | Best alternative | Purpose & culinary mechanism |
-| **[Key Ingredient 4]** | Standard choice | Best alternative | Purpose & culinary mechanism |
-
+4. FAQ:
 ## Frequently Asked Questions
 
-### [Troubleshooting Question 1]?
-[2-3 sentences providing the actionable solution and the culinary science why it works.]
+### [Real Question Searchers Ask 1]?
+[Direct, helpful answer in 2-3 sentences without fluff.]
 
-### [Troubleshooting Question 2]?
-[2-3 sentences providing the actionable solution and the culinary science why it works.]
+### [Real Question Searchers Ask 2]?
+[Direct, helpful answer in 2-3 sentences without fluff.]
 
-### [Troubleshooting Question 3]?
-[2-3 sentences providing the actionable solution and the culinary science why it works.]
+### [Real Question Searchers Ask 3]?
+[Direct, helpful answer in 2-3 sentences without fluff.]
 
-INPUT DETAILS:
-Primary keyword: ${input.keyword}
-Secondary/related keywords: ${secondaryKws}
-Search intent: ${input.intent}
-Target audience: ${input.audience || 'Home cooks looking for fast weeknight dinners'}
-Target word count: ${input.wordCount || 1600} words.
-${templateSection}${outlineText}
+5. Suggested internal links:
+## Suggested Internal Links
+- [Anchor Text Candidate] -> /relevant-topic-slug (Context on why to link)
+- [Anchor Text Candidate] -> /relevant-topic-slug (Context on why to link)
+- [Anchor Text Candidate] -> /relevant-topic-slug (Context on why to link)
 
-OUTPUT FORMAT:
-Return pure Markdown starting with "# ${input.keyword}". Strictly follow the complete guide benchmark structure above.`;
+6. Suggested external sources:
+## Suggested External Sources
+- [Authoritative Organization / Journal / Gov / Edu] (URL or Domain): [Specific factual claim or data verified]
+- [Industry Standard / Official Documentation]: [Specific verification purpose]
+
+7. Featured image prompt:
+## Featured Image Prompt
+[A detailed, photorealistic editorial image generation prompt matching search intent]
+
+Goal: Create genuinely useful, original content that can compete in Google Search by being more helpful and complete—not by manipulating rankings.`;
 }
 
 /**
- * Banned AI phrases from Step 3 for deterministic audit & sanitation
+ * Banned AI phrases for deterministic audit & sanitation
+ * Enforces the specific banned phrases from the master prompt:
+ * “in today’s world,” “delve,” “comprehensive guide,” “unlock,” “seamless,” “whether you’re,” “it’s important to note,” and “game-changer.”
  */
 export const BANNED_AI_WORDS_REGEX: Array<{ pattern: RegExp; replacement: string; reason: string }> = [
-  // Inflated AI verbs
-  { pattern: /\bdelve(s|d|ing)?\b/gi, replacement: 'examine$1', reason: 'Statistical tell of AI writing' },
+  // User Master Prompt Banned Phrases (Primary Priority)
+  { pattern: /\bin today'?s (fast-paced|digital|modern)?\s*world\b/gi, replacement: 'today', reason: 'User banned phrase: in today’s world' },
+  { pattern: /\bwhether you('re| are)\b/gi, replacement: 'if you are', reason: 'User banned phrase: whether you’re' },
+  { pattern: /\bcomprehensive guide\b/gi, replacement: 'in-depth guide', reason: 'User banned phrase: comprehensive guide' },
+  { pattern: /\bgame-changer\b/gi, replacement: 'major breakthrough', reason: 'User banned phrase: game-changer' },
+  { pattern: /\bit'?s important to note( that)?\b/gi, replacement: 'Note:', reason: 'User banned phrase: it’s important to note' },
+  { pattern: /\bit is important to note( that)?\b/gi, replacement: 'Note:', reason: 'User banned phrase: it is important to note' },
+  { pattern: /\bdelve(s|d|ing)?\b/gi, replacement: 'examine$1', reason: 'User banned phrase: delve' },
+  { pattern: /\bunlock(s|ed|ing)?\b/gi, replacement: 'access', reason: 'User banned phrase: unlock' },
+  { pattern: /\bseamless(ly)?\b/gi, replacement: 'smooth$1', reason: 'User banned phrase: seamless' },
   { pattern: /\btapestry\b/gi, replacement: 'mix', reason: 'AI cliché metaphor' },
   { pattern: /\bunderscore(s|d|ing)?\b/gi, replacement: 'highlight$1', reason: 'AI tell' },
   { pattern: /\bintricate\b/gi, replacement: 'detailed', reason: 'AI tell' },

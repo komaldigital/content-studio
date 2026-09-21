@@ -899,17 +899,27 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
 
     const effectiveWordCount = input.targetWordCount || brief.suggestedWordCount || 2200;
 
-    // Gather competitor URLs from input or live SERP research
+    // Gather competitor URLs and research findings from input or live SERP research
     const competitorList: string[] = [];
     if (input.competitorUrls && input.competitorUrls.length > 0) {
       competitorList.push(...input.competitorUrls);
     } else if (researchData?.competitors && Array.isArray(researchData.competitors) && researchData.competitors.length > 0) {
-      researchData.competitors.slice(0, 3).forEach((c: any) => {
+      researchData.competitors.slice(0, 5).forEach((c: any) => {
         competitorList.push(`${c.url} - "${c.title}" (Observed snippet: ${c.snippet})`);
       });
     }
 
-    // Build the user prompt using the built-in Senior Content Writer format
+    const contentGapsList: string[] = [];
+    if (researchData?.contentGaps?.topicsMissed) {
+      contentGapsList.push(...researchData.contentGaps.topicsMissed);
+    }
+
+    const commonQuestionsList: string[] = [];
+    if (researchData?.commonQuestions) {
+      commonQuestionsList.push(...researchData.commonQuestions);
+    }
+
+    // Build the user prompt using the Master SEO Writer prompt engine
     const userPrompt = buildSeniorWriterUserPrompt({
       keyword: brief.primaryKeyword,
       secondaryKeywords: brief.secondaryKeywords,
@@ -919,10 +929,12 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
       wordCount: effectiveWordCount,
       competitorUrls: competitorList.length > 0 ? competitorList : undefined,
       outlineItems: brief.outline,
-      templateDirectives: templateInstructions.trim() || undefined
+      templateDirectives: templateInstructions.trim() || undefined,
+      contentGaps: contentGapsList.length > 0 ? contentGapsList : undefined,
+      relatedQuestions: commonQuestionsList.length > 0 ? commonQuestionsList : undefined
     });
 
-    // The system prompt is the built-in Senior Content Writer SME prompt
+    // The system prompt is the Master SEO Writer prompt
     let systemInstruction = SENIOR_CONTENT_WRITER_SYSTEM_PROMPT;
     if (brandVoice?.customSystemInstructions) {
       systemInstruction += `\n\nADDITIONAL BRAND VOICE DIRECTIVES:\n${brandVoice.customSystemInstructions}`;
@@ -930,7 +942,7 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
 
     let content = '';
     try {
-      console.log(`[ContentPipelineService] Requesting article generation using model: ${input.selectedModel || 'default'}`);
+      console.log(`[ContentPipelineService] Requesting article generation with Master SEO Writer prompt using model: ${input.selectedModel || 'default'}`);
       content = await this.aiProvider.generate(userPrompt, {
         model: input.selectedModel,
         systemInstruction,
@@ -944,6 +956,41 @@ WORDROCKET CONTENT REFRESH ARCHITECTURE:
     // Always enforce human writing standards: rewrite any statistical tells/banned words and strip filler headers
     const sanitized = sanitizeAndEnforceHumanWriting(content);
     content = sanitized.content;
+
+    // Parse the 7 outputs from the Master SEO Writer:
+    // 1. SEO Title
+    const titleMatch = content.match(/(?:(?:1\.\s*)?SEO Title:?\s*|#\s+)([^\n]+)/i);
+    if (titleMatch && titleMatch[1]) {
+      const parsedTitle = titleMatch[1].replace(/^#+\s*/, '').replace(/^SEO Title:\s*/i, '').trim();
+      if (parsedTitle && parsedTitle.length > 5) {
+        brief.recommendedTitle = parsedTitle;
+        brief.h1 = parsedTitle;
+      }
+    }
+
+    // 2. Meta Description
+    const metaMatch = content.match(/(?:2\.\s*)?Meta Description:?\s*([^\n]+)/i);
+    if (metaMatch && metaMatch[1]) {
+      const parsedMeta = metaMatch[1].replace(/^Meta Description:\s*/i, '').trim();
+      if (parsedMeta && parsedMeta.length > 15) {
+        brief.metaDescription = parsedMeta;
+      }
+    }
+
+    // 7. Featured image prompt
+    const imagePromptMatch = content.match(/(?:(?:7\.\s*)?Featured image prompt:?|##\s*Featured Image Prompt)\s*([^\n#]+)/i);
+    if (imagePromptMatch && imagePromptMatch[1]) {
+      const parsedPrompt = imagePromptMatch[1].trim();
+      if (parsedPrompt && parsedPrompt.length > 8) {
+        if (!brief.imageRecommendations) brief.imageRecommendations = [];
+        brief.imageRecommendations.unshift({
+          placement: 'Featured Hero',
+          concept: parsedPrompt,
+          altTextSuggestion: brief.primaryKeyword,
+          aspectRatio: '16:9'
+        });
+      }
+    }
 
     // Parse sections from markdown (extracting both H2 and H3 sections in main body)
     const sections: ArticleSection[] = [];
@@ -1174,78 +1221,85 @@ Yes. Because the core framework relies on objective benchmarks and verified inpu
 A standard 3 to 4-week rollout allows sufficient time for prerequisite validation, parallel testing, and team training without business disruption.`;
     }
 
-    // Default: Scientific Knowledge Hub Educational SEO Structure
-    const introParagraph = `Understanding **${kw}** is simple once you look at the basic science behind it. In clear terms, ${kw} refers to a core scientific concept or process that helps us understand how things function in the real world. This educational guide explains how it works, why it matters, and the evidence supporting it.`;
+    // Default: Master SEO Writer Human-First Educational Article
+    const directAnswer = `If you want a direct answer: **${kw}** is a core process that produces predictable, measurable results when basic conditions are met. Instead of complicated theories, this guide breaks down how it works, why it matters, and the practical steps you can take today.`;
 
-    return `# ${title}
+    return `1. SEO Title:
+${title}
 
-${introParagraph}
+2. Meta Description:
+${brief.metaDescription || `Learn everything you need to know about ${kw}. Discover simple explanations, practical examples, key steps, and common FAQs.`}
+
+3. Article:
+# ${title}
+
+${directAnswer}
 
 ## What is ${titleCased}?
 
 **${kw}** is a term used to describe a specific and observable phenomenon. In simple words, it is a process that occurs under clear, measurable conditions. 
 
-Scientists study this topic to observe how different parts interact with one another. When learning about this concept for the first time, it helps to focus on the basic rules that guide it. 
+When learning about this concept for the first time, it helps to focus on the basic rules that guide it. Every key term has a clear definition. When we break down the parts of **${kw}**, we see that it follows natural laws that are both predictable and testable.
 
-Every scientific term has a clear definition. When we break down the parts of **${kw}**, we see that it follows natural laws that are both predictable and testable.
+### Key Factors Competitors Miss
+Most discussions overlook how temperature, timing, and preparation affect the end result. Paying close attention to early indicators prevents mistakes and keeps the entire process on schedule.
 
-## How does it work?
+## How It Works: Step-by-Step
 
-Understanding how **${kw}** works is easiest when we look at it step-by-step. The entire process follows an orderly sequence of events:
+Understanding how **${kw}** works is easiest when we look at it step by step. The entire sequence follows three clear phases:
 
-1. **Initial Stage**: The process begins when specific conditions or basic elements come together.
-2. **Active Phase**: The core mechanism takes place as energy, information, or materials interact.
-3. **Stabilization**: The system reaches a steady state where results can be observed and measured.
+1. **Initial Setup**: Establish baseline conditions and gather verified materials.
+2. **Active Phase**: The core mechanism takes place as components interact under controlled conditions.
+3. **Stabilization**: The outcome stabilizes so results can be measured and verified.
 
-### Process Summary Table
+### Quick Reference Comparison Table
 
-| Stage | Main Action | Key Purpose |
-| :--- | :--- | :--- |
-| **Stage 1: Input** | Baseline conditions are established | Prepares the system for activity |
-| **Stage 2: Reaction** | Core process actively takes place | Generates observable results |
-| **Stage 3: Outcome** | Measurable data is recorded | Confirms scientific accuracy |
+| Stage | Main Action | Standard Choice | Best Alternative | Key Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 1: Input** | Baseline setup | Standard materials | Verified alternatives | Prepares the foundation |
+| **Stage 2: Reaction** | Core process | Controlled timing | Monitored pacing | Generates reliable results |
+| **Stage 3: Outcome** | Measurement | Direct observation | Digital audit | Confirms accuracy |
 
-## Why is it important?
+## Why It Matters in the Real World
 
-**${kw}** plays an important role in how we understand our world. Without this foundational process, many natural systems and practical technologies would not function as expected.
+**${kw}** plays an essential role in how systems function. Without this foundational process, everyday tools and workflows would not operate reliably.
 
-First, it helps researchers answer fundamental questions about natural behavior. By studying these patterns, scientists can predict outcomes with higher accuracy.
+First, it helps practitioners solve problems faster. By knowing what to expect, teams can troubleshoot errors in minutes rather than hours.
 
-Second, it provides practical value for everyday life. From school laboratories to global scientific teams, knowing the facts about this topic helps people make informed, evidence-based decisions.
+Second, it provides dependable value for daily decisions. Learning the verified facts helps you choose the right approach with complete confidence.
 
-## Real-world examples or global context
+## Practical Tips for Best Results
 
-Real-world examples of **${kw}** appear in many different environments. Observations documented in scientific field studies show that these principles remain consistent across various regions.
+- **Keep It Simple**: Start with standard guidelines before trying advanced variations.
+- **Double-Check Inputs**: Verify your initial settings to prevent downstream errors.
+- **Track Measurable Progress**: Record simple notes to see what works best in your setup.
 
-For example, researchers tracking data over multiple decades have recorded how changes in environmental factors directly influence outcomes. In documented studies, controlled tests confirmed that following standardized scientific methods yielded consistent, repeatable results.
-
-These global examples demonstrate that the principles behind **${kw}** apply broadly and reliably across different scientific fields.
-
-## Common questions or misconceptions
-
-There are several common misconceptions surrounding **${kw}** that can confuse learners. Looking at verified scientific facts helps clear up this confusion:
-
-- **Misconception 1: It happens at random.** Scientific evidence confirms that this process follows specific, predictable physical laws.
-- **Misconception 2: It is too complicated for beginners.** When broken into sequential steps, the core mechanism is straightforward and easy to understand.
-- **Misconception 3: It has no practical effect.** Research consistently shows that understanding this topic leads to measurable improvements in real-world applications.
-
+4. FAQ:
 ## Frequently Asked Questions
 
 ### What is the simplest definition of ${kw}?
-**${kw}** is a natural or practical process that follows clear, measurable steps to produce observable scientific outcomes.
+**${kw}** is a practical process that follows clear, measurable steps to produce reliable outcomes without unnecessary complexity.
 
-### How do scientists verify that ${kw} is working correctly?
-Researchers use controlled experiments, standardized measurements, and repeated testing to confirm that results match verified scientific benchmarks.
+### How do you know ${kw} is working properly?
+You can confirm it is working by checking key milestone indicators and comparing your measurements against standard benchmarks.
 
-### Why do students learn about ${kw} in school?
-Learning about this topic builds strong critical thinking skills and gives students a factual foundation for understanding how science shapes everyday life.
+### What is the most common mistake with ${kw}?
+The most common mistake is skipping the initial setup phase. Taking two minutes to verify prerequisites prevents nearly all common issues.
 
-### What is the most common mistake when studying ${kw}?
-The most frequent mistake is assuming the process is completely random, rather than recognizing the predictable steps and conditions that govern it.
+5. Suggested internal links:
+## Suggested Internal Links
+- [Core Fundamentals and Setup Guide] -> /fundamentals (Provides essential baseline context)
+- [Step-by-Step Practical Troubleshooting] -> /troubleshooting (Helps resolve edge-case issues)
+- [Comparison Matrix and Benchmarks] -> /benchmarks (Offers deeper comparative data)
 
-## Conclusion
+6. Suggested external sources:
+## Suggested External Sources
+- [National Standards and Industry Documentation] (gov/industry): Primary baseline specifications.
+- [Peer-Reviewed Scientific Registry] (edu/research): Verified empirical studies and benchmark testing.
 
-Understanding **${kw}** provides a clear window into how natural and practical systems function. By focusing on simple definitions, step-by-step mechanisms, and verified real-world examples, anyone can understand the essential science behind it. Accurate knowledge helps us appreciate the order, logic, and predictability of the world around us.`;
+7. Featured image prompt:
+## Featured Image Prompt
+A crisp, clean editorial photograph illustrating ${kw} in a bright, modern setting with natural lighting, sharp focus, and zero distracting clutter.`;
   }
 
   /**
