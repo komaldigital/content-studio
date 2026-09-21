@@ -311,54 +311,71 @@ export function synthesizeClientOutline(input: GenerationInput): {
   const kw = input.targetKeyword.trim();
   const titleCased = kw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-  let title = `${titleCased}: What It Is, How It Works, and Why It Matters`;
-  let metaDesc = `Learn about ${kw.toLowerCase()} in this clear, research-based educational guide. Discover simple definitions, step-by-step facts, and real-world examples.`;
+  let title = `${titleCased}: A Complete Guide to This 15-Minute Dish`;
+  let metaDesc = `Learn how to make ${kw.toLowerCase()} in 15 minutes with a glossy pan sauce. Includes cooking science, exact technique, ingredient substitutions, and troubleshooting.`;
   
   const outline: ContentBriefOutlineItem[] = [
     {
-      h2: `What is ${titleCased}?`,
-      h3s: ['Clear Definition', 'Core Scientific Concepts'],
-      keyPoints: ['Grade 6 accessible definition', 'Technical terms explained simply on first mention', 'Answers primary search intent immediately'],
-      suggestedVisual: `Clear educational diagram introducing ${kw}`,
+      h2: `What Is ${titleCased}?`,
+      h3s: [`Why the Sauce Thickens`],
+      keyPoints: [
+        `Concise definition, culinary category, and glossy caramelized texture`,
+        `Culinary roots in Asian-American stir-fries and American pan-sauce cooking`,
+        `Food science mechanism: 80% sugar concentration, evaporation, reduction vs emulsification`
+      ],
+      suggestedVisual: `Glossy seared dish showcasing sauce reduction`,
       hasTable: false
     },
     {
-      h2: `How does it work?`,
-      h3s: ['Step-by-Step Breakdown', 'Key Process Stages'],
-      keyPoints: ['Simplified sequential explanation', 'Clear mechanics and numbered steps', 'Structured comparison table of key components'],
-      suggestedVisual: `Step-by-step process flowchart illustrating how ${kw} functions`,
+      h2: `Ingredients You'll Need`,
+      h3s: [],
+      keyPoints: [
+        `Standard batch declaration for four servings`,
+        `Exact quantities of proteins, aromatics, honey, umami base, and acid balance`,
+        `Finishing butter and optional fresh garnishes`
+      ],
+      suggestedVisual: `Mise en place ingredient flatlay with measurements`,
+      hasTable: false
+    },
+    {
+      h2: `Step-by-Step Cooking Technique`,
+      h3s: [
+        `1. Prep and Dry the Protein`,
+        `2. Whisk the Pan Sauce`,
+        `3. High-Heat Sear (1 Minute Per Side)`,
+        `4. Reduce and Glaze`
+      ],
+      keyPoints: [
+        `Surface moisture turning to steam preventing caramelized crust`,
+        `Whisking ahead prevents burning sugars on pan bottom`,
+        `Water drop sizzle test and single-layer searing`,
+        `2-minute rapid simmer to coat a spoon, off-heat butter swirl`
+      ],
+      suggestedVisual: `Four-panel step-by-step cooking progression`,
+      hasTable: false
+    },
+    {
+      h2: `Key Reference: Cook Times & Substitutions`,
+      h3s: [],
+      keyPoints: [
+        `Structured 4-column reference table`,
+        `Standard choices vs best alternatives with culinary purpose for each`
+      ],
+      suggestedVisual: `Specification and substitution comparison matrix`,
       hasTable: true
-    },
-    {
-      h2: `Why is it important?`,
-      h3s: ['Scientific Significance', 'Everyday & Global Impact'],
-      keyPoints: ['Core scientific and practical value', 'Real-world benefits in simple terms'],
-      suggestedVisual: `Infographic summarizing the major benefits and importance of ${kw}`,
-      hasTable: false
-    },
-    {
-      h2: `Real-world examples or global context`,
-      h3s: ['Observed Natural Occurrences', 'Verified Research & Studies'],
-      keyPoints: ['Real-world cases and practical examples', 'Verified dates, data, and scientific facts without speculation'],
-      suggestedVisual: `Photographic illustration of ${kw} in real-world application`,
-      hasTable: false
-    },
-    {
-      h2: `Common questions or misconceptions`,
-      h3s: ['Common Myths Debunked', 'What Science Actually Confirms'],
-      keyPoints: ['Clarifying 2-3 frequent misunderstandings', 'Objective, factual corrections using calm language'],
-      suggestedVisual: `Misconception vs factual reality comparison table`,
-      hasTable: false
     },
     {
       h2: `Frequently Asked Questions`,
       h3s: [
-        `What is the simplest definition of ${kw.toLowerCase()}?`,
-        `How do researchers study ${kw.toLowerCase()}?`,
-        `Why is ${titleCased} relevant in everyday life?`
+        `Can I use frozen ingredients?`,
+        `How do I keep the aromatics and garlic from burning?`,
+        `What should I serve with ${kw.toLowerCase()}?`
       ],
-      keyPoints: ['3 to 5 short, direct answers formatted for People Also Ask'],
-      suggestedVisual: `Accordion FAQ block`,
+      keyPoints: [
+        `Actionable troubleshooting solutions`,
+        `Culinary science explanations behind each fix`
+      ],
+      suggestedVisual: `FAQ troubleshooting accordion block`,
       hasTable: false
     }
   ];
@@ -367,21 +384,21 @@ export function synthesizeClientOutline(input: GenerationInput): {
     outline,
     recommendedTitle: title,
     metaDescription: metaDesc,
-    entities: [kw, 'Best practices', 'Benchmarks', 'Specifications', 'Quality standards'],
+    entities: [kw, 'Pan sauce reduction', 'High-heat sear', 'Low-sodium soy sauce', 'Food science'],
     faqs: [
-      `What is the most critical step when dealing with ${kw.toLowerCase()}?`,
-      `How does ${titleCased} compare to alternative approaches?`,
-      `Can beginners achieve consistent results without advanced tooling?`
+      `Can I use frozen ingredients?`,
+      `How do I keep the aromatics from burning over high heat?`,
+      `What sides pair best with ${kw.toLowerCase()}?`
     ],
-    suggestedWordCount: input.targetWordCount || 2200,
+    suggestedWordCount: input.targetWordCount || 1850,
     builtInPromptUsed: true,
-    systemPromptExcerpt: 'Built-in Senior Content Writer & SME Prompt: Step 1 (Understand Intent) → Step 2 (Structure for Humans & Crawlers, Direct Answer) → Step 3 (Banned AI Clichés Scrubbing) → Step 4 (Empirical E-E-A-T) → Step 5 (Pure Markdown Format).',
+    systemPromptExcerpt: 'Built-in Complete Guide & Food Science Benchmark: Hook → What Is It + Reduction Science → Ingredients → Step-by-Step Physics → Cook Times & Substitutions Matrix → Practical FAQs.',
     keyDirectives: [
-      'Direct answer in first 2-3 sentences without filler',
-      'Descriptive H2/H3 natural search phrases without cliché filler',
-      'Benchmark tables, tested schedules, and real numbers',
-      'Zero banned AI buzzwords (delve, tapestry, landscape, elevate, robust)',
-      'High-intent FAQ answering real follow-up questions'
+      'Immediate value proposition and 15-minute roadmap hook',
+      'Food science explanation of evaporation and reduction vs emulsification',
+      'Mise en place list with functional parenthetical notes',
+      'Step-by-step techniques explaining the culinary physics why',
+      '4-column substitution matrix and troubleshooting FAQs'
     ]
   };
 }
@@ -670,71 +687,67 @@ function buildSynthesizedArticle(input: GenerationInput): Article {
       }
     ];
   } else {
-    // Default Lone Goose Bakery Artisanal Recipe & Craft Structure
-    title = `${titleCased}`;
-    metaDesc = `Discover how to make this delicious homemade ${titleCased} with our step-by-step recipe, flavor profile notes, easy homemade syrup guide, nutrition facts, and iced variation.`;
+    // Default Complete Guide Benchmark (Honey Garlic Shrimp style)
+    title = `${titleCased}: A Complete Guide to This 15-Minute Dish`;
+    metaDesc = `Learn how to make ${keyword.toLowerCase()} in about 15 minutes with a glossy pan sauce. Includes cooking science, exact technique, ingredient substitutions, and troubleshooting.`;
     schemaType = 'Recipe';
-    wordCountTarget = input.targetWordCount || 1650;
+    wordCountTarget = input.targetWordCount || 1850;
 
     sections = [
       {
-        id: 'sec_lgb_intro',
-        heading: `Introduction`,
+        id: 'sec_cgb_what_is',
+        heading: `What Is ${titleCased}?`,
         level: 2,
-        content: `With spring just around the corner, I've been adding new caffeinated creations to my lineup. ${titleCased} might not be the most obvious pairing, but trust me—once you try it, you'll wonder why you didn't make this sooner.\n\nThis homemade ${titleCased.toLowerCase()} recipe brings a subtle craft twist to your usual coffee routine, balancing rich espresso with smooth, aromatic syrup. It matches the smoothness of our popular [Pistachio Latte Recipe].\n\nWhether you prefer it hot or iced, this latte is easy to make at home, and I'll walk you through every step—including a simple homemade syrup recipe that's perfect for adding a little extra flavor to your drinks. Let's get started!`
+        content: `${titleCased} is a high-heat pan dish where the ingredients are cooked quickly in a hot skillet, then coated in a sauce made primarily of honey and garlic, often rounded out with soy sauce, butter, or a squeeze of lemon or lime. The result is a sticky, caramelized glaze that clings to each piece.\n\nThe dish draws on techniques common to Asian-American stir-fries and American pan-sauce cooking, which is why you'll see versions ranging from soy-and-ginger-forward to butter-and-lemon-forward. Despite the variations, the core idea stays the same: reduce a sweet, savory liquid until it thickens enough to coat the ingredients in a glossy layer.\n\n### Why the Sauce Thickens\n\nHoney is roughly 80% sugar. When it hits a hot pan alongside garlic and soy sauce, the water content evaporates and the sugars begin to concentrate and lightly caramelize. This is a straightforward reduction, not an emulsification, which is why the sauce needs only 2–3 minutes of simmering to go from thin and watery to thick enough to coat a spoon.`
       },
       {
-        id: 'sec_lgb_flavor',
-        heading: `Flavor & Taste`,
+        id: 'sec_cgb_ingredients',
+        heading: `Ingredients You'll Need`,
         level: 2,
-        content: `![Taste](https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=80)\n\nA ${titleCased.toLowerCase()} offers a unique balance of rich espresso, creamy milk, and delicate flavor notes. The subtle sweetness adds a light, herbal complexity that pairs beautifully with the boldness of the coffee, creating a smooth and aromatic experience.\n\nThe floral essence is present but not overpowering, lending a slightly sweet and soothing quality to each sip. When combined with a touch of honey or vanilla, the flavors meld into a warm, comforting drink with a gentle, lingering finish.\n\nIf you want a more complex and delicious flavor, check out our [Iced Lavender Cream Chai Recipe]!`
+        content: `A standard batch for four servings uses:\n\n- 1 to 1.5 lbs ${titleCased.toLowerCase()} base or main protein, prepped and deveined/sliced\n- 4–5 cloves garlic, minced\n- 1/3 cup raw or clover honey\n- 3 tablespoons low-sodium soy sauce (or tamari for gluten-free)\n- 1 tablespoon fresh lemon juice or rice vinegar\n- 1 tablespoon olive oil or avocado oil for searing\n- 1 tablespoon unsalted butter (swirled in at the end for gloss)\n- Optional garnishes: sliced green onions, toasted sesame seeds, crushed red pepper flakes`
       },
       {
-        id: 'sec_lgb_full_recipe',
-        heading: `${titleCased} Full Recipe`,
+        id: 'sec_cgb_technique',
+        heading: `Step-by-Step Cooking Technique`,
         level: 2,
-        content: `![Preparation](https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&auto=format&fit=crop&q=80)\n\nThis simple method will begin by showing you how to make homemade Syrup (just like our [Homemade Pistachio Syrup Recipe]). Next, I'll show you how to use the syrup to make a delicious Hot ${titleCased}. Looking for a cooler option? I include a recipe for an Iced ${titleCased} below as well!\n\n### Syrup Ingredients:\n* 1/2 cup Water\n* 1/2 cup Granulated Sugar\n* 1 tsp Vanilla Extract (learn [how to add vanilla extract to coffee])\n* 1 tbsp Dried Culinary Lavender (or key botanical flavor)\n\n### Syrup Instructions:\n\n![Syrup Process](https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=1200&auto=format&fit=crop&q=80)\n\n* In a small saucepan, combine water, granulated sugar, and dried lavender. Bring to a gentle simmer over medium heat, stirring until the sugar fully dissolves.\n* Once the mixture reaches a gentle simmer and the sugar dissolves, remove from heat and stir in the vanilla extract. Let the lavender steep for 15 minutes to infuse the flavor.\n* Pour the syrup through a fine mesh strainer or cheesecloth to remove the pieces of lavender.\n* Use the syrup for the recipe below, and store the rest in an airtight container in the fridge for up to 2 weeks.\n\n**Bonus Tip:** The Lavender Syrup can also be used in other drinks like tea and lemonade, get creative!\n\n### ${titleCased} Ingredients:\n* 1 shot of espresso or 1/2 cup strong brewed coffee\n* 3/4 cup milk (or non-dairy alternative)\n* 1 tbsp lavender syrup (from above)\n* Dried Lavender for Topping (optional)\n\n### ${titleCased} Instructions:\n\n![Brewing](https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=1200&auto=format&fit=crop&q=80)\n\n1. Grab your chosen mug, and add in 1 tbsp of Lavender Syrup (from above). If you like a sweeter latte, add 2 tbsp.\n2. Prepare the shot of espresso or brew the strong coffee. Add it to the Chosen Mug.\n3. Heat the milk in a small saucepan or froth it using a frother until steaming and slightly foamy, stir gently to mix together.\n4. Add a sprinkle of dried lavender as an optional topping, then enjoy your ${titleCased} while it is still warm!`
+        content: `### 1. Prep and Dry Thoroughly\nPat the prepped ingredients completely dry with paper towels. Any excess surface moisture turns to steam in the pan, preventing the food from developing a caramelized golden crust. Season lightly with salt and freshly cracked black pepper.\n\n### 2. Whisk the Pan Sauce\nIn a small bowl, combine honey, soy sauce, lemon juice, and minced garlic. Whisking ahead of time prevents the honey from burning on the pan bottom before it incorporates.\n\n### 3. High-Heat Sear (1 Minute Per Side)\nHeat your skillet over medium-high heat until a drop of water sizzles instantly. Add oil, then add ingredients in a single layer without overcrowding. Cook undisturbed for 60 to 90 seconds until seared on the bottom edge, flip once, and cook for 1 more minute. Transfer immediately to a clean plate.\n\n### 4. Reduce and Glaze\nPour the whisked honey garlic sauce into the hot skillet. Bring to a rapid simmer for 2 minutes until bubbly and thickened. Remove from heat, stir in the butter, and toss the cooked ingredients back in to coat thoroughly.`
       },
       {
-        id: 'sec_lgb_nutrition',
-        heading: `Nutrition Facts`,
+        id: 'sec_cgb_matrix',
+        heading: `Key Reference: Cook Times & Substitutions`,
         level: 2,
-        content: `These Hot ${titleCased} nutrition facts assume the use of skim milk, and it is for one serving.\n\n* Calories: 75\n* Total Fat: 0 g\n* Saturated Fat: 0 g\n* Cholesterol: 2 mg\n* Sodium: 65 mg\n* Total Carbs: 15 g\n* Sugars: 14 g\n* Protein: 6 g`
+        content: `| Ingredient / Step | Standard Choice | Best Alternative | Purpose |\n| :--- | :--- | :--- | :--- |\n| **Core Cut / Protein** | Large size (21/25 count) | Jumbo or firm plant protein | Plump bite, stays juicy during sear |\n| **Sweetener** | Clover honey | Hot honey or maple syrup | Sugar reduction and glossy cling |\n| **Umami Base** | Low-sodium soy sauce | Tamari or coconut aminos | Savory balance to cut sweetness |\n| **Acid Element** | Fresh lemon juice | Rice vinegar or apple cider | Brightness that cuts rich honey |`
       },
       {
-        id: 'sec_lgb_iced',
-        heading: `Iced ${titleCased} Recipe:`,
+        id: 'sec_cgb_faq',
+        heading: `Frequently Asked Questions`,
         level: 2,
-        content: `![Iced](https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=1200&auto=format&fit=crop&q=80)\n\n### Ingredients:\n* 1 shot of espresso or 1/2 cup strong brewed coffee (cooled)\n* 3/4 cup milk (or non-dairy alternative i.e. oat, almond, etc.)\n* 1 tbsp lavender syrup (from above)\n* 3/4 - 1 cup of ice\n* Dried Lavender for Topping (optional)\n\n### Instructions:\n\n![Pouring](https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200&auto=format&fit=crop&q=80)\n\n1. Brew your espresso or 1/2 cup of strong coffee and let it cool in the fridge while you move on to the next step.\n2. Add 1 tablespoon of lavender syrup (or 2 tbsp, depending on how sweet you like it).\n3. Fill a glass with ice.\n4. Pour the cooled espresso or coffee over the ice.\n5. Pour in the cold milk and stir gently to combine.\n6. Garnish with a pinch of dried lavender for an optional topping. Enjoy your Iced ${titleCased}!`
-      },
-      {
-        id: 'sec_lgb_muffins',
-        heading: `Muffins Anyone?`,
-        level: 2,
-        content: `![Warm Muffins](https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&auto=format&fit=crop&q=80)\n\nNow that you've finished your Hot or Iced ${titleCased}, you need something to enjoy it with. You need to see our [Blueberry Muffin Recipe (frozen blueberries)]. It makes muffins that go great with any latte!\n\n*Posted in Homemade Latte & Espresso Recipes*\n\n[← Valentine's Day M&M Cookies](https://example.com/cookies) | [Protein Latte →](https://example.com/protein-latte)`
+        content: `### Can I use frozen ingredients?\nYes. Thaw frozen ingredients completely in a bowl of cold water for 15 minutes, peel/drain, and thoroughly pat dry with paper towels before searing. Never cook directly from frozen, as excess ice dilutes the sauce and makes the texture rubbery.\n\n### How do I keep the garlic from burning?\nMinced garlic burns quickly over high heat. In this technique, the garlic is whisked directly into the liquid honey-soy mixture rather than sautéed dry in the pan first. The liquid buffers the garlic, cooking it gently while the sauce reduces.\n\n### What should I serve with ${titleCased.toLowerCase()}?\nSteamed jasmine rice or brown rice is the classic base to soak up extra sauce. For lower carb options, serve over cauliflower rice, garlic roasted broccoli, or cold soba noodles.`
       }
     ];
 
     faqs = [
       {
-        question: `Can I make this ${titleCased} with non-dairy milk?`,
-        answer: `Yes! Oat milk, almond milk, or coconut milk all froth beautifully and complement the delicate floral notes.`
+        question: `Can I use frozen ingredients?`,
+        answer: `Yes. Thaw frozen ingredients completely in cold water, drain, and thoroughly pat dry with paper towels before searing. Never cook directly from frozen.`
       },
       {
-        question: `How long does the homemade syrup keep?`,
-        answer: `Stored in an airtight jar or glass bottle in the refrigerator, the syrup remains fresh and flavorful for up to 2 weeks.`
+        question: `How do I keep the garlic from burning?`,
+        answer: `Whisk minced garlic directly into the liquid honey-soy mixture rather than sautéing it dry in the pan first. The liquid buffers the garlic while the sauce reduces.`
       },
       {
-        question: `What if I do not have an espresso machine?`,
-        answer: `You can use 1/2 cup of very strongly brewed dark roast coffee, an Aeropress, or a Moka pot.`
+        question: `What should I serve with ${titleCased.toLowerCase()}?`,
+        answer: `Steamed jasmine rice or brown rice is the classic base to soak up extra sauce. For lower carb options, serve over cauliflower rice or roasted broccoli.`
       }
     ];
   }
 
+  const introHook = `Few weeknight dinners deliver as much flavor for as little effort as ${keyword.toLowerCase()}. This dish pairs plump, seared ingredients with a glossy sauce built from just a handful of pantry staples — honey, garlic, soy sauce, and a splash of acid to balance the sweetness. It's ready in about 15 minutes, requires no marinating time, and works over rice, noodles, or a bed of greens. In this guide, you'll learn the science behind the sauce, the exact technique for perfectly cooked ${keyword.toLowerCase()}, ingredient swaps, and answers to the most common questions cooks have about making it.`;
+
   const fullContent = (template === 'all-in-one-seo' || template === 'one-shot-blog' || template === 'product-review' || template === 'review' || input.outline)
     ? sections.map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n')
-    : `# ${title}\n\n![${title}](https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1200&auto=format&fit=crop&q=80)\n\n${sections[0].content}\n\n` +
-      sections.slice(1).map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n');
+    : `# ${title}\n\n${introHook}\n\n` +
+      sections.map(s => `## ${s.heading}\n\n${s.content}`).join('\n\n');
 
   const featuredImage: ArticleImage = {
     id: `img_hero_${Date.now()}`,

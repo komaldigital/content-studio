@@ -59,26 +59,26 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   initialKeyword,
   initialSecondaryKeywords
 }) => {
-  const [keyword, setKeyword] = useState(initialKeyword || 'Lavender Latte');
+  const [keyword, setKeyword] = useState(initialKeyword || 'Honey Garlic Shrimp');
   const [secondaryKeywords, setSecondaryKeywords] = useState(
-    initialSecondaryKeywords?.join(', ') || 'lavender syrup recipe, iced lavender latte, homemade latte'
+    initialSecondaryKeywords?.join(', ') || '15 minute shrimp recipe, honey garlic sauce for shrimp, easy weeknight shrimp'
   );
   const [country, setCountry] = useState('United States');
   const [language, setLanguage] = useState('English');
-  const [audience, setAudience] = useState('Home baristas, coffee lovers, and artisan bakers');
-  const [tone, setTone] = useState<ToneType>('conversational');
+  const [audience, setAudience] = useState('Home cooks seeking fast, high-flavor weeknight dinners with culinary science');
+  const [tone, setTone] = useState<ToneType>('authoritative');
   const [articleType, setArticleType] = useState<ArticleType>('recipe');
-  const [brandName, setBrandName] = useState('Lone Goose Bakery');
+  const [brandName, setBrandName] = useState('Culinary Science Guild');
   const [autoImprove, setAutoImprove] = useState(true);
 
   // Senior Subject-Matter Expert Prompt States
-  const [voiceNotes, setVoiceNotes] = useState('Warm, artisan baker/coffee craft expert. First-person personal ("I", "my lineup", "trust me"), sensory flavor profile, modular recipes, nutrition facts, iced variation, and bakery pairing.');
+  const [voiceNotes, setVoiceNotes] = useState('Direct, authoritative, culinary-science grounded tone with zero fluff. Explain why reactions happen (sugar reduction vs emulsification, high-heat searing, avoiding garlic burn by whisking in sauce). 4-column substitution table, exact measurements, and troubleshooting FAQs.');
   const [competitorUrls, setCompetitorUrls] = useState('');
   const [showPromptDetails, setShowPromptDetails] = useState(false);
 
   // WordRocket Template & Core Engine States
   const [selectedTemplate, setSelectedTemplate] = useState<WordRocketTemplateId>('how-to-guide');
-  const [targetWordCount, setTargetWordCount] = useState<number>(1650);
+  const [targetWordCount, setTargetWordCount] = useState<number>(1850);
   const [includeSerpAnalysis, setIncludeSerpAnalysis] = useState<boolean>(true);
   const [enableSitemapLinks, setEnableSitemapLinks] = useState<boolean>(true);
   const [sitemapUrlCount, setSitemapUrlCount] = useState<number>(12);
@@ -1029,11 +1029,11 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
-                      <span>Scientific Knowledge Hub Primary Prompt & Engine</span>
+                      <span>Expert Complete Guide & Food Science Benchmark Engine</span>
                       <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-900/70 text-emerald-200">Active</span>
                     </div>
                     <div className="text-[11px] text-slate-400">
-                      Grade 6 reading level, neutral scientific tone, 2-3 line paragraphs, 7-part content structure & Page 1 SEO optimization.
+                      Authoritative, culinary-science grounded tone with zero fluff. Food science chemistry, exact technique, 4-column substitution matrix & troubleshooting FAQs.
                     </div>
                   </div>
                 </div>
@@ -1043,60 +1043,55 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                   className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  {showPromptDetails ? 'Hide Primary Prompt' : 'Inspect Primary Prompt'}
+                  {showPromptDetails ? 'Hide Benchmark Prompt' : 'Inspect Benchmark Prompt'}
                 </button>
               </div>
 
               {showPromptDetails && (
                 <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-3 leading-relaxed">
                   <div className="font-semibold text-emerald-400 flex items-center justify-between">
-                    <span>Primary Prompt Specification:</span>
-                    <span className="text-[10px] text-slate-400 font-mono">Scientific Knowledge Hub</span>
+                    <span>Benchmark Prompt Specification:</span>
+                    <span className="text-[10px] text-slate-400 font-mono">Expert Complete Guide & Food Science</span>
                   </div>
                   <div className="p-2.5 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-emerald-300/90 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
-{`You are a Top SEO content writer for Scientific Knowledge Hub, a trusted educational website that delivers accurate, research-based scientific information in a clear, simple, and unbiased way.
-Write an SEO-optimized article on the topic: [keyword].
+{`You are an elite food science writer, recipe developer, and culinary educator.
+Write a comprehensive, authoritative complete guide on: [keyword].
 
-Writing Requirements:
-- Write for a Grade 6 reading level
-- Use a neutral, objective, and educational tone
-- Avoid hype, opinions, or emotional language
-- Explain scientific terms clearly when first mentioned
-- Keep sentences short and paragraphs no longer than 2–3 lines
-- Use active voice, switching to passive only when scientific neutrality is needed
-
-SEO Requirements:
-- Include primary keyword in H1, first 100 words, and at least one H2
-- Structure content for featured snippets and People Also Ask
-- Add short FAQ section with concise answers
-
-Content Structure:
-- H1: Clear, keyword-focused title
-- Introduction: Simple definition and context (40–70 words)
-- H2: What is [Primary Keyword]?
-- H2: How does it work? (step-by-step, simplified)
-- H2: Why is it important?
-- H2: Real-world examples or global context
-- H2: Common questions or misconceptions
-- FAQ Section: 3–5 short, direct answers
-- Conclusion: Brief summary focused on understanding, not persuasion`}
+Style & Voice Benchmark ("Honey Garlic Shrimp: A Complete Guide"):
+1. Tone: Direct, authoritative, culinary-science grounded. Zero fluff, zero filler, zero conversational filler questions.
+2. Opening Hook: 1 punchy, high-information paragraph (effort-to-flavor ratio, pantry staples, total time, article roadmap).
+3. Section 1 ("## What Is [Topic]?"):
+   - Paragraph 1: Definition, cooking style, and caramelized glaze texture.
+   - Paragraph 2: Technique origins (Asian-American stir-fries & American pan-sauces) and core invariant idea.
+   - Subsection ("### Why the Sauce Thickens / Science Behind It"): Explain exact food science physics (evaporation, sugar concentration, reduction vs emulsification).
+4. Section 2 ("## Ingredients You'll Need"):
+   - "A standard batch for four servings uses:" declaration.
+   - Bulleted ingredients with exact measurements and functional parenthetical notes.
+5. Section 3 ("## Step-by-Step Cooking Technique"):
+   - Numbered H3 steps: Prep and dry (moisture turns to steam), Whisk sauce (prevents sugar burn), High-heat sear, Reduce and glaze.
+   - Explain the physical and chemical reason behind every action.
+6. Section 4 ("## Key Reference: Cook Times & Substitutions"):
+   - 4-column markdown table: | Ingredient / Step | Standard Choice | Best Alternative | Purpose |
+7. Section 5 ("## Frequently Asked Questions"):
+   - 3-4 real troubleshooting questions with science-backed practical answers.
+8. Banned AI Words: delve, tapestry, landscape, elevate, robust, game-changer, unlock, testament, nestled.`}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-400 text-[11px]">
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Reading Level:</strong> Grade 6 vocabulary, accessible to 11–12 year olds.</span>
+                      <span><strong>Tone:</strong> Authoritative culinary science with high information density.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Tone:</strong> Calm, encyclopedia-style, zero hype or emotional words.</span>
+                      <span><strong>Science Explanations:</strong> Teaches reduction vs emulsification, evaporative concentration, and heat management.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Banned Words:</strong> delve, tapestry, landscape, leverage, robust, paramount, etc.</span>
+                      <span><strong>Banned Words:</strong> delve, tapestry, landscape, robust, elevate, game-changer, unleash.</span>
                     </div>
                     <div className="flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span><strong>Featured Snippets:</strong> 40-50 word direct answers under every H2.</span>
+                      <span><strong>Structure:</strong> 4-column reference table, numbered technique steps & science FAQs.</span>
                     </div>
                   </div>
                 </div>
